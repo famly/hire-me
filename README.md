@@ -8,7 +8,7 @@ If you have any questions feel free to reach out on hmr@famly.co or nd@famly.co.
 Authenticate with checkin-password: jq24gw
 ```
 POST https://tryfamly.co/api/daycare/tablet/login
-Arguments: {password: 'jq24gw'}
+Arguments: {password: 'wq90au'}
 Return: {accessToken:<accessToken>}
 ```
 
