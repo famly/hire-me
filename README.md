@@ -1,8 +1,8 @@
 # Interested in working for Famly?
 
-Show us your mad coding skillz by forking this repository and create a small application in Ember.js that can list children with possibility to check them in and out.
+Show us your mad coding skillz by forking this repository and create a small application in React that can list children with possibility to check them in and out.
 
-If you have any questions feel free to reach out on hmr@famly.co.
+If you have any questions feel free to reach out on hmr@famly.co or nd@famly.co.
 
 ![Famly](https://s3-eu-west-1.amazonaws.com/famly/famly-app.jpg)
 
