@@ -30,6 +30,7 @@ POST https://famly.co/api/v2/children/<childId>/checkins
 
 Arguments: {
 	accessToken: <accessToken>
+	pickupTime:16:00
 }
 ```
 
