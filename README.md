@@ -1,16 +1,10 @@
 # Interested in working for Famly?
 
-Show us your mad coding skillz by forking this repository and create a small application in React that can list children with possibility to check them in and out.
+Show us your mad coding skills by forking this repository and create a small application in React that can list children with possibility to check them in and out.
 
-If you have any questions feel free to reach out on hmr@famly.co or nd@famly.co.
+If you have any questions feel free to reach out on nd@famly.co.
 
-### Fetch a valid access token
-Authenticate with checkin-password: jq24gw
-```
-POST https://tryfamly.co/api/daycare/tablet/login
-Arguments: {password: 'wq90au'}
-Return: {accessToken:<accessToken>}
-```
+Access token: `234ffdb8-0889-4be3-b096-97ab1679752c`
 
 ### Fetch some children from
 ```
@@ -28,7 +22,7 @@ POST https://tryfamly.co/api/v2/children/<childId>/checkins
 
 Arguments: {
 	accessToken: <accessToken>
-	pickupTime:16:00
+	pickupTime: 16:00
 }
 ```
 
