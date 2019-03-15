@@ -2,7 +2,7 @@
 
 Show us your mad coding skills by forking this repository and create a small application in React that can list children with possibility to check them in and out.
 
-If you have any questions feel free to reach out on nd@famly.co.
+If you have any questions feel free to reach out to nd@famly.co.
 
 Access token: `234ffdb8-0889-4be3-b096-97ab1679752c`
 
