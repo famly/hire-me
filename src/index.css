@@ -45,6 +45,10 @@ h2 {
   justify-content:space-between;
 }
 
+.flex-aligned-items.center {
+  justify-content:center;
+}
+
 @media (max-width:1024px) {
   main {
     padding:0 2.5rem;

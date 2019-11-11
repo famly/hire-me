@@ -38,7 +38,7 @@ const CheckIn = props => {
 
                 <div className='buttons-wrapper round'>
                     {time && minutesIntervalInHour(time, 15).map((h, key) => 
-                        <TimeButton key={key} time={h} onClickHandler={setPickupTime} text={convertToHoursAndMinutes(h)}/>
+                        <TimeButton key={key} time={h} shape='round' onClickHandler={setPickupTime} text={convertToHoursAndMinutes(h)}/>
                     )}
                 </div>
                 
