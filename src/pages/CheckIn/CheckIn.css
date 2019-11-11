@@ -1,0 +1,26 @@
+.buttons-wrapper {
+    display:grid;
+    grid-template-columns:repeat(8, 2fr);
+    grid-gap:2rem;
+    margin-bottom:5rem;
+}
+
+.buttons-wrapper.round {
+    grid-template-columns:repeat(5, 2fr);
+}
+
+@media (max-width:1024px) {
+    .buttons-wrapper {
+        grid-template-columns:repeat(6, 1fr);
+    }
+}
+
+@media (max-width:768px) {
+    .buttons-wrapper {
+        grid-template-columns:repeat(4, 1fr);
+    }
+
+    .buttons-wrapper.round {
+        grid-template-columns:repeat(3, 1fr);
+    }
+}

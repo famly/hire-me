@@ -1,0 +1,20 @@
+.action-button {
+    width:47.5%;
+    max-height:7rem;
+    padding:2rem;
+    border:none;
+    border-radius:.3rem;
+    font-size:2.6rem;
+    color:#000;
+    background-color:#D3D3D3;
+  }
+  
+  .action-button.green {
+    color:#fff;
+    background-color:#1fc700;
+  }
+  
+  .action-button.red {
+    color:#fff;
+    background-color:#da5358;
+  }
