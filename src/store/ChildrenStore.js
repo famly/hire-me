@@ -15,6 +15,7 @@ export default class ChildrenStore {
 
     getChildById(id) {
         let child = this.children.find(({ childId }) => childId === id);
+        //Handle error when child not found
         return child ? child : null;
     }
 
