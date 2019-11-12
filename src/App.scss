@@ -1,0 +1,135 @@
+.wrapper{
+  width: 800px;
+  margin: 0 auto;
+}
+
+ul li{
+  margin: 0;
+  padding: 0;
+}
+
+.child-page{
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  margin-top: 30px;
+}
+
+ul.children{
+  list-style-type: none;
+  display: flex;
+  flex-flow: row wrap;
+  
+  li{
+    margin-right: 50px;
+    margin-bottom: 30px;
+    max-width: 100px;
+    
+    a{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;      
+
+      div {
+        border-radius: 200px;
+        overflow: hidden;
+
+        img {
+          vertical-align: top;
+        }
+      }
+      span{
+        color: grey;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        overflow: hidden;
+      }
+      p{
+        color: white;
+        font-size: 9px;
+        line-height: 10px;
+        padding: 1px 5px 3px;
+        border-radius: 2px;
+
+        &.checked-in{
+          background-color: green;
+        }
+        &.not-checked-in{
+          background-color: grey;
+        }
+      }
+    }
+
+    
+  }
+}
+
+ul.hours,
+ul.minutes {
+  display: flex;
+  list-style-type: none;
+  
+  li{    
+    border-radius: 5px;
+    margin: 0 10px 0 0;
+    width: 70px;
+    height: 70px;
+    text-align: center;
+    line-height: 70px;
+    color: white;
+    font-size: 18px;
+
+    &.selected{
+      background-color: red;
+    }
+  }
+}
+
+ul.hours li {
+  background-color: rgb(114, 116, 113);
+}
+ul.minutes li {
+    background-color: rgb(176, 185, 172);
+}
+
+.footer{
+  width: 100%;
+  margin-top: 60px;
+  display: flex;
+  justify-content: space-around;
+
+  a {    
+    padding: 20px 50px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+    background-color: grey;
+
+    &.sign-in:not([disabled]){
+      background-color: green;
+    }
+    &.sign-out{
+      background-color: red;
+    }
+  }
+}
+
+@media (max-width: 500px){
+  .wrapper{
+    width: 100%;
+  }
+
+  ul.hours,
+  ul.minutes {
+    flex-wrap: wrap;
+    li{    
+      margin-bottom: 10px;
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+    }
+  }
+} 
