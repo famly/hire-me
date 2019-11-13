@@ -14,6 +14,8 @@ Arguments: {
 	groupId: '11fc220c-ebba-4e55-9346-cd1eed714620',
 	institutionId: 'fb6c8114-387e-4051-8cf7-4e388a77b673'
 }
+
+The arguments should be provided in the query string
 ```
 
 ### Checkin child
@@ -24,6 +26,8 @@ Arguments: {
 	accessToken: <accessToken>
 	pickupTime: 16:00
 }
+
+The arguments can be provided either in the query string or in the request body
 ```
 
 ### Checkout child
@@ -32,4 +36,6 @@ POST https://tryfamly.co/api/v2/children/<childId>/checkout
 Arguments: {
 	accessToken: <accessToken>
 }
+
+The arguments can be provided either in the query string or in the request body
 ```
