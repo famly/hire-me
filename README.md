@@ -5,6 +5,7 @@ Give us a chance to see your beautiful code! 🤩
 How to get started:
 - Fork this repository
 - Create a small application in React (or another agreed upon framework)
+- Describe your design decisions and setup instructions in the README.md of the forked repository
 
 The application should be able to do 3 things:
 1. List children
