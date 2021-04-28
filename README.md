@@ -8,7 +8,7 @@ How to get started:
 - Describe your design decisions and setup instructions in the README.md of the forked repository
 
 The application should be able to do 3 things:
-1. List children
+1. List children with some form of pagination/lazy-loading/infinite-scroll
 2. Checkin a child
 3. Checkout a child
 
@@ -21,6 +21,9 @@ If you have any questions feel free to reach out to ckl@famly.co (Christian) ☺
 Use this access token: `234ffdb8-0889-4be3-b096-97ab1679752c`
 
 ### Fetch some children from
+
+The API does not support any limit or offset, so the pagination/lazy-loading/infinite-scroll will have to be done client-side only.
+
 ```
 GET https://tryfamly.co/api/daycare/tablet/group
 Arguments: {
