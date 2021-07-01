@@ -14,7 +14,7 @@ The application should be able to do 3 things:
 
 There are no other requirements than that—don't worry about design or anything like that.
 
-If you have any questions feel free to reach out to ckl@famly.co (Christian) ☺️
+If you have any questions feel free to reach out to ckl@famly.co (Christian) or ab@famly.co (Adam) ☺️
 
 ## API Specification
 
