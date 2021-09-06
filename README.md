@@ -1,70 +1,42 @@
-# Getting Started with Create React App
+# Implementation Notes
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+After playing around a bit with the API and noticing that there is no parameter to retrieve paging information from the server, I decided to create a paging component that would allow me to iterate over the retrieved results on the client side.
+I was thinking of using react-query to handle API queries, and leverage the capabilities available to page the results. As there is no pagination parameter in the API call, rather than spend time, trying to figure out how to get this to work, I decided to just implement the pagination myself.
 
-## Available Scripts
+## useLocalCachedData.js
 
-In the project directory, you can run:
+This file contains the operations related to the data retrieval and pagination
 
-### `yarn start`
+### Pagination
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+In the useLocalCachedData.js file, I created a hook in which I expose the data retrieved from the backend. The pagination is a simple slice operation, to which I provide the indexes at which to extract the data. These are calculated based on the page number, and the number of records per page.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### API Call
 
-### `yarn test`
+I used Axios to fetch the data. Once the data is retrieved, I store the data into state.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+When the user clicks on the Checkin button, underneath the child's picture, I increase the count on the refetch parameter, which trigger a useEffect hook, that calls the API again, in order to retrieve the updated data and refresh the cards.
 
-### `yarn build`
+## App.js
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+I'm importing the ChildSummary component, which receives the data fetched from the API, and a function, that triggers API, in order to refresh the cards.
+I chose to display the information, as a Card, displaying the name, picture of the child and a button that changes color and text, based on whether the child is checked in or not.
+Clicking on the card invokes the API, in order to update the child's checkin status.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Design considerations
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+I chose the card format, because it is a succint way of exposing relevant information about the child, without too much screen clutter. A table could also be used and more data could be presented that way, but I chose to limit the data presented to the bare minimum necessary for the task at hand.
+In my opinion, I prefer paging the data, rather than lazy loading or infinite scroll, because for the task at hand, I feel it provides the user with a greater sense of control, over what is currently being presented to him, whereas I feel, that lazy-loading/infinite scroll require some adjustment on the part of the user to focus on the particular part of the page where he might be working on.
 
-### `yarn eject`
+## Used Libraries
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+I chose Axios for handling the async API calls and Material-UI, as a quick way to present a more pleasant interface, rather than trying to use styled-components, or coding CSS by hand, due to the time constraints.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Reflections
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+I limited myself to the two hour limit and as a result a few things are missing:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- The pagination element underneath the cards has a different styling, due to running out of time to implement using Material-UI.
+- There are some children that when you try to checkin, we get an API error. I ran out of time to implement this. So, as things are at the moment, there will be some cards, where clicking the button produces no effect and there is no feedback as to what might be happening. I was thinking of handling this using a popup, containing the error message.
+- I would have liked to have implemented a solution that would've allowed for a quicker rendering of the cards, when the child's checkin state is toggled. There is some lag between when we trigger the checkin and the information is being retrieved in the backend. In my opinion, this is an unnecessary operation. I would've liked to have updated the information on the client side, in order to instantly refresh the frontend, and then retrieve updated data from the API, in a way that would not be reflected in the UI, as it is right now. I believe that using React-Query would've helped.
+- I ran out of time to write some basic tests for the implemented functionalies
