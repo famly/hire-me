@@ -1,6 +1,6 @@
 # SRE Technical Challenge
 
-You are a Software Reliability Engineer brand new to Famly. The backend team is looking to you to improve their development velocity while keeping Famly's suite of services responsive and and reliable. It's a job that wears many hats. One day you might be working closely with developers to unblock their development cycle, another day you might be in the weeds with the infrastructure team to build out a brand new way of creating and managing secrets. One thing is sure: your work is never dull.
+You are a Software Reliability Engineer brand new to Famly. The backend team is looking to you to improve their development velocity while keeping Famly's suite of services responsive and reliable. It's a job that wears many hats. One day you might be working closely with developers to unblock their development cycle, another day you might be in the weeds with the infrastructure team to build out a brand new way of creating and managing secrets. One thing is sure: your work is never dull.
 
 How you approach this challenge gives Famly a peek into how your mind works when thnking of systems holistically: from code to production. SREs often need to step back and take in the Big Picture. We'll start with the code...
 
