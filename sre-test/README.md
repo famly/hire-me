@@ -24,7 +24,7 @@ How you approach this challenge gives Famly a peek into how your mind works when
 ## Overview
 
 - [Development](#development)
-  - [Overview of Code](#overview-of-code)
+  - [Assignment](#assignment)
 
 ## Development
 
