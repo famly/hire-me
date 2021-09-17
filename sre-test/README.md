@@ -32,7 +32,7 @@ You will need the following tools installed locally:
 
 - [Docker](https://www.docker.com/products/docker-desktop) for access to the Docker Engine and a local Kubernetes cluster. See the [docs](https://birthday.play-with-docker.com/kubernetes-docker-desktop/) for how to spin up your cluster. If you're a Linux user, see [this article](https://blog.flant.com/small-local-kubernetes-comparison/) for an overview of friendly local cluster tools.
 
-### Overview of Code
+### Assignment
 
 This project consists of a simple app written in Python that connects to MySQL with an Nginx webserver. Your challenge is to _containerize the app, webserver and database_ then run the stack _on Kubernetes_.
 
