@@ -34,8 +34,12 @@ You will need the following tools installed locally:
 
 ### Assignment
 
-This project consists of a simple app written in Python that connects to MySQL with an Nginx webserver. Your challenge is to _containerize the app, webserver and database_ then run the stack _on Kubernetes_.
+This project consists of a simple app written in Python that connects to MySQL with an Nginx webserver. 
 
-Inside the directory of this README is a `docker-compose.yaml`, which is offered as an example of building and running the stack using `docker-compose` (or `docker compose` if using the new [V2 release candidate](https://docs.docker.com/compose/cli-command/)). The compose manifest _does not run_. Its purpose is only as a reference.
+Your challenge is to:
+1.  _containerize the app, webserver and database_ then,
+2.  run the stack _on Kubernetes_.
+
+**To get started**, inside the directory of this README is a `docker-compose.yaml`, which is offered as an example of building and running the stack using `docker-compose` (or `docker compose` if using the new [V2 release candidate](https://docs.docker.com/compose/cli-command/)). The compose manifest _does not run_. Its purpose is only as a reference.
 
 You are encouraged to be as creative and radical as you like. Take shortcuts, question the material, be absurd. What's important is your final product reflects the way you think.
