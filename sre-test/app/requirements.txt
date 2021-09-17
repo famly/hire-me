@@ -1,0 +1,4 @@
+Flask==1.1.1
+mysql-connector==2.2.9
+# debugging only
+# ptvsd==4.3.2
