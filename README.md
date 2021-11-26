@@ -1,6 +1,6 @@
 # Interested in working for Famly?
 
-Give us a chance to see your beautiful code! 🤩 
+Give us a chance to see your beautiful code! 🤩
 
 How to get started:
 - Fork this repository
@@ -18,27 +18,27 @@ If you have any questions feel free to reach out to ckl@famly.co (Christian) ☺
 
 ## API Specification
 
-Use this access token: `234ffdb8-0889-4be3-b096-97ab1679752c`
+You will receive an access token in an email during the recruiment process.
 
 ### Fetch some children from
 ```
-GET https://tryfamly.co/api/daycare/tablet/group
+GET https://app.famly.co/api/daycare/tablet/group
 Arguments: {
 	accessToken: <accessToken>,
-	groupId: '11fc220c-ebba-4e55-9346-cd1eed714620',
-	institutionId: 'fb6c8114-387e-4051-8cf7-4e388a77b673'
+	groupId: '86413ecf-01a1-44da-ba73-1aeda212a196',
+	institutionId: 'dc4bd858-9e9c-4df7-9386-0d91e42280eb'
 }
 ```
 
 Example in cURL:
 
 ```bash
-$ curl "https://tryfamly.co/api/daycare/tablet/group?accessToken=234ffdb8-0889-4be3-b096-97ab1679752c&groupId=11fc220c-ebba-4e55-9346-cd1eed714620&institutionId=fb6c8114-387e-4051-8cf7-4e388a77b673"
+curl "https://app.famly.co/api/daycare/tablet/group?accessToken=<accessToken>&groupId=86413ecf-01a1-44da-ba73-1aeda212a196&institutionId=dc4bd858-9e9c-4df7-9386-0d91e42280eb"
 ```
 
 ### Checkin child
 ```
-POST https://tryfamly.co/api/v2/children/<childId>/checkins
+POST https://app.famly.co/api/v2/children/<childId>/checkins
 
 Arguments: {
 	accessToken: <accessToken>
@@ -49,14 +49,14 @@ Arguments: {
 Example in cURL:
 
 ```bash
-$ curl \
-  -d 'accessToken=234ffdb8-0889-4be3-b096-97ab1679752c&pickupTime=16:00' \
-  https://tryfamly.co/api/v2/children/fcd683d0-bc31-468c-948f-1ca70b91439d/checkins
+curl \
+  -d 'accessToken=<accessToken>&pickupTime=16:00' \
+  https://app.famly.co/api/v2/children/fcd683d0-bc31-468c-948f-1ca70b91439d/checkins
 ```
 
 ### Checkout child
 ```
-POST https://tryfamly.co/api/v2/children/<childId>/checkout
+POST https://app.famly.co/api/v2/children/<childId>/checkout
 Arguments: {
 	accessToken: <accessToken>
 }
@@ -65,7 +65,7 @@ Arguments: {
 Example in cURL:
 
 ```bash
-$ curl \
-  -d 'accessToken=234ffdb8-0889-4be3-b096-97ab1679752c' \
-  https://tryfamly.co/api/v2/children/fcd683d0-bc31-468c-948f-1ca70b91439d/checkout
+curl \
+  -d 'accessToken=<accessToken>' \
+  https://app.famly.co/api/v2/children/fcd683d0-bc31-468c-948f-1ca70b91439d/checkout
 ```
