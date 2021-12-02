@@ -101,15 +101,17 @@ export const childListReducer = createReducer<ChildListState, ChildListActions>(
   },
 );
 
-export const selectChildListLoading = (state: State) =>
+export const selectChildListLoading = (state: State): boolean =>
   state[CHILD_LIST_NS].loading;
 
-export const selectChildCheckingIn = (state: State) =>
+export const selectChildCheckingIn = (state: State): boolean =>
   state[CHILD_LIST_NS].checkingIn;
 
 export const selectChildList = (state: State): Child[] =>
   state[CHILD_LIST_NS].list;
 
-export const selectChildListPage = (state: State) => state[CHILD_LIST_NS].page;
+export const selectChildListPage = (state: State): number =>
+  state[CHILD_LIST_NS].page;
 
-export const selectNextPage = (state: State) => state[CHILD_LIST_NS].nextPage;
+export const selectNextPage = (state: State): boolean =>
+  state[CHILD_LIST_NS].nextPage;

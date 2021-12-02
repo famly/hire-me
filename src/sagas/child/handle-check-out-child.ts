@@ -5,7 +5,7 @@ import { API_TOKEN } from '../../constants';
 
 import { checkOutChild } from '../../store/child-list';
 
-export function* handleCheckOutChildRequest() {
+export function* handleCheckOutChildRequest(): Generator {
   yield takeLatest(
     checkOutChild.request,
     function* ({ payload }: ActionType<typeof checkOutChild.request>) {

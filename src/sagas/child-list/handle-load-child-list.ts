@@ -9,7 +9,7 @@ import {
 } from '../../store/child-list';
 import { Child } from '../../types';
 
-export function* handleLoadChildListRequest() {
+export function* handleLoadChildListRequest(): Generator {
   yield takeLatest(loadChildList.request, function* () {
     try {
       const [page, childList] = yield all([

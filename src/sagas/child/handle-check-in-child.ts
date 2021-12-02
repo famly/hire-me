@@ -5,7 +5,7 @@ import { API_TOKEN } from '../../constants';
 
 import { checkInChild } from '../../store/child-list';
 
-export function* handleCheckInChildRequest() {
+export function* handleCheckInChildRequest(): Generator {
   yield takeLatest(
     checkInChild.request,
     function* ({ payload }: ActionType<typeof checkInChild.request>) {
