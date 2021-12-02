@@ -65,7 +65,6 @@ export const ChildListItem: React.FC<{ child: Child }> = ({ child }) => {
         <img src={child.image.small} alt={child.name?.fullName} />
       )}
       <div className="buttons">
-        <Button variant="outline-primary">View Child</Button>
         {!child.checkedIn && (
           <Button
             variant="outline-success"
