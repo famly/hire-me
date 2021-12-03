@@ -11,7 +11,7 @@ https://famly-example-adgga.ondigitalocean.app/
 ## Code Formatting
 
 - Prettier
-- EsLint (airbnb Eslint)
+- [EsLint (airbnb Eslint)](https://www.npmjs.com/package/eslint-config-airbnb)
 - Husky Pre-commint checks / formatting
 
 ## Styling
