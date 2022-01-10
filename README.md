@@ -7,6 +7,9 @@ How to get started:
 - Create a small application in React (or another agreed upon framework)
 - Describe your design decisions and setup instructions in the README.md of the forked repository
 
+## The assignment
+You are tasked to build a simple application for a nursery to manage the attendance of children each day.
+
 The application should be able to do 3 things:
 1. List children with some form of pagination/lazy-loading/infinite-scroll
 2. Checkin a child
