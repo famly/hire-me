@@ -2,7 +2,7 @@
 
 Give us a chance to see your beautiful code! 🤩
 
-How to get started:
+## How to get started
 - Fork this repository
 - Create a small application in React (or another agreed upon framework)
 - Describe your design decisions and setup instructions in the README.md of the forked repository
@@ -15,13 +15,13 @@ The application should be able to do 3 things:
 2. Checkin a child
 3. Checkout a child
 
-There are no other requirements than that—don't worry about design or anything like that.
+Don't worry about design or anything like that.
 
-If you have any questions feel free to reach out to ckl@famly.co (Christian) or ab@famly.co (Adam) ☺️
+If you have any questions feel free to reach out to the person who sent you the assignment ☺️
 
 ## API Specification
 
-You will receive an access token in an email during the recruiment process.
+You have received an access token in the email that contained the link to this page.
 
 ### Fetch some children from
 
