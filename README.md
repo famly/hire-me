@@ -37,6 +37,14 @@ Open http://localhost:3000 in your browser.
 List Children: The main page lists children with pagination controls.
 Check In/Out: Use "Check In" and "Check Out" buttons for managing attendance.
 
+## Note
 
+Checkin child API call throws an error sometimes 
+
+```
+curl \
+  -d 'accessToken=<accessToken>&pickupTime=16:00' \
+  https://app.famly.co/api/v2/children/fcd683d0-bc31-468c-948f-1ca70b91439d/checkins
+```
 
 
