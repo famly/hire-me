@@ -7,6 +7,18 @@ A nursery attendance management application built with Vite.js, React.js, and Ty
 - Check in a child.
 - Check out a child.
 
+
+## Design Decisions
+### Project Structure
+ The project is organized to separate concerns:
+
+* /public: Static assets and index.html.
+* /src: Source code, including:
+   * /api: API-related functions.
+   * /components: React components.
+* App.tsx: Main application component.
+* index.tsx: Entry point for the React application.
+
 ## Setup Instructions
 
 ### Prerequisites
@@ -16,8 +28,8 @@ A nursery attendance management application built with Vite.js, React.js, and Ty
 ### Installation
 1. Clone the repository and navigate into it:
    ```sh
-   git clone https://github.com/your-username/nursery-attendance-app.git
-   cd nursery-attendance-app
+   git clone git@github.com:iziVersano/hire-me.git
+   cd hire-me
 
 2. Install dependencies:
 
@@ -39,7 +51,7 @@ Check In/Out: Use "Check In" and "Check Out" buttons for managing attendance.
 
 ## Note
 
-Checkin child API call throws an error sometimes 
+Checkin child API call throws a 403 an unauthorized error sometimes 
 
 ```
 curl \
