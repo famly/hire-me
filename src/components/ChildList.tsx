@@ -1,8 +1,10 @@
 import React from 'react';
 
 interface Child {
-  id: string;
-  fullName: string;
+  childId: string;
+  name: {
+    fullName: string;
+  };
   checkedIn: boolean;
 }
 
@@ -15,17 +17,17 @@ interface ChildListProps {
 const ChildList: React.FC<ChildListProps> = ({ children, onCheckIn, onCheckOut }) => {
   const handleButtonClick = (child: Child) => {
     if (child.checkedIn) {
-      onCheckOut(child.id);
+      onCheckOut(child.childId);
     } else {
-      onCheckIn(child.id);
+      onCheckIn(child.childId);
     }
   };
 
   return (
     <ul>
       {children.map((child) => (
-        <li key={child.id}>
-          {child.fullName} - {child.checkedIn ? 'Checked In' : 'Checked Out'}
+        <li key={child.childId}>
+          {child.name.fullName} - {child.checkedIn ? 'Checked In' : 'Checked Out'}
           <button onClick={() => handleButtonClick(child)}>
             {child.checkedIn ? 'Check Out' : 'Check In'}
           </button>

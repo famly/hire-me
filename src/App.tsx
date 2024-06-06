@@ -1,57 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { checkInChild, checkOutChild, fetchChildren } from './api/api';
-import ChildList from './components/ChildList'
-
-interface Child {
-  id: string;
-  fullName: string;
-  checkedIn: boolean;
-}
+import React from 'react';
+import { useAppContext } from './AppContext';
+import ChildList from './components/ChildList';
+import { checkInChild, checkOutChild, fetchChildren } from './api/api'; // Ensure these imports are present
 
 const App: React.FC = () => {
-  const [children, setChildren] = useState<Child[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [childrenPerPage] = useState(10);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadChildren();
-  }, []);
-
-  const loadChildren = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const fetchedChildren = await fetchChildren();
-      setChildren(fetchedChildren);
-    } catch (error) {
-      setError('Error loading children');
-      console.error('Error loading children:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { state, dispatch } = useAppContext();
+  const { children, currentPage, childrenPerPage, loading, error } = state;
 
   const handleCheckIn = async (childId: string) => {
-    setError(null);
+    dispatch({ type: 'SET_ERROR', payload: null });
     try {
       await checkInChild(childId);
-      loadChildren();
+      const fetchedChildren = await fetchChildren();
+      dispatch({ type: 'SET_CHILDREN', payload: fetchedChildren });
     } catch (error) {
-      setError('Error checking in child');
-      console.error('Error checking in child:', error);
+      dispatch({ type: 'SET_ERROR', payload: 'Error checking in child' });
     }
   };
 
   const handleCheckOut = async (childId: string) => {
-    setError(null);
+    dispatch({ type: 'SET_ERROR', payload: null });
     try {
       await checkOutChild(childId);
-      loadChildren();
+      const fetchedChildren = await fetchChildren();
+      dispatch({ type: 'SET_CHILDREN', payload: fetchedChildren });
     } catch (error) {
-      setError('Error checking out child');
-      console.error('Error checking out child:', error);
+      dispatch({ type: 'SET_ERROR', payload: 'Error checking out child' });
     }
   };
 
@@ -63,13 +37,13 @@ const App: React.FC = () => {
 
   const paginateNext = () => {
     if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+      dispatch({ type: 'SET_PAGE', payload: currentPage + 1 });
     }
   };
 
   const paginatePrevious = () => {
     if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+      dispatch({ type: 'SET_PAGE', payload: currentPage - 1 });
     }
   };
 
