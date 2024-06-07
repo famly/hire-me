@@ -1,72 +1,34 @@
 import React from 'react';
-import { useAppContext } from './AppContext';
 import ChildList from './components/ChildList';
-import { checkInChild, checkOutChild, fetchChildren } from './api/api'; // Ensure these imports are present
+import PaginationControls from './components/PaginationControls';
+import useChildren from './hooks/useChildren';
 
 const App: React.FC = () => {
-  const { state, dispatch } = useAppContext();
-  const { children, currentPage, childrenPerPage, loading, error } = state;
+  const { children, loading, error, handleCheckIn, handleCheckOut, currentPage, totalPages, setCurrentPage } = useChildren();
 
-  const handleCheckIn = async (childId: string) => {
-    dispatch({ type: 'SET_ERROR', payload: null });
-    try {
-      await checkInChild(childId);
-      const fetchedChildren = await fetchChildren();
-      dispatch({ type: 'SET_CHILDREN', payload: fetchedChildren });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Error checking in child' });
-    }
+  const handleNextPage = () => {
+    setCurrentPage(currentPage + 1);
   };
 
-  const handleCheckOut = async (childId: string) => {
-    dispatch({ type: 'SET_ERROR', payload: null });
-    try {
-      await checkOutChild(childId);
-      const fetchedChildren = await fetchChildren();
-      dispatch({ type: 'SET_CHILDREN', payload: fetchedChildren });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Error checking out child' });
-    }
+  const handlePreviousPage = () => {
+    setCurrentPage(currentPage - 1);
   };
 
-  const indexOfLastChild = currentPage * childrenPerPage;
-  const indexOfFirstChild = indexOfLastChild - childrenPerPage;
-  const currentChildren = children.slice(indexOfFirstChild, indexOfLastChild);
+  console.log('children in App component:', children); // Log children
 
-  const totalPages = Math.ceil(children.length / childrenPerPage);
-
-  const paginateNext = () => {
-    if (currentPage < totalPages) {
-      dispatch({ type: 'SET_PAGE', payload: currentPage + 1 });
-    }
-  };
-
-  const paginatePrevious = () => {
-    if (currentPage > 1) {
-      dispatch({ type: 'SET_PAGE', payload: currentPage - 1 });
-    }
-  };
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div>
-      <h1>Nursery Attendance</h1>
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p>{error}</p>
-      ) : (
-        <>
-          <ChildList children={currentChildren} onCheckIn={handleCheckIn} onCheckOut={handleCheckOut} />
-          <div>
-            <button onClick={paginatePrevious} disabled={currentPage === 1}>
-              Previous
-            </button>
-            <button onClick={paginateNext} disabled={currentPage === totalPages}>
-              Next
-            </button>
-          </div>
-        </>
-      )}
+      <h1>Child Management System</h1>
+      <ChildList children={children} onCheckIn={handleCheckIn} onCheckOut={handleCheckOut} />
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onNext={handleNextPage}
+        onPrevious={handlePreviousPage}
+      />
     </div>
   );
 };

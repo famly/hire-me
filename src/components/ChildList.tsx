@@ -1,36 +1,26 @@
 import React from 'react';
-
-interface Child {
-  childId: string;
-  name: {
-    fullName: string;
-  };
-  checkedIn: boolean;
-}
+import { Child } from '../hooks/useChildren';
+import CheckInOutButtons from './CheckInOutButtons';
 
 interface ChildListProps {
   children: Child[];
-  onCheckIn: (childId: string) => void;
+  onCheckIn: (childId: string, pickupTime: string) => void;
   onCheckOut: (childId: string) => void;
 }
 
 const ChildList: React.FC<ChildListProps> = ({ children, onCheckIn, onCheckOut }) => {
-  const handleButtonClick = (child: Child) => {
-    if (child.checkedIn) {
-      onCheckOut(child.childId);
-    } else {
-      onCheckIn(child.childId);
-    }
-  };
-
+  console.log('Rendering ChildList with children:', children); // Add this line
   return (
     <ul>
       {children.map((child) => (
         <li key={child.childId}>
           {child.name.fullName} - {child.checkedIn ? 'Checked In' : 'Checked Out'}
-          <button onClick={() => handleButtonClick(child)}>
-            {child.checkedIn ? 'Check Out' : 'Check In'}
-          </button>
+          <CheckInOutButtons
+            childId={child.childId}
+            checkedIn={child.checkedIn}
+            onCheckIn={onCheckIn}
+            onCheckOut={onCheckOut}
+          />
         </li>
       ))}
     </ul>
