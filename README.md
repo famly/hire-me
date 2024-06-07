@@ -1,77 +1,62 @@
-# Interested in working for Famly?
+# Nursery Attendance App
 
-Give us a chance to see your beautiful code! 🤩
+## Overview
 
-## How to get started
-- Fork this repository
-- Create a small application in React (or another agreed upon framework)
-- Describe your design decisions and setup instructions in the README.md of the forked repository
+A nursery attendance management application built with Vite.js, React.js, and TypeScript. It allows staff to:
+- List children with pagination.
+- Check in a child.
+- Check out a child.
 
-## The assignment
-You are tasked to build a simple application for a nursery to manage the attendance of children each day.
 
-The application should be able to do 3 things:
-1. List children with some form of pagination/lazy-loading/infinite-scroll
-2. Checkin a child
-3. Checkout a child
+## Design Decisions
+### Project Structure
+ The project is organized to separate concerns:
 
-Don't worry about design or anything like that.
+* /public: Static assets and index.html.
+* /src: Source code, including:
+   * /api: API-related functions.
+   * /components: React components.
+* App.tsx: Main application component.
+* index.tsx: Entry point for the React application.
 
-If you have any questions feel free to reach out to the person who sent you the assignment ☺️
+## Setup Instructions
 
-## API Specification
+### Prerequisites
+- Node.js (version 14.x or higher)
+- npm (version 6.x or higher) or yarn
 
-You have received an access token in the email that contained the link to this page.
+### Installation
+1. Clone the repository and navigate into it:
+   ```sh
+   git clone git@github.com:iziVersano/hire-me.git
+   cd hire-me
 
-### Fetch some children from
+2. Install dependencies:
 
-The API does not support any limit or offset, so the pagination/lazy-loading/infinite-scroll will have to be done client-side only.
+```sh
+ npm install
+```
+### Running the Application
+
+### Start the development server:
+```sh
+npm run dev
+```
+Open http://localhost:3000 in your browser.
+
+
+## Usage
+List Children: The main page lists children with pagination controls.
+Check In/Out: Use "Check In" and "Check Out" buttons for managing attendance.
+
+## Note
+
+Checkin child API call throws a 403 an unauthorized error sometimes 
 
 ```
-GET https://app.famly.co/api/daycare/tablet/group
-Arguments: {
-	accessToken: <accessToken>,
-	groupId: '86413ecf-01a1-44da-ba73-1aeda212a196',
-	institutionId: 'dc4bd858-9e9c-4df7-9386-0d91e42280eb'
-}
-```
-
-Example in cURL:
-
-```bash
-curl "https://app.famly.co/api/daycare/tablet/group?accessToken=<accessToken>&groupId=86413ecf-01a1-44da-ba73-1aeda212a196&institutionId=dc4bd858-9e9c-4df7-9386-0d91e42280eb"
-```
-
-### Checkin child
-```
-POST https://app.famly.co/api/v2/children/<childId>/checkins
-
-Arguments: {
-	accessToken: <accessToken>
-	pickupTime: 16:00
-}
-```
-
-Example in cURL:
-
-```bash
 curl \
   -d 'accessToken=<accessToken>&pickupTime=16:00' \
   https://app.famly.co/api/v2/children/fcd683d0-bc31-468c-948f-1ca70b91439d/checkins
 ```
 
-### Checkout child
-```
-POST https://app.famly.co/api/v2/children/<childId>/checkout
-Arguments: {
-	accessToken: <accessToken>
-}
-```
 
-Example in cURL:
-
-```bash
-curl \
-  -d 'accessToken=<accessToken>' \
-  https://app.famly.co/api/v2/children/fcd683d0-bc31-468c-948f-1ca70b91439d/checkout
-```
