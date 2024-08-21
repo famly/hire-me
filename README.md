@@ -10,6 +10,8 @@ Give us a chance to see your beautiful code! 🤩
 ## The assignment
 You are tasked to build a simple application for a nursery to manage the attendance of children each day.
 
+It has to be done using Typescript.
+
 The application should be able to do 3 things:
 1. List children with some form of pagination/lazy-loading/infinite-scroll
 2. Checkin a child
