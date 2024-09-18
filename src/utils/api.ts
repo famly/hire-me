@@ -24,31 +24,31 @@ const fetchJson = async <T = void>(
     return (await response.json()) as T;
 };
 
-export const ApiHelper = {
-    getChildren: async () => {
-        return fetchJson<ChildrenResponse>(
-            endpointUrl('/daycare/tablet/group', {
-                accessToken: ACCESS_TOKEN,
-                groupId: '86413ecf-01a1-44da-ba73-1aeda212a196',
-                institutionId: 'dc4bd858-9e9c-4df7-9386-0d91e42280eb',
-            })
-        );
-    },
-    checkInChild: async (childId: string, pickupTime: Date) => {
-        return fetchJson(endpointUrl(`/v2/children/${childId}/checkins`), {
-            method: 'POST',
-            body: new URLSearchParams({
-                accessToken: ACCESS_TOKEN,
-                pickupTime: `${pickupTime.getHours()}:${pickupTime.getMinutes()}`,
-            }),
-        });
-    },
-    checkOutChild: async (childId: string) => {
-        return fetchJson(endpointUrl(`/v2/children/${childId}/checkout`), {
-            method: 'POST',
-            body: new URLSearchParams({
-                accessToken: ACCESS_TOKEN,
-            }),
-        });
-    },
+export const getChildren = async () => {
+    return fetchJson<ChildrenResponse>(
+        endpointUrl('/daycare/tablet/group', {
+            accessToken: ACCESS_TOKEN,
+            groupId: '86413ecf-01a1-44da-ba73-1aeda212a196',
+            institutionId: 'dc4bd858-9e9c-4df7-9386-0d91e42280eb',
+        })
+    );
+};
+
+export const checkInChild = async (childId: string, pickupTime: Date) => {
+    return fetchJson(endpointUrl(`/v2/children/${childId}/checkins`), {
+        method: 'POST',
+        body: new URLSearchParams({
+            accessToken: ACCESS_TOKEN,
+            pickupTime: `${pickupTime.getHours()}:${pickupTime.getMinutes()}`,
+        }),
+    });
+};
+
+export const checkOutChild = async (childId: string) => {
+    return fetchJson(endpointUrl(`/v2/children/${childId}/checkout`), {
+        method: 'POST',
+        body: new URLSearchParams({
+            accessToken: ACCESS_TOKEN,
+        }),
+    });
 };
