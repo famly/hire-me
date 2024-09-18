@@ -1,6 +1,13 @@
-# Interested in working for Famly?
+# Purpose of the assigment
+The purpose of the assignment is to give us an understand of how you approach a problem and understand your thought process. 
 
-Give us a chance to see your beautiful code! 🤩
+Furthermore we would also like to see what you chose to focus on, to get an insight into how you work.
+
+Argue for any decisions made and write your thoughts and potential next steps if given more time, in the readme
+
+The design of the app doesn't have to be beautiful, but it should be done in a functional way.
+
+It is ok to Google or use ChatGPT, but you need to inform us via comments in the code, if something is a direct copy paste.
 
 ## How to get started
 - Fork this repository
@@ -16,8 +23,6 @@ The application should be able to do 3 things:
 1. List children with some form of pagination/lazy-loading/infinite-scroll
 2. Checkin a child
 3. Checkout a child
-
-Don't worry about design or anything like that.
 
 If you have any questions feel free to reach out to the person who sent you the assignment ☺️
 
