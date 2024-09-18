@@ -1,9 +1,9 @@
-# Purpose of the assigment
-The purpose of the assignment is to give us an understand of how you approach a problem and understand your thought process. 
+# Purpose of the assignment
+The purpose of the assignment is to give us an understanding of how you approach a problem and understand your thought process. 
 
 Furthermore we would also like to see what you chose to focus on, to get an insight into how you work.
 
-Argue for any decisions made and write your thoughts and potential next steps if given more time, in the readme
+Argue for any decisions made and write your thoughts and potential next steps if given more time, in the readme.
 
 The design of the app doesn't have to be beautiful, but it should be done in a functional way.
 
