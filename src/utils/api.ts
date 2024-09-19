@@ -1,4 +1,5 @@
 import { ChildrenResponse } from '../types/api';
+import { mapChildRawToChild } from './child';
 
 const ACCESS_TOKEN = import.meta.env.VITE_ACCESS_TOKEN;
 
@@ -33,19 +34,20 @@ const fetchJson = async <T = void>(
 };
 
 export const getChildren = async () => {
-    return fetchJson<ChildrenResponse>(
+    const { children } = await fetchJson<ChildrenResponse>(
         authorizedEndpointUrl('/daycare/tablet/group', {
             groupId: '86413ecf-01a1-44da-ba73-1aeda212a196',
             institutionId: 'dc4bd858-9e9c-4df7-9386-0d91e42280eb',
         })
     );
+    return children.map(mapChildRawToChild);
 };
 
 export const checkInChild = async (childId: string, pickupTime: Date) => {
     return fetchJson(endpointUrl(`/v2/children/${childId}/checkins`), {
         method: 'POST',
         body: authorizedFormBody({
-            pickupTime: `${pickupTime.getHours()}:${pickupTime.getMinutes()}`,
+            pickupTime: `${pickupTime.getUTCHours()}:${pickupTime.getUTCMinutes()}`,
         }),
     });
 };
