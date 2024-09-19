@@ -13,7 +13,7 @@ When sending back the task, please send it as a link to your repo and tell us ho
 
 ## How to get started
 - Fork this repository
-- Create a small application in React (or another agreed upon framework)
+- Create a small application in React
 - Describe your design decisions and setup instructions in the README.md of the forked repository
 
 ## The assignment
