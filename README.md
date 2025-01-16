@@ -84,3 +84,33 @@ curl \
   -d 'accessToken=<accessToken>' \
   https://app.famly.co/api/v2/children/fcd683d0-bc31-468c-948f-1ca70b91439d/checkout
 ```
+
+####
+Planning the App 20min:
+The purpose of the frontend app is for a nursery to manage the attendance of children each day.
+
+1. List children with some form of pagination/lazy-loading/infinite-scroll
+2. Checkin a child
+3. Checkout a child
+
+
+NextJs APP so that the data is static & ready in contrast with a react app 
+Fetch the data as infinite scroll with getStaticProps --
+Post Checkin Child btn near the child card
+Post Checkout Child btn near the child card
+
+Token in .env
+
+Card component for child with materialUI
+First page listing all children, infinite scrolling to get more loading,
+Add loader at the bottom
+
+Next to the child card, 2 btn to check in or out
+
+Click on the child to go to [id] with more details about the kid
+
+Add framer motion for interactivity 
+
+Adding Cypress test
+
+Add Top Title
