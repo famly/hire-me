@@ -7,7 +7,7 @@ Argue for any decisions made and write your thoughts and potential next steps if
 
 The design of the app doesn't have to be beautiful, but it should be done in a functional way.
 
-It is ok to Google or use ChatGPT, but you need to inform us via comments in the code, if something is a direct copy paste.
+It is ok to Google or use AI, but you need to inform us via comments in the code, if something is a direct copy paste.
 
 When sending back the task, please send it as a link to your repo and tell us how much time was spent on the task.
 
