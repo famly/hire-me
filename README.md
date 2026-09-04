@@ -1,86 +1,72 @@
-# Purpose of the assignment
-The purpose of the assignment is to give us an understanding of how you approach a problem and understand your thought process. 
+# Recruitment portal
 
-Furthermore we would also like to see what you chose to focus on, to get an insight into how you work.
+**The scenario is real. The specifics are invented, and the assignment is deliberately incomplete.**
 
-Argue for any decisions made and write your thoughts and potential next steps if given more time, in the readme.
+**Nothing exists yet.** You are not working around our platform, our data model or our history. You choose the shape. We don't expect this to be built into a fully functional application — a clickable prototype with some static data is perfectly fine, as long as you feel it conveys your intentions with the solution.
 
-The design of the app doesn't have to be beautiful, but it should be done in a functional way.
+---
 
-It is ok to Google or use AI, but you need to inform us via comments in the code, if something is a direct copy paste.
+## The industry, in one minute
 
-When sending back the task, please send it as a link to your repo and tell us how much time was spent on the task.
+| Word | What it means |
+| --- | --- |
+| **Nursery** | A childcare setting for children under 5. One building, with children grouped by age into rooms |
+| **Practitioner** | A member of staff who works with the children |
+| **Nursery manager** | Runs the site. Hires the staff, and covers a room when somebody calls in sick |
+| **Group** | A company that owns several nurseries. Some own 3, some own 300 |
+| **Ratios** | The law sets how many adults per child. 1 adult to 3 babies in England |
+| **Level 3** | The standard childcare qualification. A room needs a set share of qualified staff |
 
-## How to get started
+**Ratios are the whole problem.** One practitioner short is not *slightly worse* — it is legally not allowed to open the room. The manager pays an agency several hundred pounds for a temporary body, or turns families away. Turnover in the sector is high, so this happens constantly.
+
+---
+
+## Problem
+
+Staff hiring is one part of running a nursery that Famly doesn't cover.
+
+Famly runs the nursery: attendance, child records, parent messaging, invoicing, and the schedule for the staff who already work there. Hiring is the part that happens somewhere else. The manager leaves Famly to advertise the role, collects applications in an inbox, and types the new hire back in by hand.
+
+Nurseries keep asking us for one system. What they describe is a **recruitment portal**: one public page per nursery that shows its open positions, where a job seeker applies in one pass — and one place inside Famly where the manager sees every open position and every applicant against it.
+
+### Challenges
+
+Hiring is the fourth job of a manager who is also covering the baby room at lunch.
+
+| What comes up | What happens today |
+| --- | --- |
+| A position opens in the toddler room | A paid job board, a Facebook group, or a card in the window |
+| Somebody asks whether the nursery is hiring | Nobody can point them anywhere |
+| A practitioner wants to apply | An email address on an advert, or a form to print |
+| The manager needs to know if somebody is qualified | Reads a CV and guesses |
+| An advert goes out and eleven applications arrive at once | An inbox. The strong ones take another job first |
+| One person applies to three sites in the same group | Three separate conversations, or three silences |
+| The manager wants to reply to everybody | Does not |
+| Somebody is hired | The details get typed into Famly by hand |
+
+### User outcomes
+
+The nursery has one address it can send anybody to, showing what is open right now. The job seeker applies in one pass from a phone, and knows where the application stands. The manager sees every position and every applicant in one place, and can act on the same row.
+
+We have not agreed how we would know this worked. We have an instinct that the speed of the first reply matters more than anything about the shortlist — and we are not certain of that.
+
+---
+
+## What we are asking you
+
+One fact that is true. Everything else is yours to decide.
+
+- Famly holds a **staff record** for every person who works at a nursery. It carries the rota, the qualification, the room, and the permission to open the app.
+
+Two questions:
+
+1. **The portal.** The nursery needs somewhere public to show which positions are open, and the job seeker needs to be able to apply from it. That person has no Famly account, no reason to trust us, and may be on a phone during a break. What do they touch, and what are they in your system?
+2. **The manager's side.** What does the manager open, and what is the model that carries a position from open to filled, and an application from arrival to hired, rejected or gone quiet?
+
+---
+
+## Handing it back
+
 - Fork this repository
-- Create a small application in React
-- Describe your design decisions and setup instructions in the README.md of the forked repository
-
-## The assignment
-You are tasked to build a simple application for a nursery to manage the attendance of children each day.
-
-It has to be done using Typescript.
-
-The application should be able to do 3 things:
-1. List children with some form of pagination/lazy-loading/infinite-scroll
-2. Checkin a child
-3. Checkout a child
-
-If you have any questions feel free to reach out to the person who sent you the assignment ☺️
-
-## API Specification
-
-You have received an access token in the email that contained the link to this page.
-
-### Fetch some children from
-
-The API does not support any limit or offset, so the pagination/lazy-loading/infinite-scroll will have to be done client-side only.
-
-```
-GET https://app.famly.co/api/daycare/tablet/group
-Arguments: {
-	accessToken: <accessToken>,
-	groupId: '86413ecf-01a1-44da-ba73-1aeda212a196',
-	institutionId: 'dc4bd858-9e9c-4df7-9386-0d91e42280eb'
-}
-```
-
-Example in cURL:
-
-```bash
-curl "https://app.famly.co/api/daycare/tablet/group?accessToken=<accessToken>&groupId=86413ecf-01a1-44da-ba73-1aeda212a196&institutionId=dc4bd858-9e9c-4df7-9386-0d91e42280eb"
-```
-
-### Checkin child
-```
-POST https://app.famly.co/api/v2/children/<childId>/checkins
-
-Arguments: {
-	accessToken: <accessToken>
-	pickupTime: 16:00
-}
-```
-
-Example in cURL:
-
-```bash
-curl \
-  -d 'accessToken=<accessToken>&pickupTime=16:00' \
-  https://app.famly.co/api/v2/children/fcd683d0-bc31-468c-948f-1ca70b91439d/checkins
-```
-
-### Checkout child
-```
-POST https://app.famly.co/api/v2/children/<childId>/checkout
-Arguments: {
-	accessToken: <accessToken>
-}
-```
-
-Example in cURL:
-
-```bash
-curl \
-  -d 'accessToken=<accessToken>' \
-  https://app.famly.co/api/v2/children/fcd683d0-bc31-468c-948f-1ca70b91439d/checkout
-```
+- Document your process, design decisions and setup instructions in the `README.md` of your fork
+- Send us a link to your fork, and let us know roughly how much time you spent
