@@ -2,7 +2,7 @@
 
 **The scenario is real. The specifics are invented, and the assignment is deliberately incomplete.**
 
-**Nothing exists yet.** You are not working around our platform, our data model or our history. You choose the shape. We don't expect this to be built into a fully functional application — a clickable prototype with some static data is perfectly fine, as long as you feel it conveys your intentions with the solution.
+**Nothing exists yet.** You are not working around our platform, our data model or our history. You choose the solution, as long as you stick to the requirements in the e-mail brief. 
 
 ---
 
