@@ -67,6 +67,6 @@ Two questions:
 
 ## Handing it back
 
-- Fork this repository
-- Document your process, design decisions and setup instructions in the `README.md` of your fork
+- Fork this repository and commit all relevant files.
+- Document your process, product decisions and other things you find relevant in the `README.md` of your fork
 - Send us a link to your fork, and let us know roughly how much time you spent
