@@ -9,7 +9,7 @@ Feature IDs (M1–M8, S1–S5) refer to [SPEC.md §5](SPEC.md). Routes refer to 
 | ID | Journey | Actor | Features | Priority | Status |
 |---|---|---|---|---|---|
 | J0 | Reviewer walkthrough (the 10-min demo) | Reviewer | all Must | Must | ☐ |
-| J1 | Find a job and apply from a phone | Job seeker | M1 M2 M3 | Must | ☐ |
+| J1 | Find a job and apply from a phone | Job seeker | M1 M2 M3 | Must | ◐ |
 | J2 | Check where my application stands | Job seeker | M3 | Must | ☐ |
 | J3 | Morning triage: who's waiting? | Manager | M4 M5 M7 | Must | ☐ |
 | J4 | Move an applicant forward | Manager | M6 | Must | ☐ |
@@ -108,8 +108,8 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | `/n/oak-tree` | See nursery name, location, a short "about", and open positions (P1, P2). P3 paused and P4 filled are hidden | Only `open` positions render | ☐ |
-| 2 | `/n/oak-tree/p/P1` | Read room/age group, qualification needed, hours, pay, description. Tap **Apply** | — | ☐ |
+| 1 | `/n/oak-tree` | See nursery name, location, a short "about", and open positions (P1, P2). P3 paused and P4 filled are hidden | Only `open` positions render | ☑ |
+| 2 | `/n/oak-tree/p/P1` | Read room/age group, qualification needed, hours, pay, description. Tap **Apply** | — | ☑ |
 | 3 | `…/apply` | Fill one screen: name, email, phone, qualification (none / working towards / L2 / L3), earliest start, availability, right-to-work checkbox, optional note. Submit | Validate inline. `findOrCreateCandidate(group, email)`, create Application `new` with status token, timeline event `received` | ☐ |
 | 4 | `/applied/:token` | See "Application sent to Oak Tree Nursery", what happens next, and the **private status link** (copy button) | Show the link as "we've also emailed this" (simulated) | ☐ |
 
