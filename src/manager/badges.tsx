@@ -1,6 +1,6 @@
 import { Building2, Clock, Info, Moon, TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { isStale, lastActivityAt } from '../domain/application'
+import { isStale, quietSince } from '../domain/application'
 import { otherApplications } from '../domain/candidate'
 import { POSITION_STATE_LABEL } from '../domain/position'
 import { levelOf, meetsRequirement, QUALIFICATION_SHORT } from '../domain/qualification'
@@ -71,7 +71,7 @@ export function ExceptionBadges({ app, required, now }: { app: Application; requ
       )}
       {stale && (
         <Badge tone="amber" title="No activity for over 5 days. Chase them, or mark as lapsed.">
-          <Moon size={12} aria-hidden /> Quiet {formatDuration(now - lastActivityAt(app))}
+          <Moon size={12} aria-hidden /> Quiet {formatDuration(now - quietSince(app, now))}
         </Badge>
       )}
       {otherSites.length > 0 && (

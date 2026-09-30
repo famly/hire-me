@@ -59,6 +59,8 @@ src/
     MultiCombobox            # multi-select typeahead, chips below with ✕, clear-all ✕ in the box
                              #   used by: pipeline position filter, apply-form qualifications
     Switch                   # on/off toggle (apply-form consent)
+    ChoiceGroup              # equal-width single choice; apply form (hours, right to work) and interview mode
+    InterviewDetails         # when / where / join link; pipeline card (compact), panel, candidate status page
 ```
 
 ## Routes
@@ -109,6 +111,7 @@ interface Application { id; candidateId; positionId; state: ApplicationState;
   answers: { qualifications: string[] /* catalogue ids → levelOf() */; earliestStart; availability;
              rightToWork: boolean; note; cv: { name; sizeBytes; type }; confirmedTrue: true };
   statusToken; createdAt; firstRepliedAt?; timeline: TimelineEvent[] }
+interface Interview { at; mode: 'in_person' | 'online'; location /* address or meeting link */ }  // Application.interview?, set on invite
 interface TimelineEvent { at; kind: 'status' | 'message' | 'note'; from?; to?; body?; by: 'manager' | 'candidate' | 'system' }
 interface StaffRecord { id; nurseryId; roomId?; name; email; phone; qualification;
   startDate; fromApplicationId }

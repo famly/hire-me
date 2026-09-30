@@ -40,6 +40,7 @@ export interface Nursery {
   slug: string
   name: string
   area: string
+  address: string
   about: string
   managerName: string
 }
@@ -107,7 +108,16 @@ export interface Application {
   createdAt: Timestamp
   firstRepliedAt?: Timestamp
   rejectionReason?: RejectionReason
+  /** Set when invited to interview. */
+  interview?: Interview
   timeline: TimelineEvent[]
+}
+
+export interface Interview {
+  at: Timestamp
+  mode: 'in_person' | 'online'
+  /** Street address when in person, meeting link when online. */
+  location: string
 }
 
 export type Actor = 'manager' | 'candidate' | 'system'

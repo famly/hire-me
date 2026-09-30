@@ -4,7 +4,8 @@ import { CANDIDATE_STATUS_LABEL, candidateStatus, candidateStatusLine } from '..
 import { formatDate } from '../domain/time'
 import type { CandidateStatus } from '../domain/types'
 import { applicationByToken, candidateById, nurseryById, positionById } from '../store/selectors'
-import { useStore } from '../store/store'
+import { useNow, useStore } from '../store/store'
+import { InterviewDetails } from '../ui/InterviewDetails'
 import { NotFound } from './NurseryPage'
 import { NurseryHeader } from './PortalLayout'
 
@@ -15,6 +16,7 @@ export function StatusPage() {
   const { token } = useParams()
   const data = useStore()
   const app = applicationByToken(data, token)
+  const now = useNow()
 
   if (!app) {
     return (
@@ -60,6 +62,13 @@ export function StatusPage() {
             </ol>
           )}
         </section>
+
+        {app.state === 'interview' && app.interview && (
+          <section className="mt-4 rounded-xl bg-white p-4 ring-1 ring-stone-200">
+            <h2 className="mb-2 text-sm font-semibold">Your interview</h2>
+            <InterviewDetails interview={app.interview} now={now} />
+          </section>
+        )}
 
         <section className="mt-6">
           <h2 className="text-sm font-semibold">Messages from {nursery.name}</h2>

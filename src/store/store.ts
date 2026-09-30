@@ -7,7 +7,7 @@ import { existingApplication, findOrCreateCandidate } from '../domain/candidate'
 import { messageFor, type MessageContext } from '../domain/messages'
 import { fillPosition, transitionPosition, type PositionAction } from '../domain/position'
 import { staffRecordFromApplication } from '../domain/staff'
-import type { Application, ApplicationAnswers, ID, Message, Position, StaffRecord } from '../domain/types'
+import type { Application, ApplicationAnswers, ID, Interview, Message, Position, StaffRecord } from '../domain/types'
 import { newId, newToken } from './ids'
 
 // Store actions orchestrate, the domain decides (docs/ARCHITECTURE.md "Layering rules").
@@ -33,7 +33,7 @@ interface State extends Data {
   reset: () => void
   fastForward: (ms: number) => void
   submitApplication: (input: ApplyInput) => { token: string; duplicate: boolean }
-  applyAction: (applicationId: ID, action: ApplicationAction, message?: Message) => void
+  applyAction: (applicationId: ID, action: ApplicationAction, message?: Message, extra?: { interview?: Interview }) => void
   addNote: (applicationId: ID, body: string) => void
   hire: (applicationId: ID, message: Message | undefined, staff: Pick<StaffRecord, 'startDate' | 'roomId'>) => void
   transitionPosition: (positionId: ID, action: PositionAction) => void
@@ -114,9 +114,12 @@ export const useStore = create<State>()(
           return { token: application.statusToken, duplicate: false }
         },
 
-        applyAction: (applicationId, action, message) =>
+        applyAction: (applicationId, action, message, extra = {}) =>
           set((s) => ({
-            applications: replace(s.applications, transitionApplication(app(applicationId), action, now(), { message })),
+            applications: replace(
+              s.applications,
+              transitionApplication(app(applicationId), action, now(), { message, interview: extra.interview }),
+            ),
           })),
 
         addNote: (applicationId, body) =>

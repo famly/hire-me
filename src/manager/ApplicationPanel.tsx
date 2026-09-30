@@ -9,6 +9,7 @@ import { candidateById, nurseryById, positionById } from '../store/selectors'
 import { useNow, useStore } from '../store/store'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Field'
+import { InterviewDetails } from '../ui/InterviewDetails'
 import { StatusPill } from '../ui/StatusPill'
 import { ExceptionBadges, WaitIndicator } from './badges'
 import { CrossSiteSection } from './CrossSite'
@@ -78,6 +79,12 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
 
         <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
           <CrossSiteSection app={app} />
+          {app.interview && (
+            <section className="rounded-lg bg-stone-50 p-3">
+              <h3 className="mb-2 text-xs font-medium text-stone-500">Interview</h3>
+              <InterviewDetails interview={app.interview} now={now} />
+            </section>
+          )}
           <section className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
             <a href={`mailto:${candidate.email}`} className="flex items-center gap-2 truncate text-brand-700 hover:underline">
               <Mail size={14} className="shrink-0" /> {candidate.email}

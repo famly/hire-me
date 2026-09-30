@@ -10,6 +10,7 @@ import { candidateById, positionById, roomLabel } from '../store/selectors'
 import { useNow, useStore } from '../store/store'
 import { Button } from '../ui/Button'
 import { MultiCombobox } from '../ui/MultiCombobox'
+import { InterviewDetails } from '../ui/InterviewDetails'
 import { StatusPill } from '../ui/StatusPill'
 import { useActions } from './actionsContext'
 import { ExceptionBadges, LegendPopover, WaitIndicator } from './badges'
@@ -17,7 +18,7 @@ import { useManagerData } from './useManagerData'
 
 const LANE_HINT: Record<Lane, string> = {
   candidates: 'Unanswered first, longest wait on top',
-  interview: 'Longest in this stage first',
+  interview: 'Soonest interview first',
   offer: 'Longest in this stage first',
   closed: 'Every outcome, newest first',
 }
@@ -207,6 +208,7 @@ function PipelineCard({
       {app.state === 'contacted' && !needsReply(app) && app.firstRepliedAt && (
         <p className="text-xs text-stone-500">Contacted {relativeTime(app.firstRepliedAt, now)}</p>
       )}
+      {app.state === 'interview' && app.interview && <InterviewDetails interview={app.interview} now={now} compact />}
       <ExceptionBadges app={app} required={position.requiredQualification} now={now} />
       {next && (
         <button

@@ -103,3 +103,23 @@ describe('candidate-facing projection', () => {
     expect(candidateStatusLine(app, 'Oak Tree Nursery')).toMatch(/filled/)
   })
 })
+
+describe('interviews and stale', () => {
+  const invited = transitionApplication(makeApp({ state: 'contacted', firstRepliedAt: T0 }), 'invite', T0, {
+    interview: { at: T0 + 10 * STALE_AFTER, mode: 'online', location: 'https://meet.example/abc' },
+  })
+
+  it('stores the interview on invite', () => {
+    expect(invited.interview?.mode).toBe('online')
+  })
+
+  it('is never quiet while an interview is still to come', () => {
+    expect(isStale(invited, T0 + 9 * STALE_AFTER)).toBe(false)
+  })
+
+  it('counts a past interview as activity', () => {
+    const at = T0 + 10 * STALE_AFTER
+    expect(isStale(invited, at + STALE_AFTER - 1)).toBe(false)
+    expect(isStale(invited, at + STALE_AFTER + 1)).toBe(true)
+  })
+})

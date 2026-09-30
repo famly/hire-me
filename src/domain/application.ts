@@ -3,6 +3,7 @@ import type {
   Actor,
   Application,
   ApplicationState,
+  Interview,
   CandidateStatus,
   Message,
   RejectionReason,
@@ -67,8 +68,17 @@ export function lastActivityAt(app: Application): Timestamp {
  * Derived, never stored. Only applies after the first reply: an unreplied "new"
  * application is the nursery's delay, tracked by the wait badge instead.
  */
+/** Last sign of life: the latest timeline event, or an interview that has taken place. */
+export function quietSince(app: Application, now: Timestamp): Timestamp {
+  const interview = app.interview && app.interview.at <= now ? app.interview.at : 0
+  return Math.max(lastActivityAt(app), interview)
+}
+
 export function isStale(app: Application, now: Timestamp): boolean {
-  return isActive(app) && app.state !== 'new' && now - lastActivityAt(app) > STALE_AFTER
+  if (!isActive(app) || app.state === 'new') return false
+  // An interview still to come isn't silence.
+  if (app.interview && app.interview.at > now) return false
+  return now - quietSince(app, now) > STALE_AFTER
 }
 
 /** The step we expect next. The UI shows it as the primary button on the row. */
@@ -101,7 +111,7 @@ export function transitionApplication(
   app: Application,
   action: ApplicationAction,
   now: Timestamp,
-  opts: { message?: Message; reason?: RejectionReason } = {},
+  opts: { message?: Message; reason?: RejectionReason; interview?: Interview } = {},
 ): Application {
   if (!canTransition(app, action)) {
     throw new Error(`Cannot "${action}" an application that is ${app.state}`)
@@ -118,6 +128,7 @@ export function transitionApplication(
     state: to,
     firstRepliedAt: app.firstRepliedAt ?? (by === 'manager' ? now : undefined),
     rejectionReason: action === 'reject' ? opts.reason : app.rejectionReason,
+    interview: action === 'invite' && opts.interview ? opts.interview : app.interview,
     timeline: [...app.timeline, ...events],
   }
 }
@@ -167,7 +178,9 @@ export function candidateStatusLine(app: Application, nurseryName: string): stri
     case 'contacted':
       return 'The nursery is looking at your application.'
     case 'interview':
-      return 'The nursery would like to meet you. Check your email for details.'
+      return app.interview
+        ? 'The nursery would like to meet you. The details are below and in your email.'
+        : 'The nursery would like to meet you. Check your email for details.'
     case 'offer':
       return "You've been offered the role. The nursery will be in touch about next steps."
     case 'hired':

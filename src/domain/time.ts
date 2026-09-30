@@ -24,6 +24,18 @@ export function formatDate(at: Timestamp | string): string {
   return new Date(at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
+/** "Thu 3 Oct, 10:00" */
+export function formatDateTime(at: Timestamp): string {
+  const d = new Date(at)
+  return `${d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}, ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`
+}
+
+/** "Thursday 3 October at 10:00" */
+export function formatDateTimeLong(at: Timestamp): string {
+  const d = new Date(at)
+  return `${d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })} at ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`
+}
+
 export function isoDate(at: Timestamp): string {
   return new Date(at).toISOString().slice(0, 10)
 }

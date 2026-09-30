@@ -6,6 +6,7 @@ import { messageFor } from '../domain/messages'
 import { DAY, HOUR, isoDate } from '../domain/time'
 import type {
   Application,
+  Interview,
   ApplicationAnswers,
   Candidate,
   Group,
@@ -32,6 +33,12 @@ export const MANAGER_NURSERY_ID = 'n-oak'
 
 export function buildSeed(now: Timestamp): Data {
   const ago = (ms: number) => now - ms
+  /** A whole-hour slot `days` from today (negative = in the past). */
+  const slot = (days: number, hour: number) => {
+    const d = new Date(now + days * DAY)
+    d.setHours(hour, 0, 0, 0)
+    return d.getTime()
+  }
 
   const groups: Group[] = [{ id: 'g-acorn', name: 'Acorn Family Nurseries' }]
 
@@ -42,6 +49,7 @@ export function buildSeed(now: Timestamp): Data {
       slug: 'oak-tree',
       name: 'Oak Tree Nursery',
       area: 'Redland, Bristol',
+      address: 'Oak Tree Nursery, 14 Cotham Grove, Bristol BS6 6AL',
       about:
         'A converted Victorian house with a big garden, 62 children aged 0–5 across three rooms. We cook everything on site and spend part of every day outdoors.',
       managerName: 'Priya Shah',
@@ -52,6 +60,7 @@ export function buildSeed(now: Timestamp): Data {
       slug: 'willow-house',
       name: 'Willow House',
       area: 'Clifton, Bristol',
+      address: 'Willow House, 3 Canynge Square, Bristol BS8 3LA',
       about: 'A small, calm nursery for 38 children, five minutes from the Downs.',
       managerName: 'Tom Okafor',
     },
@@ -61,6 +70,7 @@ export function buildSeed(now: Timestamp): Data {
       slug: 'birch-lane',
       name: 'Birch Lane Nursery',
       area: 'Bishopston, Bristol',
+      address: 'Birch Lane Nursery, 52 Berkeley Road, Bristol BS7 8HQ',
       about: 'A busy, friendly nursery for toddlers and pre-schoolers, with forest school every Friday.',
       managerName: 'Hannah Lewis',
     },
@@ -198,7 +208,7 @@ export function buildSeed(now: Timestamp): Data {
     positionId: string,
     createdAgo: number,
     answers: Partial<ApplicationAnswers>,
-    steps: [ApplicationAction, number][] = [],
+    steps: [ApplicationAction, number, Interview?][] = [],
     reason?: 'position_filled',
   ): Application {
     const position = positionById[positionId]
@@ -238,28 +248,28 @@ export function buildSeed(now: Timestamp): Data {
         { id: `${id}-e1`, at: createdAt, by: 'system', kind: 'message', ...messageFor('received', ctx) },
       ],
     }
-    for (const [action, stepAgo] of steps) {
+    for (const [action, stepAgo, interview] of steps) {
       const message =
         action === 'withdraw'
           ? undefined
-          : messageFor(action === 'reject' && reason ? 'position_filled' : action, ctx)
-      app = transitionApplication(app, action, ago(stepAgo), { message, reason })
+          : messageFor(action === 'reject' && reason ? 'position_filled' : action, ctx, { interview })
+      app = transitionApplication(app, action, ago(stepAgo), { message, reason, interview })
     }
     return app
   }
 
   const applications: Application[] = [
     seedApp('c-amira', 'p1', 52 * HOUR, { note: 'I have 6 years in a toddler room and my Level 3 since 2021.' }),
-    seedApp('c-amira', 'p5', 8 * DAY, {}, [['contact', 7 * DAY], ['invite', 2 * DAY]]),
+    seedApp('c-amira', 'p5', 8 * DAY, {}, [['contact', 7 * DAY], ['invite', 2 * DAY, { at: slot(2, 10), mode: 'in_person', location: 'Willow House, 3 Canynge Square, Bristol BS8 3LA' }]]),
     seedApp('c-chloe', 'p1', 30 * HOUR, { qualifications: ['l2-eyp', 'wt-l3'], note: 'Currently studying for my Level 3, finishing in spring.' }),
     seedApp('c-jordan', 'p1', 4 * DAY, { availability: 'either' }, [['contact', 2 * DAY]]),
-    seedApp('c-marcus', 'p1', 12 * DAY, {}, [['contact', 11 * DAY], ['invite', 6 * DAY]]),
+    seedApp('c-marcus', 'p1', 14 * DAY, {}, [['contact', 13 * DAY], ['invite', 9 * DAY, { at: slot(-7, 14), mode: 'online', location: 'https://meet.google.com/oak-tree-marcus' }]]),
     seedApp('c-sophie', 'p2', 4 * HOUR, { qualifications: ['wt-l2'], availability: 'part_time', note: 'Just started my Level 2 at City of Bristol College. Mornings suit me best.' }),
     seedApp('c-daniel', 'p2', 26 * HOUR, { qualifications: ['none'], availability: 'part_time', rightToWork: false, note: 'Career changer, 10 years in retail. Two kids of my own!' }),
-    seedApp('c-grace', 'p2', 10 * DAY, { qualifications: ['l2-cache', 'pfa'], availability: 'part_time' }, [['contact', 9 * DAY], ['invite', 7 * DAY], ['offer', 1 * DAY]]),
+    seedApp('c-grace', 'p2', 10 * DAY, { qualifications: ['l2-cache', 'pfa'], availability: 'part_time' }, [['contact', 9 * DAY], ['invite', 7 * DAY, { at: slot(-5, 10), mode: 'in_person', location: 'Oak Tree Nursery, 14 Cotham Grove, Bristol BS6 6AL' }], ['offer', 1 * DAY]]),
     seedApp('c-liam', 'p2', 9 * DAY, { qualifications: ['none'] }, [['reject', 8 * DAY]]),
     seedApp('c-ella', 'p3', 6 * DAY, {}, [['contact', 3 * DAY]]),
-    seedApp('c-noah', 'p4', 20 * DAY, { qualifications: ['l2-eyp', 'pfa'], earliestStart: isoDate(now - 5 * DAY) }, [['contact', 19 * DAY], ['invite', 16 * DAY], ['offer', 14 * DAY], ['hire', 12 * DAY]]),
+    seedApp('c-noah', 'p4', 20 * DAY, { qualifications: ['l2-eyp', 'pfa'], earliestStart: isoDate(now - 5 * DAY) }, [['contact', 19 * DAY], ['invite', 16 * DAY, { at: slot(-15, 11), mode: 'in_person', location: 'Oak Tree Nursery, 14 Cotham Grove, Bristol BS6 6AL' }], ['offer', 14 * DAY], ['hire', 12 * DAY]]),
     seedApp('c-ruby', 'p4', 18 * DAY, { qualifications: ['l2-eyp'] }, [['contact', 17 * DAY], ['reject', 12 * DAY]], 'position_filled'),
     seedApp('c-ben', 'p6', 10 * HOUR, { qualifications: ['wt-l3'] }),
   ]

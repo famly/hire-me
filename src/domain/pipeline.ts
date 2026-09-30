@@ -46,7 +46,8 @@ export function actionForLane(app: Application, lane: Lane): ApplicationAction |
 /**
  * Candidates: waiting for a first reply on top, longest wait first; then the ones
  *   you've contacted, the longest-ago contact first.
- * Interview / Offer: the ones that have been sitting there longest first.
+ * Interview: by interview date, earliest first (past ones need an outcome).
+ * Offer: the ones that have been sitting there longest first.
  * Closed: most recent first.
  */
 export function sortLane(lane: Lane, apps: Application[]): Application[] {
@@ -57,6 +58,7 @@ export function sortLane(lane: Lane, apps: Application[]): Application[] {
       if (diff !== 0) return diff
       if (needsReply(a)) return a.createdAt - b.createdAt
     }
+    if (lane === 'interview') return (a.interview?.at ?? lastActivityAt(a)) - (b.interview?.at ?? lastActivityAt(b))
     return lastActivityAt(a) - lastActivityAt(b)
   })
 }

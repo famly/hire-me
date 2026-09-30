@@ -1,5 +1,6 @@
 import type { ApplicationAction } from './application'
-import type { Message } from './types'
+import { formatDateTimeLong } from './time'
+import type { Interview, Message } from './types'
 
 // Templated candidate messages. Delivery is simulated: a sent message becomes a
 // timeline event that both the manager and the candidate's status page read.
@@ -13,7 +14,7 @@ export interface MessageContext {
   managerName: string
 }
 
-export function messageFor(kind: MessageKind, ctx: MessageContext): Message {
+export function messageFor(kind: MessageKind, ctx: MessageContext, extra: { interview?: Interview } = {}): Message {
   const first = ctx.candidateName.trim().split(/\s+/)[0]
   const sign = `\n\n${ctx.managerName}\n${ctx.nurseryName}`
   switch (kind) {
@@ -27,11 +28,16 @@ export function messageFor(kind: MessageKind, ctx: MessageContext): Message {
         subject: `Your application to ${ctx.nurseryName}`,
         body: `Hi ${first}, thanks for applying for the ${ctx.positionTitle} role. I'd love to hear a bit more about you. Could you give me a call or reply with a good time to talk?${sign}`,
       }
-    case 'invite':
+    case 'invite': {
+      const i = extra.interview
+      const details = i
+        ? `\n\nWhen: ${formatDateTimeLong(i.at)}\n${i.mode === 'online' ? `Where: online, join here: ${i.location}` : `Where: ${i.location}`}\n\nIf that time doesn't work, just reply and we'll find another.`
+        : ' Please reply with a couple of times that work for you this week.'
       return {
         subject: `Interview invitation – ${ctx.positionTitle}`,
-        body: `Hi ${first}, we'd like to invite you in to meet the team and see the room. Please reply with a couple of times that work for you this week.${sign}`,
+        body: `Hi ${first}, we'd like to ${i?.mode === 'online' ? 'meet you online' : 'invite you in to meet the team and see the room'}.${details}${sign}`,
       }
+    }
     case 'offer':
       return {
         subject: `Job offer – ${ctx.positionTitle}`,

@@ -55,6 +55,7 @@ Hypothesis we inherit but don't trust blindly: *speed of first reply matters mos
 Terminal exits from any active state: **Rejected** (by nursery), **Withdrawn** (by candidate), **Lapsed** (gone quiet).
 - "Gone quiet" is **derived, not a state the user sets upfront**: an active application with no activity for N days (prototype: N = 5) gets a *Stale* flag. Applies only after the first reply: an unreplied New application is the nursery's delay, surfaced by the overdue flag, not the candidate going quiet; manager confirms → Lapsed. (Rejected option: silent auto-close; it hides problems.)
 - Position filled → open applications bulk-moved to Rejected with a "position filled" message. Nobody gets silence.
+- **Interview**: scheduled when the manager invites: date and time, in person (address) or online (meeting link). Shown on the Interview card, in the panel and on the candidate's status page. An upcoming interview is never "quiet"; a past one counts as activity.
 - Candidate-facing status is a **plain-language projection**: Received · Being reviewed · Invited to interview · Offer · Hired · Not progressing · Closed.
 
 ## 5. Features & priority (fit to 3h)
@@ -68,7 +69,7 @@ Terminal exits from any active state: **Rejected** (by nursery), **Withdrawn** (
 **Manager**
 - M4 Overview: all positions across my nursery with state and counts (needs reply, with a red "N overdue" only when someone has waited >48h; in progress; hired of headcount). **Active / All** toggle (active = draft, open, paused). An **⋯ quick menu** per position: open pipeline, edit, publish / pause / resume, mark as filled, view listing, archive.
 - M5 **Hiring pipeline**: a kanban board with four **static lanes**: **Candidates** (new + contacted) · **Interview** · **Offer** · **Closed** (every outcome: hired, rejected, withdrawn, lapsed; shown by default, can be hidden). Filter to one or more positions with a typeahead multi-select. Candidates lane: unanswered first, longest wait on top. The wait is written out ("Waiting 30h for a reply" in grey, a red "No reply for 52h" once overdue at >48h). A **Colours & flags** popover explains every badge. Badges follow one rule (see §6 "Badges").
-- M6 **Act on the card**: the next step as a link on the card, or drag the card forward to a later lane (drop on Closed = reject). Every move opens the templated message (editable, simulated send) and logs to the timeline. Everything else is in the side panel.
+- M6 **Act on the card**: the next step as a link on the card, or drag the card forward to a later lane (drop on Closed = reject). Every move opens the templated message (editable, simulated send) and logs to the timeline. **Invite also schedules the interview** (date, time, in person / online with link). Everything else is in the side panel.
 - M7 Qualification match badge (meets / below requirement), replaces "reads CV and guesses".
 - M8 **Hire → Staff record** created, prefilled; position auto-suggests Filled.
 
@@ -82,7 +83,7 @@ Terminal exits from any active state: **Rejected** (by nursery), **Withdrawn** (
 ### Could
 - Group-level portal page (all nurseries of a group) and group-manager view.
 - "Other openings in this group" on candidate confirmation.
-- Interview slot picker for the candidate, candidate withdraw button on status page.
+- Candidate picks from offered interview slots, rescheduling, candidate withdraw button on status page.
 
 ### Won't (documented as next steps)
 Real auth/SSO, real email/SMS delivery, backend/multi-user sync, GDPR retention & deletion automation, job-board syndication (Indeed etc.), right-to-work/DBS check integrations, i18n, analytics pipeline.
@@ -131,6 +132,6 @@ Implementation plan: stack, hosting (clickable link), persistence, folder layout
 Walk the demo script end-to-end in the browser, desktop + mobile width:
 1. Open nursery portal → pick L3 toddler-room position → apply from phone viewport → get status link.
 2. Switch to manager → Hiring pipeline → new applicant is in the Candidates lane (Amira, "No reply for 52h" in red, stays on top).
-3. Invite to interview → status link shows "Invited to interview".
+3. Invite to interview (pick a time, online link) → the card shows the date and link; the status link shows "Invited to interview" plus the interview details.
 4. Hire → staff record appears; position suggests Filled → notify remaining → their status shows "Not progressing".
 5. Cross-site candidate shows "also applied to…" badge.

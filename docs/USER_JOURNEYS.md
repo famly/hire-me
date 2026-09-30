@@ -49,10 +49,10 @@ Legend: ☐ not started · ◐ partly working · ☑ works end-to-end in the bro
 | Candidate | Qual | Position | State | Timing | Demonstrates |
 |---|---|---|---|---|---|
 | **Amira Khan** | L3 | P1 | New | applied 52h ago, no reply | Red "No reply for 52h", top of the Candidates lane; cross-site (J6) |
-| **Amira Khan** | L3 | P5 | Interview | — | "Also applied to Willow House (Interview)" |
+| **Amira Khan** | L3 | P5 | Interview | in person at Willow House in 2 days, 10:00 | "Also at Willow House"; upcoming interview |
 | Chloe Evans | L2 | P1 | New | 30h ago | Waiting, not overdue (grey); amber "Needs L3" |
 | Jordan Reid | L3 | P1 | Contacted | replied 2 days ago | Active pipeline |
-| **Marcus Bell** | L3 | P1 | Interview | last activity 6 days ago | Stale flag (J8) |
+| **Marcus Bell** | L3 | P1 | Interview | interviewed online 7 days ago, nothing since | "Quiet 7d" (J8); past interview on the card |
 | Sophie Turner | working towards | P2 | New | 4h ago | Waiting (grey), no badges |
 | Daniel Hughes | none | P2 | New | 26h ago | Waiting (grey); amber "Right to work?" |
 | Grace Adeyemi | L2 | P2 | Offer | — | Late pipeline |
@@ -72,7 +72,7 @@ Legend: ☐ not started · ◐ partly working · ☑ works end-to-end in the bro
 |---|---|---|
 | new | **Received** | Oak Tree Nursery has your application. You'll hear from them here and by email. |
 | contacted | **Being reviewed** | The nursery is looking at your application. |
-| interview | **Invited to interview** | The nursery would like to meet you. Check your email for details. |
+| interview | **Invited to interview** | The nursery would like to meet you. The details are below and in your email. (Plus a "Your interview" box: date, time, address or join link.) |
 | offer | **Offer** | You've been offered the role. The nursery will be in touch about next steps. |
 | hired | **Hired** | Welcome to the team. |
 | rejected | **Not progressing** | The nursery won't be taking your application further this time. {reason if "position filled"} |
@@ -124,7 +124,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | `/status/:token` | See position, nursery, current **public status**, the status-page line, and a simple timeline of messages received | Render only via `candidateStatus()` and `message` events | ☑ |
+| 1 | `/status/:token` | See position, nursery, current **public status**, the status-page line, **their interview (date, time, address or join link) once invited**, and the messages received | Render only via `candidateStatus()`, `interview` and `message` events | ☑ |
 | 2 | — | Unknown or garbage token | Friendly "we couldn't find that application, check the link in your email" (a bad token reveals no nursery, so no nursery link) | ☑ |
 
 **Done when:** every internal state maps to the public table above and nothing internal leaks (no "stale", no "lapsed" wording, no manager notes).
@@ -153,7 +153,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
 | 1 | `/manage/pipeline` (optionally `?position=p1`) | On the card, click the next step (Contact · Invite to interview · Make offer · Hire), or **drag the card** forward to any later lane (the lanes that accept it get a dashed outline and "Drop to …") (drop on Closed = reject). Lanes that can't take the card dim while dragging. Reject and everything else are in the panel | `nextAction()`, `actionForLane()` (forward only), `managerActions()`; set `firstRepliedAt` on the first manager action | ☑ |
-| 2 | — | See a prefilled message preview, optionally edit it (or untick "Email"), then confirm | Template from `messages.ts`; timeline `status` + `message` events | ☑ |
+| 2 | — | See a prefilled message preview, optionally edit it (or untick "Email"), then confirm. **Inviting also schedules the interview**: date, time, in person (address, defaulting to the nursery) or online (meeting link). The message fills in the details until edited by hand | Template from `messages.ts`; timeline `status` + `message` events | ☑ |
 | 3 | `?app=:id` side panel | Click the card to open the detail: answers, contact, all actions, timeline, internal notes | Notes are `note` events, never public | ☑ |
 
 **Done when:** the card moves to its new lane, drops out of "needs reply", and the candidate's status page reflects it.
@@ -204,7 +204,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 **Actor:** Priya.
 
-- [x] Marcus (Interview, no activity for 6 days) shows an amber **Quiet 6d** badge. The threshold is 5 days with no timeline activity, after the first reply.
+- [x] Marcus (interviewed 7 days ago, nothing since) shows an amber **Quiet 7d** badge. The threshold is 5 days without activity after the first reply; a past interview counts as activity, and an upcoming interview is never quiet.
 - [x] The card shows an amber **Quiet 6d**; open it and **Mark as lapsed** (offered only once stale) → confirm → `lapsed`, plus an optional closing message. The candidate sees "Closed".
 - [x] **+1 day** in the DemoBar pushes other applications towards stale (at +3 days, Ella and Jordan go quiet too).
 
