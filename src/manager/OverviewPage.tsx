@@ -9,6 +9,7 @@ import { useNow } from '../store/store'
 import { buttonClass } from '../ui/buttonClass'
 import { Card } from '../ui/Card'
 import { PositionStateBadge, WaitCountBadge } from './badges'
+import { MetricsStrip } from './MetricsStrip'
 import { useManagerData } from './useManagerData'
 
 const WAIT_RANK: WaitLevel[] = ['fresh', 'amber', 'red']
@@ -46,6 +47,8 @@ export function OverviewPage() {
           <ChevronRight size={18} />
         </Link>
       )}
+
+      <MetricsStrip applications={applications} positions={positions} />
 
       <div className="flex items-center justify-between">
         <h2 className="font-semibold">Positions</h2>

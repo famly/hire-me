@@ -17,7 +17,7 @@ Feature IDs (M1–M8, S1–S5) refer to [SPEC.md §5](SPEC.md). Routes refer to 
 | J6 | Same person, two sites | Manager | S2 | Should | ☑ |
 | J7 | Open, edit or pause a position | Manager | S3 | Should | ☑ |
 | J8 | Gone quiet → stale → lapsed | Manager | S4 | Should | ☑ |
-| J9 | Are we replying fast enough? | Manager | S5 | Should | ☐ |
+| J9 | Are we replying fast enough? | Manager | S5 | Should | ☑ |
 
 Legend: ☐ not started · ◐ partly working · ☑ works end-to-end in the browser
 
@@ -216,7 +216,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 **Actor:** Priya (and us, validating the brief's hypothesis).
 
-- [ ] Metrics strip on `/manage`: median time to first reply, % replied within 48h, open positions, median time to fill.
-- [ ] Numbers move when J4/J5 are performed.
+- [x] Metrics strip on `/manage`: median time to first reply, % replied within 48h (of those due a reply), open positions, median time to fill. Each tile says what it counts.
+- [x] Numbers move when J4/J5 are performed (derived on every render, never stored).
 
 **Done when:** the numbers come from `domain/metrics.ts`, are covered by tests, and are explained in the README (what they'd validate).
