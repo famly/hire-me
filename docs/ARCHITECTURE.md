@@ -66,7 +66,7 @@ src/
 | `/manage` | Positions overview | J3 |
 | `/manage/applicants` | All-applicants queue (manager's home) | J3 |
 | `/manage/positions/:positionId` | Pipeline for one position | J4, J5 |
-| `/manage/applications/:applicationId` | Application detail / timeline (side panel or page) | J4 |
+| `…?app=:applicationId` (on any manager page) | Application side panel: answers, actions, timeline. In the URL so the queue keeps its place and Back closes it | J4 |
 | `/manage/positions/new`, `/manage/positions/:id/edit` | Create/edit position | J7 |
 | `/manage/staff` | Staff records (where hires land) | J5 |
 

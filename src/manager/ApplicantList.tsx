@@ -7,7 +7,9 @@ import { useNow, useStore } from '../store/store'
 import { Card } from '../ui/Card'
 import { EmptyState } from '../ui/EmptyState'
 import { StatusPill } from '../ui/StatusPill'
+import { useActions } from './actionsContext'
 import { QualificationBadge, RightToWorkBadge, WaitBadge } from './badges'
+import { RowActions } from './RowActions'
 
 const SECTIONS = [
   { key: 'reply', title: 'Waiting for a first reply', test: needsReply },
@@ -47,9 +49,16 @@ function ApplicantRow({ app, showPosition }: { app: Application; showPosition?: 
   const now = useNow()
   const candidate = candidateById(data, app.candidateId)
   const position = positionById(data, app.positionId)!
+  const { open } = useActions()
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => open(app.id)}
+      onKeyDown={(e) => e.key === 'Enter' && open(app.id)}
+      className="flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 hover:bg-stone-50 focus-visible:bg-stone-50 focus-visible:outline-none"
+    >
       <div className="min-w-0 flex-1 basis-56">
         <div className="flex flex-wrap items-center gap-2">
           <p className="truncate font-medium">{candidate.name}</p>
@@ -65,6 +74,7 @@ function ApplicantRow({ app, showPosition }: { app: Application; showPosition?: 
         {!needsReply(app) && <span className="text-xs text-stone-500">updated {relativeTime(lastActivityAt(app), now)}</span>}
         <StatusPill state={app.state} />
       </div>
+      <RowActions app={app} />
     </div>
   )
 }

@@ -12,7 +12,7 @@ Feature IDs (M1–M8, S1–S5) refer to [SPEC.md §5](SPEC.md). Routes refer to 
 | J1 | Find a job and apply from a phone | Job seeker | M1 M2 M3 | Must | ☑ |
 | J2 | Check where my application stands | Job seeker | M3 | Must | ☑ |
 | J3 | Morning triage: who's waiting? | Manager | M4 M5 M7 | Must | ☑ |
-| J4 | Move an applicant forward | Manager | M6 | Must | ☐ |
+| J4 | Move an applicant forward | Manager | M6 | Must | ☑ |
 | J5 | Hire → staff record → close the position | Manager | M8 S1 | Must/Should | ☐ |
 | J6 | Same person, two sites | Manager | S2 | Should | ☐ |
 | J7 | Open, edit or pause a position | Manager | S3 | Should | ☐ |
@@ -152,9 +152,9 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | queue or `/manage/positions/P1` | On the row, pick the next action (only allowed ones show): Contact · Invite to interview · Make offer · Reject | `allowedActions()`; transition; set `firstRepliedAt` on first move out of `new` | ☐ |
-| 2 | — | See a prefilled message preview, optionally edit it, then confirm | Template from `messages.ts`; timeline `status` + `message` events | ☐ |
-| 3 | `/manage/applications/:id` | Open the detail: answers, timeline, internal note | Notes are `note` events, never public | ☐ |
+| 1 | queue or `/manage/positions/P1` | On the row: the expected next step (Contact · Invite to interview · Make offer · Hire) plus Reject. Every other allowed action is in the panel | `nextAction()` / `managerActions()`; transition; set `firstRepliedAt` on the first manager action | ☑ |
+| 2 | — | See a prefilled message preview, optionally edit it (or untick "Email"), then confirm | Template from `messages.ts`; timeline `status` + `message` events | ☑ |
+| 3 | `?app=:id` side panel | Click the row to open the detail: answers, contact, all actions, timeline, internal notes | Notes are `note` events, never public | ☑ |
 
 **Done when:** the row updates in place, drops out of "needs reply", and the candidate's status page reflects it.
 

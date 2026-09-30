@@ -9,6 +9,7 @@ import {
   Users,
 } from 'lucide-react'
 import { NavLink, Outlet, useLocation } from 'react-router'
+import { ActionsProvider } from './ActionsProvider'
 import { useManagerData } from './useManagerData'
 
 // A stand-in for the Famly app shell, so the prototype reads as "inside Famly".
@@ -79,7 +80,9 @@ export function ManagerLayout() {
           </nav>
         </header>
         <main className="px-4 py-5 sm:px-6">
-          <Outlet />
+          <ActionsProvider>
+            <Outlet />
+          </ActionsProvider>
         </main>
       </div>
     </div>
