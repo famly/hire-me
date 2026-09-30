@@ -1,4 +1,5 @@
-import { Check, Clock, TriangleAlert } from 'lucide-react'
+import { Check, Clock, Moon, TriangleAlert } from 'lucide-react'
+import { isStale, lastActivityAt } from '../domain/application'
 import { POSITION_STATE_LABEL } from '../domain/position'
 import { meetsRequirement, QUALIFICATION_SHORT } from '../domain/qualification'
 import { waitingFor, waitLevel, type WaitLevel } from '../domain/queue'
@@ -54,6 +55,16 @@ export function RightToWorkBadge({ app }: { app: Application }) {
   return (
     <Badge tone="amber" title="The applicant didn't confirm the right to work in the UK">
       <TriangleAlert size={12} aria-hidden /> Right to work not confirmed
+    </Badge>
+  )
+}
+
+/** S4 — derived, never stored: no activity for 5 days after the first reply. */
+export function StaleBadge({ app, now }: { app: Application; now: Timestamp }) {
+  if (!isStale(app, now)) return null
+  return (
+    <Badge tone="amber" title="No activity for over 5 days. Chase them, or mark as lapsed.">
+      <Moon size={12} aria-hidden /> Gone quiet · {formatDuration(now - lastActivityAt(app))}
     </Badge>
   )
 }

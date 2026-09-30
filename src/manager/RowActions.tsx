@@ -1,21 +1,24 @@
-import { ACTION_LABEL, managerActions, nextAction } from '../domain/application'
+import { ACTION_LABEL, isStale, managerActions, nextAction } from '../domain/application'
 import type { Application } from '../domain/types'
 import { useNow } from '../store/store'
 import { Button } from '../ui/Button'
 import { useActions } from './actionsContext'
 
-/** Act on the row: the expected next step, plus reject. Everything else lives in the panel. */
+/** Act on the row: the expected next step, plus reject (or lapse, once stale). Everything else lives in the panel. */
 export function RowActions({ app }: { app: Application }) {
   const { start } = useActions()
+  const now = useNow()
   const next = nextAction(app)
   if (!next) return null
+  // Gone quiet: closing it out is the likelier action than rejecting.
+  const secondary = isStale(app, now) ? 'lapse' : 'reject'
   return (
     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
       <Button size="sm" onClick={() => start(app.id, next)}>
         {ACTION_LABEL[next]}
       </Button>
-      <Button size="sm" variant="secondary" onClick={() => start(app.id, 'reject')}>
-        Reject
+      <Button size="sm" variant="secondary" onClick={() => start(app.id, secondary)}>
+        {ACTION_LABEL[secondary]}
       </Button>
     </div>
   )

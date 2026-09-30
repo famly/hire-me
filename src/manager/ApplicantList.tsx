@@ -1,4 +1,4 @@
-import { isActive, lastActivityAt } from '../domain/application'
+import { isActive, isStale, lastActivityAt } from '../domain/application'
 import { needsReply, sortQueue } from '../domain/queue'
 import { relativeTime } from '../domain/time'
 import type { Application } from '../domain/types'
@@ -8,7 +8,7 @@ import { Card } from '../ui/Card'
 import { EmptyState } from '../ui/EmptyState'
 import { StatusPill } from '../ui/StatusPill'
 import { useActions } from './actionsContext'
-import { QualificationBadge, RightToWorkBadge, WaitBadge } from './badges'
+import { QualificationBadge, RightToWorkBadge, StaleBadge, WaitBadge } from './badges'
 import { CrossSiteBadge } from './CrossSite'
 import { RowActions } from './RowActions'
 
@@ -73,7 +73,8 @@ function ApplicantRow({ app, showPosition }: { app: Application; showPosition?: 
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <WaitBadge app={app} now={now} />
-        {!needsReply(app) && <span className="text-xs text-stone-500">updated {relativeTime(lastActivityAt(app), now)}</span>}
+        <StaleBadge app={app} now={now} />
+        {!needsReply(app) && !isStale(app, now) && <span className="text-xs text-stone-500">updated {relativeTime(lastActivityAt(app), now)}</span>}
         <StatusPill state={app.state} />
       </div>
       <RowActions app={app} />

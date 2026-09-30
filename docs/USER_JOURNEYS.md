@@ -16,7 +16,7 @@ Feature IDs (M1–M8, S1–S5) refer to [SPEC.md §5](SPEC.md). Routes refer to 
 | J5 | Hire → staff record → close the position | Manager | M8 S1 | Must/Should | ☑ |
 | J6 | Same person, two sites | Manager | S2 | Should | ☑ |
 | J7 | Open, edit or pause a position | Manager | S3 | Should | ☑ |
-| J8 | Gone quiet → stale → lapsed | Manager | S4 | Should | ☐ |
+| J8 | Gone quiet → stale → lapsed | Manager | S4 | Should | ☑ |
 | J9 | Are we replying fast enough? | Manager | S5 | Should | ☐ |
 
 Legend: ☐ not started · ◐ partly working · ☑ works end-to-end in the browser
@@ -204,9 +204,9 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 **Actor:** Priya.
 
-- [ ] Marcus (Interview, no activity for 6 days) shows a **Stale** flag. The threshold is 5 days with no timeline activity on an active application.
-- [ ] Action **Mark as lapsed** → confirm → `lapsed`, plus an optional closing message.
-- [ ] **+1 day** in the DemoBar pushes other applications towards stale.
+- [x] Marcus (Interview, no activity for 6 days) shows a **Gone quiet · 6d** flag. The threshold is 5 days with no timeline activity, after the first reply.
+- [x] Once stale, **Mark as lapsed** replaces Reject on the row → confirm → `lapsed`, plus an optional closing message. The candidate sees "Closed".
+- [x] **+1 day** in the DemoBar pushes other applications towards stale (at +3 days, Ella and Jordan go quiet too).
 
 **Done when:** stale is derived (never stored), and only the manager's confirmation creates the `lapsed` state.
 

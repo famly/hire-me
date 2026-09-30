@@ -10,7 +10,7 @@ import { useNow, useStore } from '../store/store'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Field'
 import { StatusPill } from '../ui/StatusPill'
-import { QualificationBadge, RightToWorkBadge, WaitBadge } from './badges'
+import { QualificationBadge, RightToWorkBadge, StaleBadge, WaitBadge } from './badges'
 import { CrossSiteSection } from './CrossSite'
 import { AllActions } from './RowActions'
 
@@ -66,6 +66,7 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
             <QualificationBadge has={app.answers.qualification} required={position.requiredQualification} />
             <RightToWorkBadge app={app} />
             <WaitBadge app={app} now={now} />
+            <StaleBadge app={app} now={now} />
           </div>
           <div className="mt-4">
             <AllActions app={app} />
