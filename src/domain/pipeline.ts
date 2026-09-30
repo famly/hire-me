@@ -1,57 +1,62 @@
 import { canTransition, lastActivityAt, type ApplicationAction } from './application'
+import { needsReply } from './queue'
 import type { Application } from './types'
 
-// The hiring pipeline is a board with static lanes, one per stage. Lanes never
-// appear or disappear, so the manager always knows where to look.
+// The hiring pipeline is a board with a few static lanes. Lanes never appear or
+// disappear, so the manager always knows where to look.
 
-export type Lane = 'new' | 'contacted' | 'interview' | 'offer' | 'hired' | 'closed'
+export type Lane = 'candidates' | 'interview' | 'offer' | 'closed'
 
-/** Always shown, in this order. "Closed" (rejected / withdrawn / lapsed) is shown on demand. */
-export const LANES: Lane[] = ['new', 'contacted', 'interview', 'offer', 'hired']
+/** Always in this order. "Closed" holds every outcome: hired, rejected, withdrawn, lapsed. */
+export const LANES: Lane[] = ['candidates', 'interview', 'offer', 'closed']
 
 export const LANE_LABEL: Record<Lane, string> = {
-  new: 'New',
-  contacted: 'Contacted',
+  candidates: 'Candidates',
   interview: 'Interview',
   offer: 'Offer',
-  hired: 'Hired',
   closed: 'Closed',
 }
 
 export function laneOf(app: Application): Lane {
   switch (app.state) {
-    case 'rejected':
-    case 'withdrawn':
-    case 'lapsed':
-      return 'closed'
+    case 'new':
+    case 'contacted':
+      return 'candidates'
+    case 'interview':
+      return 'interview'
+    case 'offer':
+      return 'offer'
     default:
-      return app.state
+      return 'closed'
   }
 }
 
 const LANE_ACTION: Partial<Record<Lane, ApplicationAction>> = {
-  contacted: 'contact',
   interview: 'invite',
   offer: 'offer',
-  hired: 'hire',
   closed: 'reject',
 }
 
-/** The action that moves this application into `lane`, if allowed. Forward only; "closed" means reject. */
+/** The action that moves this application into `lane`, if allowed. Forward only; dropping on "closed" rejects. */
 export function actionForLane(app: Application, lane: Lane): ApplicationAction | null {
   const action = LANE_ACTION[lane]
-  return action && canTransition(app, action) ? action : null
+  return action && laneOf(app) !== lane && canTransition(app, action) ? action : null
 }
 
 /**
- * New: longest waiting first (reply speed matters most).
- * Contacted / Interview / Offer: least recently touched first.
- * Hired / Closed: most recent first.
+ * Candidates: waiting for a first reply on top, longest wait first; then the ones
+ *   you've contacted, the longest-ago contact first.
+ * Interview / Offer: the ones that have been sitting there longest first.
+ * Closed: most recent first.
  */
 export function sortLane(lane: Lane, apps: Application[]): Application[] {
   return [...apps].sort((a, b) => {
-    if (lane === 'new') return a.createdAt - b.createdAt
-    if (lane === 'hired' || lane === 'closed') return lastActivityAt(b) - lastActivityAt(a)
+    if (lane === 'closed') return lastActivityAt(b) - lastActivityAt(a)
+    if (lane === 'candidates') {
+      const diff = Number(needsReply(b)) - Number(needsReply(a))
+      if (diff !== 0) return diff
+      if (needsReply(a)) return a.createdAt - b.createdAt
+    }
     return lastActivityAt(a) - lastActivityAt(b)
   })
 }

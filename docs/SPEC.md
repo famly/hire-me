@@ -67,7 +67,7 @@ Terminal exits from any active state: **Rejected** (by nursery), **Withdrawn** (
 
 **Manager**
 - M4 Overview: all positions across my nursery with state and counts (needs reply, with a red "N overdue" only when someone has waited >48h; in progress; hired of headcount). **Active / All** toggle (active = draft, open, paused). An **⋯ quick menu** per position: open pipeline, edit, publish / pause / resume, mark as filled, view listing, archive.
-- M5 **Hiring pipeline**: a kanban board with **static lanes** (New · Contacted · Interview · Offer · Hired; Closed shown on demand), filterable to one position. The New lane is sorted by **longest wait for a first reply**; waiting time is plain grey text and turns **red only when overdue (>48h)**. Badges follow one rule (see §6 "Badges").
+- M5 **Hiring pipeline**: a kanban board with four **static lanes**: **Candidates** (new + contacted) · **Interview** · **Offer** · **Closed** (every outcome: hired, rejected, withdrawn, lapsed; shown by default, can be hidden). Filter to one or more positions with a typeahead multi-select. Candidates lane: unanswered first, longest wait on top. The wait is written out ("Waiting 30h for a reply" in grey, a red "No reply for 52h" once overdue at >48h). A **Colours & flags** popover explains every badge. Badges follow one rule (see §6 "Badges").
 - M6 **Act on the card**: the next step as a link on the card, or drag the card forward to a later lane (drop on Closed = reject). Every move opens the templated message (editable, simulated send) and logs to the timeline. Everything else is in the side panel.
 - M7 Qualification match badge (meets / below requirement), replaces "reads CV and guesses".
 - M8 **Hire → Staff record** created, prefilled; position auto-suggests Filled.
@@ -93,7 +93,7 @@ Real auth/SSO, real email/SMS delivery, backend/multi-user sync, GDPR retention 
 | Candidate identity | No account; email + tokenised status link | Password accounts (friction, no trust on a break); fully anonymous (can't reply or dedupe) |
 | What a candidate *is* | Group-scoped Candidate, separate from staff | Draft staff record on apply (pollutes staff data, GDPR); global cross-group profile (privacy, competitors) |
 | Qualification | Structured field on form | CV parsing (unreliable, slow to build); CV required (bad on phone) |
-| Hiring pipeline | Kanban with static lanes, across positions or filtered to one; New lane sorted by longest wait | **v1 wait-sorted list** (dropped after review: status was spread across badges, hard to scan at a glance). Kanban per position only (managers look across positions) |
+| Hiring pipeline | Kanban with 4 static lanes (Candidates · Interview · Offer · Closed), across positions or filtered to several | **v1 wait-sorted list** (status spread across badges, hard to scan). **v2 five lanes** New · Contacted · Interview · Offer · Hired ("New" vs "Contacted" split was confusing; Hired is an outcome, so it sits in Closed) |
 | Badges | One colour, one meaning: red = act now (no reply >48h, the only red), amber = worth a check, grey = information, green = live/done. Badges only for exceptions, always under the name. Stage is the lane, not a pill | **v1 per-status colours + 3-level wait colours**: two "2 waiting" badges in different colours read as noise and needed explaining |
 | Position create / edit | Modal over the overview | **v1 separate page** (disruptive, loses context) |
 | Position quick actions | ⋯ menu on each row | Buttons on a position page (one extra click and page per action) |
@@ -128,7 +128,7 @@ Implementation plan: stack, hosting (clickable link), persistence, folder layout
 ## Verification (product-level)
 Walk the demo script end-to-end in the browser, desktop + mobile width:
 1. Open nursery portal → pick L3 toddler-room position → apply from phone viewport → get status link.
-2. Switch to manager → Hiring pipeline → new applicant is in the New lane (Amira, overdue in red, stays on top).
+2. Switch to manager → Hiring pipeline → new applicant is in the Candidates lane (Amira, "No reply for 52h" in red, stays on top).
 3. Invite to interview → status link shows "Invited to interview".
 4. Hire → staff record appears; position suggests Filled → notify remaining → their status shows "Not progressing".
 5. Cross-site candidate shows "also applied to…" badge.

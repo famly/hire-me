@@ -12,9 +12,9 @@ const oakApps = seed.applications.filter((a) => oakPositionIds.has(a.positionId)
 const name = (candidateId: string) => seed.candidates.find((c) => c.id === candidateId)!.name
 
 describe('seed supports the journeys', () => {
-  it('J3: New lane starts Amira (overdue), Chloe, Daniel, Sophie; Ben is not visible', () => {
-    const lane = sortLane('new', oakApps.filter((a) => laneOf(a) === 'new'))
-    expect(lane.map((a) => name(a.candidateId))).toEqual(['Amira Khan', 'Chloe Evans', 'Daniel Hughes', 'Sophie Turner'])
+  it('J3: Candidates lane starts Amira (overdue), Chloe, Daniel, Sophie, then contacted; Ben is not visible', () => {
+    const lane = sortLane('candidates', oakApps.filter((a) => laneOf(a) === 'candidates'))
+    expect(lane.map((a) => name(a.candidateId))).toEqual(['Amira Khan', 'Chloe Evans', 'Daniel Hughes', 'Sophie Turner', 'Ella Morgan', 'Jordan Reid'])
     expect(oakApps.filter((a) => isOverdue(a, now)).map((a) => name(a.candidateId))).toEqual(['Amira Khan'])
     expect(oakApps.some((a) => a.candidateId === 'c-ben')).toBe(false)
   })

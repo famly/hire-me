@@ -48,7 +48,7 @@ Legend: ☐ not started · ◐ partly working · ☑ works end-to-end in the bro
 
 | Candidate | Qual | Position | State | Timing | Demonstrates |
 |---|---|---|---|---|---|
-| **Amira Khan** | L3 | P1 | New | applied 52h ago, no reply | Red overdue flag, top of the New lane; cross-site (J6) |
+| **Amira Khan** | L3 | P1 | New | applied 52h ago, no reply | Red "No reply for 52h", top of the Candidates lane; cross-site (J6) |
 | **Amira Khan** | L3 | P5 | Interview | — | "Also applied to Willow House (Interview)" |
 | Chloe Evans | L2 | P1 | New | 30h ago | Waiting, not overdue (grey); amber "Needs L3" |
 | Jordan Reid | L3 | P1 | Contacted | replied 2 days ago | Active pipeline |
@@ -91,7 +91,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 - [x] Open the link → **Demo home** (`/`) explains the two sides in two lines and links to "Job seeker" and "Manager".
 - [x] DemoBar is always visible: switch side, **Reset demo**, **+1 day**.
 - [x] Run J1 as Zara (the DemoBar hints to narrow the window or use device mode).
-- [x] Switch to the manager's Hiring pipeline: Zara's card is in the New lane with no badges (she meets L3).
+- [x] Switch to the manager's Hiring pipeline: Zara's card is in the Candidates lane with no flags (she meets L3).
 - [x] Run J4 on Zara → her status link shows "Invited to interview" (second tab updates live).
 - [x] Run J5 on Zara → staff record appears → P1 suggests Filled → notify remaining → Chloe's status shows "Not progressing".
 - [x] Open Amira → see the cross-site badge (J6).
@@ -139,10 +139,10 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
 | 1 | `/manage` | See Oak Tree's **active** positions (toggle to All) with state and counts: needs reply as a plain number plus a red "N overdue" only if someone waited >48h / in progress / hired of headcount | Counts derived, never stored | ☑ |
-| 2 | `/manage/pipeline` | See the **Hiring pipeline** board: static lanes New · Contacted · Interview · Offer · Hired. The New lane is sorted by longest wait | `laneOf()`, `sortLane()`; waiting time grey, red only when `isOverdue()` | ☑ |
-| 3 | — | Scan each card: name, waiting time (top right), position, then **only exception badges** in a fixed order: amber (needs L3, right to work?, quiet), grey (also at another site). A legend above the board explains the three colours | `meetsRequirement()`, `isStale()`, `otherApplications()` | ☑ |
+| 2 | `/manage/pipeline` | See the **Hiring pipeline** board: static lanes Candidates · Interview · Offer · Closed (shown by default). Candidates: unanswered first, longest wait on top, then contacted. Filter by typing position names; pick several, clear with ✕ | `laneOf()`, `sortLane()`; "Waiting 30h for a reply" grey, red "No reply for 52h" when `isOverdue()` | ☑ |
+| 3 | — | Scan each card: name, position, wait in words, then **only exception flags**: amber (needs L3, right to work?, quiet), grey (also at another site). **Colours & flags** (popover) explains each one and where it comes from | `meetsRequirement()`, `isStale()`, `otherApplications()` | ☑ |
 
-**Done when:** the New lane reads Amira (52h, red), Chloe (30h), Daniel (26h), Sophie (4h); Amira is the only red thing on screen; Ben Foster (Birch Lane) is not visible.
+**Done when:** the Candidates lane reads Amira (red), Chloe (30h), Daniel (26h), Sophie (4h), then Ella and Jordan (contacted); Amira is the only red thing on screen; Ben Foster (Birch Lane) is not visible.
 
 ---
 
@@ -152,7 +152,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | `/manage/pipeline` (optionally `?position=p1`) | On the card, click the next step (Contact · Invite to interview · Make offer · Hire), or **drag the card** forward to any later lane (drop on Closed = reject). Lanes that can't take the card dim while dragging. Reject and everything else are in the panel | `nextAction()`, `actionForLane()` (forward only), `managerActions()`; set `firstRepliedAt` on the first manager action | ☑ |
+| 1 | `/manage/pipeline` (optionally `?position=p1`) | On the card, click the next step (Contact · Invite to interview · Make offer · Hire), or **drag the card** forward to any later lane (the lanes that accept it get a dashed outline and "Drop to …") (drop on Closed = reject). Lanes that can't take the card dim while dragging. Reject and everything else are in the panel | `nextAction()`, `actionForLane()` (forward only), `managerActions()`; set `firstRepliedAt` on the first manager action | ☑ |
 | 2 | — | See a prefilled message preview, optionally edit it (or untick "Email"), then confirm | Template from `messages.ts`; timeline `status` + `message` events | ☑ |
 | 3 | `?app=:id` side panel | Click the card to open the detail: answers, contact, all actions, timeline, internal notes | Notes are `note` events, never public | ☑ |
 
@@ -166,7 +166,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | `/manage/pipeline?position=p1` | Click **Hire →** on an Offer card, or drag it to Hired (earlier stages are allowed, with a warning in the dialog) | Application → `hired`; welcome message | ☑ |
+| 1 | `/manage/pipeline?position=p1` | Click **Hire →** on an Offer card (earlier stages can hire from the panel, with a warning in the dialog). The card moves to Closed with a green Hired label | Application → `hired`; welcome message | ☑ |
 | 2 | — | Confirm a **prefilled staff record**: name, contact, qualification, nursery, room, start date (from earliest start) | Create `StaffRecord` with `fromApplicationId` | ☑ |
 | 3 | — | Prompt opens straight after the hire: "You've hired 1 of 1… these 4 applicants are still waiting" with the message preview. "Not yet" leaves a banner on the filtered board and "Ready to mark filled" on the overview row | Suggest `filled` when hires = headcount | ☑ |
 | 4 | — | Confirm | Position → `filled` (off the portal); remaining active applications → `rejected` with the "position filled" message (S1) | ☑ |

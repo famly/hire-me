@@ -73,7 +73,7 @@ src/
 | `/status/:token` | Candidate status page (no login) | J2 |
 | `/manage` | Positions overview | J3 |
 | `/manage/pipeline` | Hiring pipeline board, all positions | J3, J4 |
-| `/manage/pipeline?position=:id` | Board filtered to one position (`&closed=1` adds the Closed lane) | J4, J5 |
+| `/manage/pipeline?position=:id,:id` | Board filtered to one or more positions (`&closed=0` hides the Closed lane, shown by default) | J4, J5 |
 | `…?app=:applicationId` (on any manager page) | Application side panel: answers, actions, timeline. In the URL so the board keeps its place and Back closes it | J4 |
 | `/manage/staff` | Staff (Famly sidebar item, where hires land) | J5 |
 | `/manage/positions/:id`, `/manage/applicants` | Redirects from v1 URLs | — |
@@ -133,12 +133,12 @@ All in [src/manager/badges.tsx](../src/manager/badges.tsx). If a new badge doesn
 
 | Colour | Meaning | Used for |
 |---|---|---|
-| **Red** | Act now | No first reply after 48h (`isOverdue`). The only red in the product: clock + hours on the card, "N overdue" on the overview |
+| **Red** | Act now | No first reply after 48h (`isOverdue`). The only red in the product: "No reply for 52h" on the card, "N overdue" on the overview |
 | **Amber** | Worth a check before moving them on | Below the required qualification · right to work not confirmed · gone quiet (stale) |
-| **Grey** | Information | Waiting time under 48h (plain text) · also applied at another site · stage label in the panel and Closed lane |
+| **Grey** | Information | "Waiting 30h for a reply" (plain text, under 48h) · also applied at another site · outcome label in the Closed lane |
 | **Green** | Live / done | Position open on the portal · Hired |
 
-Rules: badges appear **only for exceptions** (no badge = nothing to worry about); on a card they always sit **under the name, in the order above**; the stage is the **lane**, never a pill on the card; a legend sits above the board. Never block on a flag.
+Rules: badges appear **only for exceptions** (no badge = nothing to worry about); on a card they always sit **under the name, in the order above**; the stage is the **lane**, never a pill on the card; the **Colours & flags** popover on the board explains every badge and says where each flag comes from. Never block on a flag.
 - Copy is plain and warm on the portal and terse on the manager side. Use UK English and £.
 - Accessibility basics: semantic elements, labels on every input, visible focus, and colour never the only signal (badges carry text).
 

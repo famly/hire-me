@@ -2,29 +2,30 @@ import { useState, type DragEvent } from 'react'
 import { useSearchParams } from 'react-router'
 import { ACTION_LABEL, nextAction } from '../domain/application'
 import { actionForLane, LANE_LABEL, LANES, laneOf, sortLane, type Lane } from '../domain/pipeline'
-import { hiredCount, shouldSuggestFilled } from '../domain/position'
-import { QUALIFICATION_SHORT } from '../domain/qualification'
+import { hiredCount, POSITION_STATE_LABEL, shouldSuggestFilled } from '../domain/position'
+import { needsReply } from '../domain/queue'
+import { relativeTime } from '../domain/time'
 import type { Application, ID } from '../domain/types'
 import { candidateById, positionById, roomLabel } from '../store/selectors'
 import { useNow, useStore } from '../store/store'
 import { Button } from '../ui/Button'
-import { Select } from '../ui/Field'
+import { MultiCombobox } from '../ui/MultiCombobox'
 import { StatusPill } from '../ui/StatusPill'
 import { useActions } from './actionsContext'
-import { BadgeLegend, ExceptionBadges, PositionStateBadge, WaitIndicator } from './badges'
+import { ExceptionBadges, LegendPopover, WaitIndicator } from './badges'
 import { useManagerData } from './useManagerData'
 
-const LANE_HINT: Partial<Record<Lane, string>> = {
-  new: 'Longest wait first',
-  contacted: 'Least recently touched first',
-  interview: 'Least recently touched first',
-  offer: 'Least recently touched first',
+const LANE_HINT: Record<Lane, string> = {
+  candidates: 'Unanswered first, longest wait on top',
+  interview: 'Longest in this stage first',
+  offer: 'Longest in this stage first',
+  closed: 'Every outcome, newest first',
 }
 
 /**
  * M5 — the hiring pipeline: one board, static lanes, one card per application.
- * Filter to a single position with ?position=. Move a card by dragging it forward,
- * or with its next-step button; either way the action dialog opens with a message.
+ * Filter to one or more positions (?position=p1,p2). Move a card by dragging it
+ * forward, or with its next-step link; either way the action dialog opens with a message.
  */
 export function PipelinePage() {
   const { data, positions, applications } = useManagerData()
@@ -32,12 +33,13 @@ export function PipelinePage() {
   const [params, setParams] = useSearchParams()
   const [dragId, setDragId] = useState<ID | null>(null)
 
-  const position = positions.find((p) => p.id === params.get('position'))
-  const showClosed = params.get('closed') === '1'
-  const scoped = position ? applications.filter((a) => a.positionId === position.id) : applications
-  const lanes: Lane[] = showClosed ? [...LANES, 'closed'] : LANES
-  const closedCount = scoped.filter((a) => laneOf(a) === 'closed').length
+  const selectedIds = (params.get('position') ?? '').split(',').filter((id) => positions.some((p) => p.id === id))
+  const showClosed = params.get('closed') !== '0'
+  const scoped = selectedIds.length ? applications.filter((a) => selectedIds.includes(a.positionId)) : applications
+  const lanes = showClosed ? LANES : LANES.filter((l) => l !== 'closed')
   const dragged = scoped.find((a) => a.id === dragId)
+  const single = selectedIds.length === 1 ? positions.find((p) => p.id === selectedIds[0]) : undefined
+  const readyToFill = positions.filter((p) => selectedIds.includes(p.id) && shouldSuggestFilled(p, applications))
 
   const setParam = (key: string, value: string | null) =>
     setParams((p) => {
@@ -46,97 +48,110 @@ export function PipelinePage() {
       return p
     })
 
+  const positionOptions = positions
+    .filter((p) => p.state !== 'archived' || selectedIds.includes(p.id))
+    .map((p) => ({
+      value: p.id,
+      label: p.title,
+      hint: [roomLabel(data, p.roomId) ?? 'Any room', POSITION_STATE_LABEL[p.state]].join(' · '),
+    }))
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="w-full sm:w-72">
-          <Select aria-label="Position" value={position?.id ?? ''} onChange={(e) => setParam('position', e.target.value || null)}>
-            <option value="">All positions</option>
-            {positions
-              .filter((p) => p.state !== 'archived' || p.id === position?.id)
-              .map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.title}
-                  {p.state !== 'open' ? ` (${p.state})` : ''}
-                </option>
-              ))}
-          </Select>
+      <div className="flex flex-wrap items-start gap-3">
+        <div className="w-full sm:w-96">
+          <MultiCombobox
+            options={positionOptions}
+            value={selectedIds}
+            onChange={(ids) => setParam('position', ids.length ? ids.join(',') : null)}
+            placeholder="All positions · type to filter"
+          />
         </div>
-        <label className="inline-flex items-center gap-2 text-sm text-stone-700">
-          <input type="checkbox" checked={showClosed} onChange={(e) => setParam('closed', e.target.checked ? '1' : null)} className="size-4 accent-brand-600" />
-          Show closed ({closedCount})
+        <label className="inline-flex h-10 items-center gap-2 text-sm text-stone-700">
+          <input
+            type="checkbox"
+            checked={showClosed}
+            onChange={(e) => setParam('closed', e.target.checked ? null : '0')}
+            className="size-4 accent-brand-600"
+          />
+          Show closed
         </label>
         <div className="sm:ml-auto">
-          <BadgeLegend />
+          <LegendPopover />
         </div>
       </div>
 
-      {position && (
+      {single && (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-stone-600">
-          <PositionStateBadge state={position.state} />
           <span>
-            {roomLabel(data, position.roomId) ?? 'Any room'} · needs {QUALIFICATION_SHORT[position.requiredQualification]} ·{' '}
-            {position.hoursPerWeek}h · {position.payRange} · {hiredCount(position, applications)}/{position.headcount} hired
+            {roomLabel(data, single.roomId) ?? 'Any room'} · {single.hoursPerWeek}h · {single.payRange} ·{' '}
+            {hiredCount(single, applications)}/{single.headcount} hired
           </span>
-          {position.state !== 'filled' && position.state !== 'archived' && (
-            <button type="button" className="text-brand-700 hover:underline" onClick={() => actions.editPosition(position.id)}>
-              Edit
+          {single.state !== 'filled' && single.state !== 'archived' && (
+            <button type="button" className="text-brand-700 hover:underline" onClick={() => actions.editPosition(single.id)}>
+              Edit position
             </button>
           )}
         </div>
       )}
 
-      {position && shouldSuggestFilled(position, applications) && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-emerald-50 px-4 py-3 ring-1 ring-emerald-200">
+      {readyToFill.map((p) => (
+        <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-emerald-50 px-4 py-3 ring-1 ring-emerald-200">
           <p className="text-sm text-emerald-900">
-            You've hired {hiredCount(position, applications)} of {position.headcount}. Mark this position as filled and let
-            everyone else know?
+            {p.title}: you've hired {hiredCount(p, applications)} of {p.headcount}. Mark it as filled and let everyone else
+            know?
           </p>
-          <Button size="sm" onClick={() => actions.fill(position.id)}>
+          <Button size="sm" onClick={() => actions.fill(p.id)}>
             Mark as filled…
           </Button>
         </div>
-      )}
+      ))}
 
       <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3 sm:mx-0 sm:px-0">
         {lanes.map((lane) => {
           const apps = sortLane(lane, scoped.filter((a) => laneOf(a) === lane))
           const action = dragged ? actionForLane(dragged, lane) : null
-          const accepts = action !== null
           return (
             <section
               key={lane}
               aria-label={`${LANE_LABEL[lane]}, ${apps.length}`}
-              onDragOver={(e: DragEvent) => accepts && e.preventDefault()}
+              onDragOver={(e: DragEvent) => action && e.preventDefault()}
               onDrop={(e: DragEvent) => {
                 e.preventDefault()
                 if (dragged && action) actions.start(dragged.id, action)
                 setDragId(null)
               }}
-              className={`flex w-[82%] shrink-0 snap-start flex-col rounded-xl p-2 transition sm:w-64 xl:w-auto xl:min-w-0 xl:flex-1 ${
-                dragged ? (accepts ? 'bg-brand-50 ring-2 ring-brand-300' : 'bg-stone-100 opacity-50') : 'bg-stone-100'
+              className={`flex w-[85%] shrink-0 snap-start flex-col rounded-xl border-2 p-2 transition sm:w-80 xl:w-auto xl:min-w-0 xl:flex-1 ${
+                !dragged
+                  ? 'border-transparent bg-stone-100'
+                  : action
+                    ? 'border-dashed border-brand-500 bg-brand-50'
+                    : 'border-transparent bg-stone-100 opacity-40'
               }`}
             >
               <header className="px-1.5 pt-1 pb-2">
                 <h3 className="flex items-baseline justify-between text-sm font-semibold text-stone-800">
                   {LANE_LABEL[lane]} <span className="font-normal text-stone-500">{apps.length}</span>
                 </h3>
-                {LANE_HINT[lane] && <p className="text-xs text-stone-400">{LANE_HINT[lane]}</p>}
+                <p className="text-xs text-stone-500">{LANE_HINT[lane]}</p>
               </header>
+              {action && (
+                <p className="mb-2 rounded-lg bg-white/70 px-3 py-2 text-center text-sm font-medium text-brand-700">
+                  Drop to {ACTION_LABEL[action].toLowerCase()}
+                </p>
+              )}
               <div className="flex flex-1 flex-col gap-2">
                 {apps.map((a) => (
                   <PipelineCard
                     key={a.id}
                     app={a}
-                    showPosition={!position}
+                    showPosition={selectedIds.length !== 1}
                     onDragStart={() => setDragId(a.id)}
                     onDragEnd={() => setDragId(null)}
                   />
                 ))}
-                {apps.length === 0 && (
-                  <p className="rounded-lg border border-dashed border-stone-300 px-3 py-4 text-center text-xs text-stone-400">
-                    {accepts ? `Drop to ${ACTION_LABEL[action].toLowerCase()}` : 'Nobody here'}
-                  </p>
+                {apps.length === 0 && !action && (
+                  <p className="rounded-lg border border-dashed border-stone-300 px-3 py-4 text-center text-xs text-stone-400">Nobody here</p>
                 )}
               </div>
             </section>
@@ -164,6 +179,7 @@ function PipelineCard({
   const candidate = candidateById(data, app.candidateId)
   const position = positionById(data, app.positionId)!
   const next = nextAction(app)
+  const closed = laneOf(app) === 'closed'
 
   return (
     <article
@@ -182,11 +198,16 @@ function PipelineCard({
     >
       <div className="flex items-start justify-between gap-2">
         <p className="min-w-0 truncate font-medium">{candidate.name}</p>
+        {closed && <StatusPill state={app.state} />}
+      </div>
+      {showPosition && <p className="-mt-1.5 truncate text-xs text-stone-500">{position.title}</p>}
+      <div>
         <WaitIndicator app={app} now={now} />
       </div>
-      {showPosition && <p className="truncate text-xs text-stone-500">{position.title}</p>}
+      {app.state === 'contacted' && !needsReply(app) && app.firstRepliedAt && (
+        <p className="text-xs text-stone-500">Contacted {relativeTime(app.firstRepliedAt, now)}</p>
+      )}
       <ExceptionBadges app={app} required={position.requiredQualification} now={now} />
-      {laneOf(app) === 'closed' && <StatusPill state={app.state} />}
       {next && (
         <button
           type="button"
@@ -194,7 +215,7 @@ function PipelineCard({
             e.stopPropagation()
             start(app.id, next)
           }}
-          className="text-sm font-medium text-brand-700 hover:underline"
+          className="block text-sm font-medium text-brand-700 hover:underline"
         >
           {ACTION_LABEL[next]} →
         </button>
