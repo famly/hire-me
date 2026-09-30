@@ -1,7 +1,7 @@
 // Seed cast from docs/USER_JOURNEYS.md. Timestamps are relative to `now` so the
 // wait badges and stale flags look right whenever the demo is opened.
 
-import { transitionApplication, type ApplicationAction } from '../domain/application'
+import { addNote, transitionApplication, type ApplicationAction } from '../domain/application'
 import { messageFor } from '../domain/messages'
 import { DAY, HOUR, isoDate } from '../domain/time'
 import type {
@@ -258,15 +258,20 @@ export function buildSeed(now: Timestamp): Data {
     return app
   }
 
+  /** Notes the manager wrote straight after the interview. */
+  const interviewNote = (app: Application, body: string): Application =>
+    addNote(app, body, app.interview!.at + 45 * 60 * 1000, 'interview')
+
   const applications: Application[] = [
     seedApp('c-amira', 'p1', 52 * HOUR, { note: 'I have 6 years in a toddler room and my Level 3 since 2021.' }),
     seedApp('c-amira', 'p5', 8 * DAY, {}, [['contact', 7 * DAY], ['invite', 2 * DAY, { at: slot(2, 10), mode: 'in_person', location: 'Willow House, 3 Canynge Square, Bristol BS8 3LA' }]]),
     seedApp('c-chloe', 'p1', 30 * HOUR, { qualifications: ['l2-eyp', 'wt-l3'], note: 'Currently studying for my Level 3, finishing in spring.' }),
     seedApp('c-jordan', 'p1', 4 * DAY, { qualifications: ['l3-cache'], availability: 'either', earliestStart: isoDate(now + 40 * DAY) }, [['contact', 3 * DAY], ['invite', 1 * DAY, { at: slot(2, 14), mode: 'in_person', location: 'Oak Tree Nursery, 14 Cotham Grove, Bristol BS6 6AL' }]]),
-    seedApp('c-marcus', 'p1', 14 * DAY, { qualifications: ['l3-nneb', 'pfa'], availability: 'part_time' }, [['contact', 13 * DAY], ['invite', 9 * DAY, { at: slot(-7, 14), mode: 'online', location: 'https://meet.google.com/oak-tree-marcus' }]]),
+    interviewNote(seedApp('c-marcus', 'p1', 14 * DAY, { qualifications: ['l3-nneb', 'pfa'], availability: 'part_time' }, [['contact', 13 * DAY], ['invite', 9 * DAY, { at: slot(-7, 14), mode: 'online', location: 'https://meet.google.com/oak-tree-marcus' }]]),
+      'Relaxed and warm on camera, clearly loves the age group. Strong on key-person handovers. Wants 4 days a week, so we would need to cover Fridays. Ask for references before an offer.'),
     seedApp('c-sophie', 'p2', 4 * HOUR, { qualifications: ['wt-l2'], availability: 'part_time', note: 'Just started my Level 2 at City of Bristol College. Mornings suit me best.' }),
     seedApp('c-daniel', 'p2', 26 * HOUR, { qualifications: ['none'], availability: 'part_time', rightToWork: false, note: 'Career changer, 10 years in retail. Two kids of my own!' }),
-    seedApp('c-grace', 'p2', 10 * DAY, { qualifications: ['l2-cache', 'pfa'], availability: 'part_time' }, [['contact', 9 * DAY], ['invite', 7 * DAY, { at: slot(-5, 10), mode: 'in_person', location: 'Oak Tree Nursery, 14 Cotham Grove, Bristol BS6 6AL' }], ['offer', 1 * DAY]]),
+    interviewNote(seedApp('c-grace', 'p2', 10 * DAY, { qualifications: ['l2-cache', 'pfa'], availability: 'part_time' }, [['contact', 9 * DAY], ['invite', 7 * DAY, { at: slot(-5, 10), mode: 'in_person', location: 'Oak Tree Nursery, 14 Cotham Grove, Bristol BS6 6AL' }], ['offer', 1 * DAY]]), 'Trial hour in the Baby room went well: calm at nap time and chatted to parents at pick-up. Available mornings only, which suits the role.'),
     seedApp('c-liam', 'p2', 9 * DAY, { qualifications: ['none'] }, [['reject', 8 * DAY]]),
     seedApp('c-ella', 'p3', 6 * DAY, {}, [['contact', 3 * DAY]]),
     seedApp('c-noah', 'p4', 20 * DAY, { qualifications: ['l2-eyp', 'pfa'], earliestStart: isoDate(now - 5 * DAY) }, [['contact', 19 * DAY], ['invite', 16 * DAY, { at: slot(-15, 11), mode: 'in_person', location: 'Oak Tree Nursery, 14 Cotham Grove, Bristol BS6 6AL' }], ['offer', 14 * DAY], ['hire', 12 * DAY]]),

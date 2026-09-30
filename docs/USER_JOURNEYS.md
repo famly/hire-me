@@ -52,10 +52,10 @@ Legend: ☐ not started · ◐ partly working · ☑ works end-to-end in the bro
 | **Amira Khan** | L3 | P5 | Interview | in person at Willow House in 2 days, 10:00 | "Also at Willow House"; upcoming interview |
 | Chloe Evans | L2 | P1 | New | 30h ago | Waiting, not overdue (grey); amber "Needs L3" |
 | Jordan Reid | L3 (CACHE, no first aid, starts in ~6 weeks) | P1 | Interview | in person at Oak Tree in 2 days, 14:00 | Upcoming interview; moves to "Needs a decision" after +3 days; match 83 |
-| **Marcus Bell** | L3 (NNEB + first aid, wants part-time) | P1 | Interview | interviewed online 7 days ago, nothing since | "Quiet 7d" (J8); past interview on the card; match 90 |
+| **Marcus Bell** | L3 (NNEB + first aid, wants part-time) | P1 | Interview | interviewed online 7 days ago, wrote interview notes straight after, nothing since | "Quiet 7d" (J8); past interview on the card; interview notes in the panel; match 90 |
 | Sophie Turner | working towards | P2 | New | 4h ago | Waiting (grey), no badges |
 | Daniel Hughes | none | P2 | New | 26h ago | Waiting (grey); amber "Right to work?" |
-| Grace Adeyemi | L2 | P2 | Offer | — | Late pipeline |
+| Grace Adeyemi | L2 | P2 | Offer | offered yesterday, trial-hour notes from her interview | Late pipeline; "Offers waiting for an answer" |
 | Liam Walsh | none | P2 | Rejected | — | Terminal state |
 | Ella Morgan | L3 | P3 | Contacted | — | Applicants on a paused position (goes quiet at +3 days) |
 | Noah Patel | L2 | P4 | Hired | 12 days ago | Existing staff record; time-to-fill metric |
@@ -112,7 +112,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 |---|---|---|---|---|
 | 1 | `/n/oak-tree` | See nursery name, location, a short "about", and open positions (P1, P2). P3 paused and P4 filled are hidden | Only `open` positions render | ☑ |
 | 2 | `/n/oak-tree/p/P1` | Read room/age group, qualification needed, hours, pay, description. Tap **Apply** | — | ☑ |
-| 3 | `…/apply` | Fill one screen, **every field required**: name, email, phone, qualifications (type to search, pick several, chips with ✕), earliest start, hours, right to work (yes/no), **CV** (PDF/Word ≤5 MB), a note about themselves, and the consent switch. Submit | Inline errors, focus on the first. `findOrCreateCandidate(group, email)`, create Application `new` with status token, timeline event `received` | ☑ |
+| 3 | `…/apply` | Fill one screen, **every field required except the note**: name, email, phone, qualifications (type to search, pick several, chips with ✕), earliest start, hours, right to work (yes/no), **CV** (PDF/Word ≤5 MB), a note about themselves (optional), and the consent switch. Submit | Inline errors, focus on the first. `findOrCreateCandidate(group, email)`, create Application `new` with status token, timeline event `received` | ☑ |
 | 4 | `/applied/:token` | See "Application sent to Oak Tree Nursery", what happens next, and the **private status link** (copy button) | Show the link as "we've also emailed this" (simulated) | ☑ |
 
 **Done when:** a submission takes a few minutes on a phone (including picking a CV from Files or Drive), there's no login, and the new application appears on the manager side with its qualifications and CV name.
@@ -140,7 +140,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | `/manage` | See Oak Tree's **active** positions (toggle to All) with state and counts: needs reply as a plain number plus a red "N overdue" only if someone waited >48h / in progress / hired of headcount | Counts derived, never stored | ☑ |
+| 1 | `/manage` | See **what needs you now** (4 waiting for a reply, 1 overdue: Amira; Marcus to decide on; Jordan's interview next; Grace's offer out), each tile opening that person. Below: Oak Tree's **active** positions (toggle to All) with state and counts: needs reply as a plain number plus a red "N overdue" only if someone waited >48h / in progress / hired of headcount | Counts derived, never stored | ☑ |
 | 2 | `/manage/pipeline` | See the **Hiring pipeline** board: static lanes Candidates · Interview · Offer · Closed. Any lane folds into a narrow strip (⇥⇤ in its header) and back. Candidates: unanswered first, longest wait on top, then contacted. Interview: *Needs a decision* then *Upcoming*, each a labelled group with a count. **Filter by position**: type names, pick several, clear with ✕ | `laneOf()`, `sortLane()`; "Waiting 30h for a reply" grey, red "No reply for 52h" when `isOverdue()` | ☑ |
 | 3 | — | Scan each card: name and **match score** (hover it for the explanation and the points), position, wait in words, then **only exception flags**: amber (needs L3, right to work?, quiet), grey (also at another site). The **CV** is on the card. **Colours & flags** (popover) explains each one and where it comes from | `matchApplication()`, `meetsRequirement()`, `isStale()`, `otherApplications()` | ☑ |
 
@@ -156,7 +156,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 |---|---|---|---|---|
 | 1 | `/manage/pipeline` (optionally `?position=p1`) | On the card, click the next step (Contact · Invite to interview · Make offer · Hire), or **drag the card** forward to any later lane (the lanes that accept it get a dashed outline and "Drop to …") (drop on Closed = reject). Lanes that can't take the card dim while dragging. Reject and everything else are in the panel | `nextAction()`, `actionForLane()` (forward only), `managerActions()`; set `firstRepliedAt` on the first manager action | ☑ |
 | 2 | — | See a short preview of the email (**Edit** opens subject and message; switch off "Email" to skip it), then confirm with a two-word button ("Send invite"). **Inviting also schedules the interview**: date, time, in person (address, defaulting to the nursery) or online (a meeting link is **created automatically**; switch it off to paste your own). The message fills in the details until edited by hand | Template from `messages.ts`; timeline `status` + `message` events | ☑ |
-| 3 | `?app=:id` side panel | Click the card to open the detail: contact, CV and match score up top, answers, the labelled "Message from …", all actions, and a **timeline of plain steps** (who, when, the email folded under each step; an upcoming interview on top as "Next"), internal notes. From Offer: **Offer declined** records that they said no | `timelineEntries()`; notes are `note` events, never public | ☑ |
+| 3 | `?app=:id` side panel | Click the card to open the detail: contact, CV and match score up top, answers, the labelled "Message from …", all actions, and a **timeline of plain steps** (who, when, the email folded under each step; an upcoming interview on top as "Next"), internal notes. After the interview, **interview notes** go in the Interview section and appear under the *Interviewed* step. From Offer: **Offer declined** records that they said no | `timelineEntries()`, `canAddInterviewNotes()`; notes are `note` events, never public | ☑ |
 
 **Done when:** the card moves to its new lane, drops out of "needs reply", and the candidate's status page reflects it.
 
@@ -172,7 +172,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 | 2 | — | Confirm a **prefilled staff record**: name, contact, qualification, nursery, room, start date (from earliest start) | Create `StaffRecord` with `fromApplicationId` | ☑ |
 | 3 | — | Prompt opens straight after the hire: "You've hired 1 of 1… these 4 applicants are still waiting" with the message preview. "Not yet" leaves a banner on the filtered board and "Ready to mark filled" on the overview row | Suggest `filled` when hires = headcount | ☑ |
 | 4 | — | Confirm | Position → `filled` (off the portal); remaining active applications → `rejected` with the "position filled" message (S1) | ☑ |
-| 5 | `/manage/staff` | See the new staff member next to Noah Patel, badged "Hired via Recruitment" (opens the application) | — | ☑ |
+| 5 | `/manage/staff` (via "Staff record created in Famly: view" in the panel; the sidebar item is switched off for now) | See the new staff member next to Noah Patel, badged "Hired via Recruitment" (opens the application) | — | ☑ |
 
 **Done when:** nobody on P1 is left in an active state, and every one of them has a message on their status page.
 
@@ -218,7 +218,8 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 **Actor:** Priya (and us, validating the brief's hypothesis).
 
-- [x] Metrics strip on `/manage`: median time to first reply, % replied within 48h (of those due a reply), open positions, median time to fill. Each tile says what it counts.
+- [x] Top of `/manage`: four **needs you now** tiles (waiting for your reply with "N overdue", interviewed and needing a decision, upcoming interviews, offers waiting for an answer). Each names the first person to deal with and opens them.
+- [x] Under the tiles, one **Reply speed** sentence: median time to first reply, % replied within 48h (of those due a reply), median time to fill.
 - [x] Numbers move when J4/J5 are performed (derived on every render, never stored).
 
-**Done when:** the numbers come from `domain/metrics.ts`, are covered by tests, and are explained in the README (what they'd validate).
+**Done when:** the counts come from `domain/attention.ts` and the reply-speed numbers from `domain/metrics.ts`, both are covered by tests, and are explained in the README (what they'd validate).

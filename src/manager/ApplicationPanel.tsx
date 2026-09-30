@@ -1,7 +1,7 @@
 import { CalendarDays, CircleDot, ExternalLink, Mail, Phone, StickyNote, X } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
-import { isActive } from '../domain/application'
+import { canAddInterviewNotes, interviewNotes, isActive } from '../domain/application'
 import { qualificationLabel } from '../domain/qualification'
 import { formatDate, formatDateTime, relativeTime } from '../domain/time'
 import { timelineEntries, type TimelineEntry } from '../domain/timeline'
@@ -26,6 +26,7 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
   const addNote = useStore((s) => s.addNote)
   const now = useNow()
   const [note, setNote] = useState('')
+  const [ivNote, setIvNote] = useState('')
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -94,9 +95,48 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
         <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
           <CrossSiteSection app={app} />
           {app.interview && (
-            <section className="rounded-lg bg-stone-50 p-3">
-              <h3 className="mb-2 text-xs font-medium text-stone-500">Interview</h3>
-              <InterviewDetails interview={app.interview} now={now} />
+            <section className="space-y-3 rounded-lg bg-stone-50 p-3">
+              <div>
+                <h3 className="mb-2 text-xs font-medium text-stone-500">Interview</h3>
+                <InterviewDetails interview={app.interview} now={now} />
+              </div>
+              {canAddInterviewNotes(app, now) ? (
+                <div className="space-y-2 border-t border-stone-200 pt-3">
+                  <h4 className="text-xs font-medium text-stone-500">Interview notes</h4>
+                  {interviewNotes(app).map((n) => (
+                    <p key={n.id} className="rounded-lg bg-white p-2.5 text-sm whitespace-pre-line text-stone-800 ring-1 ring-stone-200">
+                      {n.body}
+                      <span className="mt-1 block text-xs text-stone-500">
+                        {actorName(n.by)} · {relativeTime(n.at, now)}
+                      </span>
+                    </p>
+                  ))}
+                  <form
+                    className="space-y-2"
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      if (!ivNote.trim()) return
+                      addNote(app.id, ivNote.trim(), 'interview')
+                      setIvNote('')
+                    }}
+                  >
+                    <Textarea
+                      rows={3}
+                      placeholder="How did it go? Strengths, concerns, what to check before an offer. Never shown to the candidate."
+                      value={ivNote}
+                      onChange={(e) => setIvNote(e.target.value)}
+                      aria-label="Interview notes"
+                    />
+                    {ivNote.trim() && (
+                      <Button type="submit" size="sm" variant="secondary">
+                        Save interview notes
+                      </Button>
+                    )}
+                  </form>
+                </div>
+              ) : (
+                <p className="border-t border-stone-200 pt-3 text-xs text-stone-500">You can add interview notes here once it has happened.</p>
+              )}
             </section>
           )}
           <section className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
@@ -114,10 +154,12 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
               </ul>
             </div>
           </section>
-          <section>
-            <h3 className="text-xs text-stone-500">Message from {firstName}</h3>
-            <blockquote className="mt-1 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">{app.answers.note}</blockquote>
-          </section>
+          {app.answers.note && (
+            <section>
+              <h3 className="text-xs text-stone-500">Message from {firstName}</h3>
+              <blockquote className="mt-1 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">{app.answers.note}</blockquote>
+            </section>
+          )}
 
           <section>
             <h3 className="text-sm font-semibold">Timeline</h3>
@@ -196,6 +238,14 @@ function TimelineItem({ entry, actorName, now }: { entry: TimelineEntry; actorNa
           {entry.upcoming && <span className="ml-2 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700">Next</span>}
         </p>
         <p className="text-xs text-stone-500">{when}</p>
+        {entry.notes.map((n) => (
+          <div key={n.id} className="mt-2 rounded-lg bg-amber-50 p-2.5">
+            <p className="flex items-center gap-1.5 text-xs text-stone-500">
+              <StickyNote size={12} className="text-amber-600" aria-hidden /> Interview notes · {actorName(n.by)} · {relativeTime(n.at, now)}
+            </p>
+            <p className="mt-1 whitespace-pre-line">{n.body}</p>
+          </div>
+        ))}
       </li>
     )
   }

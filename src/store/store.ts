@@ -34,7 +34,7 @@ interface State extends Data {
   fastForward: (ms: number) => void
   submitApplication: (input: ApplyInput) => { token: string; duplicate: boolean }
   applyAction: (applicationId: ID, action: ApplicationAction, message?: Message, extra?: { interview?: Interview }) => void
-  addNote: (applicationId: ID, body: string) => void
+  addNote: (applicationId: ID, body: string, about?: 'interview') => void
   hire: (applicationId: ID, message: Message | undefined, staff: Pick<StaffRecord, 'startDate' | 'roomId'>) => void
   transitionPosition: (positionId: ID, action: PositionAction) => void
   fillPosition: (positionId: ID) => void
@@ -122,8 +122,8 @@ export const useStore = create<State>()(
             ),
           })),
 
-        addNote: (applicationId, body) =>
-          set((s) => ({ applications: replace(s.applications, addNote(app(applicationId), body, now())) })),
+        addNote: (applicationId, body, about) =>
+          set((s) => ({ applications: replace(s.applications, addNote(app(applicationId), body, now(), about)) })),
 
         hire: (applicationId, message, staff) => {
           const s = get()

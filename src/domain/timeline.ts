@@ -2,13 +2,21 @@ import type { Actor, Application, ApplicationState, Message, Timestamp } from '.
 
 // The application's history as a list of plain steps for the manager's panel.
 // A status change and the email sent with it are one step, not two lines; the
-// interview itself shows up as a step at the time it happens (or will happen).
+// interview itself shows up as a step at the time it happens (or will happen), with
+// the notes from it underneath.
 
 export type TimelineEntry =
   | { id: string; kind: 'step'; at: Timestamp; by: Actor; title: string; email?: Message }
-  | { id: string; kind: 'interview'; at: Timestamp; title: string; upcoming: boolean }
+  | { id: string; kind: 'interview'; at: Timestamp; title: string; upcoming: boolean; notes: InterviewNote[] }
   | { id: string; kind: 'note'; at: Timestamp; by: Actor; body: string }
   | { id: string; kind: 'email'; at: Timestamp; by: Actor; email: Message }
+
+export interface InterviewNote {
+  id: string
+  at: Timestamp
+  by: Actor
+  body: string
+}
 
 const STEP_TITLE: Record<ApplicationState, string> = {
   new: 'Applied',
@@ -25,7 +33,12 @@ const STEP_TITLE: Record<ApplicationState, string> = {
 /** Newest first. An upcoming interview sits on top as the next thing to happen. */
 export function timelineEntries(app: Application, now: Timestamp): TimelineEntry[] {
   const entries: TimelineEntry[] = []
+  const notes: InterviewNote[] = []
   for (const e of app.timeline) {
+    if (e.kind === 'note' && e.about === 'interview') {
+      notes.push({ id: e.id, at: e.at, by: e.by, body: e.body })
+      continue
+    }
     const last = entries[entries.length - 1]
     if (e.kind === 'status') {
       const title =
@@ -48,6 +61,7 @@ export function timelineEntries(app: Application, now: Timestamp): TimelineEntry
       at: app.interview.at,
       title: upcoming ? `Interview ${where}` : `Interviewed ${where}`,
       upcoming,
+      notes,
     })
   }
   return entries.sort((a, b) => b.at - a.at)

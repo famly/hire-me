@@ -137,11 +137,25 @@ export function transitionApplication(
   }
 }
 
-export function addNote(app: Application, body: string, now: Timestamp): Application {
+/** Interview notes can only be written once the interview has happened. */
+export function canAddInterviewNotes(app: Application, now: Timestamp): boolean {
+  return !!app.interview && app.interview.at <= now
+}
+
+export function addNote(app: Application, body: string, now: Timestamp, about?: 'interview'): Application {
+  if (about === 'interview' && !canAddInterviewNotes(app, now)) {
+    throw new Error('Interview notes need an interview that has taken place')
+  }
   return {
     ...app,
-    timeline: [...app.timeline, { id: eventId(app, 0), at: now, by: 'manager', kind: 'note', body }],
+    timeline: [...app.timeline, { id: eventId(app, 0), at: now, by: 'manager', kind: 'note', body, ...(about && { about }) }],
   }
+}
+
+export type NoteEvent = Extract<TimelineEvent, { kind: 'note' }>
+
+export function interviewNotes(app: Application): NoteEvent[] {
+  return app.timeline.filter((e): e is NoteEvent => e.kind === 'note' && e.about === 'interview')
 }
 
 function eventId(app: Application, offset: number): string {

@@ -32,8 +32,8 @@ The top bar switches between **Job seeker** and **Manager**, moves the clock for
 2. **Reply as the manager.** Open *Hiring pipeline*. Your card is at the bottom of the unanswered group in the **Candidates** lane, with no flags because you meet the requirement. Amira Khan is at the top, the only red thing on screen (*No reply for 52h*). *Colours & flags* explains every badge. Hover a card's purple **match score** to see why it scored what it did. Click **Contact →**, then **Invite to interview →** (or drag the card to *Interview*): pick a time and choose *Online*, and a meeting link is created for you (or switch that off and paste your own). The email shows as a short preview; **Edit** opens it. The card now shows the date and join link, and your status tab shows *Your interview* on its own.
 3. **Hire.** Make an offer, then **Hire**. Confirm the prefilled staff record, and you're asked straight away to mark the position filled. Four people are still waiting; they each get a message, and their status pages say *Not progressing*.
 4. **Same person, two sites.** Amira has also applied to Willow House in the same group. Her card says so in grey, and her panel names the other manager.
-5. **Gone quiet.** Marcus Bell was interviewed 7 days ago, nothing has happened since, and he shows an amber *Quiet 7d*. Press **+1 day** a few times to watch waits turn red, Ella go quiet and Jordan's interview move from *Upcoming* to *Needs a decision*, then open Marcus and **Mark as lapsed**.
-6. **Positions.** On *Overview*, use the **Active / All** toggle and each row's **⋯** menu (pause, archive, edit and more). **New position** opens a modal, so you never leave the page.
+5. **Gone quiet.** Marcus Bell was interviewed 7 days ago, nothing has happened since, and he shows an amber *Quiet 7d*. His panel has the notes Priya wrote after the interview, under *Interviewed online*. Press **+1 day** a few times to watch waits turn red, Ella go quiet and Jordan's interview move from *Upcoming* to *Needs a decision*, then open Marcus and **Mark as lapsed**.
+6. **Overview.** The top four tiles say what needs you now (who's waiting, who needs a decision, the next interview, the offer out); each opens that person. Below the tiles, use the positions list's **Active / All** toggle and each row's **⋯** menu (pause, archive, edit and more). **New position** opens a modal, so you never leave the page.
 
 The seed data follows [docs/USER_JOURNEYS.md](docs/USER_JOURNEYS.md): one group (Acorn Family Nurseries), three nurseries, six positions and fourteen applications, each chosen to show one behaviour.
 
@@ -71,12 +71,12 @@ The **manager's time** is the scarce resource: hiring is their fourth job. So ev
 
 1. **Nursery page** (`/n/oak-tree`): who the nursery is and the open roles. Each role shows room and age group, qualification, hours and pay up front.
 2. **Position page**: the role, plus *what happens when you apply*. That section is there to earn trust: no account, you get a private link, and the manager replies directly.
-3. **Apply form**, one screen, every field required:
+3. **Apply form**, one screen, every field required except the note:
    - name, email and mobile
    - **qualifications**: type to search a list of real UK childcare qualifications (CACHE, Early Years Educator, NNEB, EYTS, QTS, first aid…) and pick several; they appear as chips with an ✕
    - earliest start and hours
    - right to work: yes or no ("no" is allowed and flagged, never blocked)
-   - **CV** (PDF or Word, up to 5 MB) and a short note about themselves
+   - **CV** (PDF or Word, up to 5 MB), and an optional short note about themselves
    - a **consent switch**: the information is true
 
    There's no password. Errors show inline and focus jumps to the first. If the same email applies to the same role again, it gets its existing link back.
@@ -95,10 +95,10 @@ Each application gets its own unguessable status token. The candidate never sees
 
 > *What does the manager open, and what model carries a position from open to filled, and an application from arrival to hired, rejected or gone quiet?*
 
-**What they open:** *Recruitment* in the Famly sidebar, next to *Staff*.
+**What they open:** *Recruitment* in the Famly sidebar.
 
 - **Overview**:
-  - a banner showing how many people are waiting for a first reply, and a metrics strip;
+  - **what needs you now**: four tiles (*Waiting for your reply* with a red "N overdue", *Interviewed, needs a decision*, *Upcoming interviews*, *Offers waiting for an answer*), each naming the first person to deal with and opening them in one click, and one plain *Reply speed* sentence underneath;
   - the positions list, **Active** by default (All shows filled and archived), with *needs reply* (plus a red "N overdue" only when true), *in progress* and *hired of headcount*;
   - a **⋯ menu** on each row: open pipeline, edit, publish / pause / resume, mark as filled, view listing, archive;
   - **New position** and **Edit** open a modal over the page.
@@ -107,8 +107,8 @@ Each application gets its own unguessable status token. The candidate never sees
   - The Candidates lane puts the unanswered first, longest wait on top. The Interview lane splits into two phases worked out from the interview time: *Needs a decision* first (with "Make offer →"), then *Upcoming*, each a labelled group with a count (no next step until it has happened). Cards move between them on their own.
   - A card shows the name and **match score**, the position, the wait in words ("Waiting 30h for a reply", or a red "No reply for 52h"), the interview date and place or link, **flags only for exceptions**, and the **CV**.
   - The **match score** (0–100) comes from the answers only: qualification against the requirement, right to work, hours, start date, paediatric first aid. Hover it for a written explanation and the points. It is a hint: it never reorders the lane (reply speed wins) and never rejects anyone, and it's purple, not a traffic light, so it doesn't read as a verdict.  - Move a card with its next-step link (Contact → Invite → Offer → Hire) or by dragging it forward: the lanes that accept it get a dashed outline. Every move opens the message to send, and inviting also schedules the interview.
-- **Application panel**: contact, CV and match score at the top; answers and the labelled *Message from …*; the interview; all allowed actions (including reject, lapse and **Offer declined**); internal notes; and a **timeline of plain steps** (Applied, Contacted, Invited, Interviewed, Offer made…), each with who and when and the email that went with it folded underneath. It opens in place, so the board keeps its position.
-- **Staff** (Famly's own sidebar item): where hires land, badged *Hired via Recruitment*.
+- **Application panel**: contact, CV and match score at the top; answers and the labelled *Message from …*; the interview; all allowed actions (including reject, lapse and **Offer declined**); internal notes; and a **timeline of plain steps** (Applied, Contacted, Invited, Interviewed, Offer made…), each with who and when and the email that went with it folded underneath. Once the interview has happened, **interview notes** go in the Interview section and show under the *Interviewed* step. It opens in place, so the board keeps its position.
+- **Staff**: where hires land, badged *Hired via Recruitment*. Its sidebar item is switched off for now; a hired application's panel links to it.
 
 **One colour, one meaning.** The first version used a colour per status plus three wait colours, and it needed explaining: two "2 waiting" badges, one amber and one red. Now the rules are:
 
@@ -197,7 +197,9 @@ stateDiagram-v2
 | What a candidate *is* | Group-scoped Candidate, separate from staff | **Draft staff record on apply**: pollutes staff data and raises GDPR problems. **Global cross-group profile**: privacy, and groups are competitors |
 | Qualification | Multi-select from a list of real qualifications, each mapped to a level (the highest counts) | **v1: a single choice of level**: people hold several, and managers recognise "CACHE Level 3", not "L3". **CV parsing**: unreliable and slow to build |
 | CV | Required upload, alongside structured answers | **v1: no CV**, reversed after review: managers expect one before calling. The structured answers still drive triage |
-| Required fields | All required, plus a consent switch | **v1: optional note and a right-to-work checkbox**: an unticked box couldn't tell "no" from "skipped" |
+| Required fields | All required except the note, plus a consent switch | **v1: a right-to-work checkbox**: an unticked box couldn't tell "no" from "skipped". **v2: a required note**: the one field that reads like a cover letter, off-putting on a phone, and the structured answers already cover triage |
+| Overview | Four "needs you now" counts, each naming who to open first; reply speed as one sentence | **v1: a metrics strip** (median reply time, % within 48h, open positions, time to fill): true, but not something to act on, and confusing as the first thing on the page |
+| Interview notes | Tagged to the interview, writable once it has happened, shown under that step | **Only free notes**: interview feedback gets lost among the rest. **A scorecard**: too heavy for now |
 | Qualification below requirement | Flag, never block | **Hard gate**: a manager may want an L2 who finishes their L3 in spring |
 | Right to work | Yes/no answer; "no" is flagged | **Block in the form**: gatekeeping belongs to the employer's check, not a form field |
 | Hiring pipeline | Kanban with four static lanes (Candidates · Interview · Offer · Closed) across positions, filterable to any mix | **v1: a wait-sorted list**: status was spread across badges, hard to scan. **v2: five lanes** New · Contacted · Interview · Offer · Hired: the New/Contacted split confused people, and Hired is an outcome |
@@ -227,13 +229,12 @@ stateDiagram-v2
 
 ## How we'd know it worked
 
-The brief says *"we have not agreed how we would know this worked"*, and has a hunch that first-reply speed matters most. So the prototype **instruments the hunch instead of assuming it**. The overview strip shows:
+The brief says *"we have not agreed how we would know this worked"*, and has a hunch that first-reply speed matters most. So the prototype **instruments the hunch instead of assuming it**. The top of the overview is for acting (who's waiting, who needs a decision); the measurement sits underneath as one *Reply speed* sentence:
 
 | Metric | Why |
 |---|---|
 | **Median time to first reply** | The hypothesis itself |
 | **% replied within 48h** (of applications already due a reply) | Shows how many people wait too long, which a median hides; the same 48h line as the red flag |
-| **Open positions** | Context |
 | **Median time to fill** | The outcome the manager actually feels (agency cover, turned-away families) |
 
 With real data, I'd add:

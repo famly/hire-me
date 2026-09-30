@@ -1,6 +1,6 @@
-import { Archive, ChevronRight, ExternalLink, Kanban, Pause, Pencil, Play, Plus, Send, UserCheck } from 'lucide-react'
+import { Archive, ExternalLink, Kanban, Pause, Pencil, Play, Plus, Send, UserCheck } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { isActive } from '../domain/application'
 import { allowedPositionActions, hiredCount, shouldSuggestFilled } from '../domain/position'
 import { isOverdue, needsReply } from '../domain/queue'
@@ -13,7 +13,7 @@ import { EmptyState } from '../ui/EmptyState'
 import { Menu, type MenuItem } from '../ui/Menu'
 import { useActions } from './actionsContext'
 import { OverdueCount, PositionStateBadge } from './badges'
-import { MetricsStrip } from './MetricsStrip'
+import { OverviewStats } from './OverviewStats'
 import { useManagerData } from './useManagerData'
 
 const STATE_ORDER: PositionState[] = ['open', 'paused', 'draft', 'filled', 'archived']
@@ -33,7 +33,6 @@ export function OverviewPage() {
   const visible = positions
     .filter((p) => filter === 'all' || ACTIVE_STATES.includes(p.state))
     .sort((a, b) => STATE_ORDER.indexOf(a.state) - STATE_ORDER.indexOf(b.state) || b.createdAt - a.createdAt)
-  const waiting = applications.filter(needsReply).length
   const hiddenCount = positions.length - positions.filter((p) => ACTIVE_STATES.includes(p.state)).length
 
   const counts = (p: Position) => {
@@ -73,19 +72,7 @@ export function OverviewPage() {
 
   return (
     <div className="space-y-5">
-      {waiting > 0 && (
-        <Link to="/manage/pipeline" className="flex items-center justify-between rounded-xl bg-brand-600 px-4 py-3 text-white hover:bg-brand-700">
-          <span>
-            <strong>
-              {waiting} {waiting === 1 ? 'applicant is' : 'applicants are'}
-            </strong>{' '}
-            waiting for a first reply
-          </span>
-          <ChevronRight size={18} />
-        </Link>
-      )}
-
-      <MetricsStrip applications={applications} positions={positions} />
+      <OverviewStats applications={applications} positions={positions} />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">

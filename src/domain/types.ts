@@ -93,6 +93,7 @@ export interface ApplicationAnswers {
   earliestStart: string // ISO date (yyyy-mm-dd)
   availability: Availability
   rightToWork: boolean
+  /** Optional: "Tell the nursery a bit about yourself". Empty string when skipped. */
   note: string
   cv: CvFile
   /** They confirmed the information is true when submitting. */
@@ -128,7 +129,8 @@ export type Actor = 'manager' | 'candidate' | 'system'
 export type TimelineEvent =
   | { id: ID; at: Timestamp; by: Actor; kind: 'status'; from: ApplicationState | null; to: ApplicationState }
   | { id: ID; at: Timestamp; by: Actor; kind: 'message'; subject: string; body: string }
-  | { id: ID; at: Timestamp; by: Actor; kind: 'note'; body: string }
+  /** Internal, never shown to the candidate. `about: 'interview'` = notes from the interview itself. */
+  | { id: ID; at: Timestamp; by: Actor; kind: 'note'; body: string; about?: 'interview' }
 
 export interface StaffRecord {
   id: ID

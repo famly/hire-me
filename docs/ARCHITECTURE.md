@@ -35,6 +35,7 @@ src/
     pipeline.ts              # LANES, laneOf(), actionForLane(), sortLane(), interviewPhase() — the board
     relevance.ts             # matchApplication(): 0–100 match score, named factors, written explanation
     timeline.ts              # timelineEntries(): raw events → plain steps (status + its email = one step)
+    attention.ts             # attention(): who's waiting, decisions due, upcoming, offers out — overview tiles
     messages.ts              # templated candidate messages per transition
     metrics.ts               # timeToFirstReply, repliedWithin48h, timeToFill
     time.ts                  # relative time helpers; takes `now` as an argument
@@ -54,6 +55,7 @@ src/
     badges.tsx               # the whole badge system in one file (see "Badges" below)
     MatchScore.tsx           # match chip + hover explanation (Popover)
     CvChip.tsx               # CV on the card and in the panel (Popover with the file details)
+    OverviewStats.tsx        # "needs you now" tiles + reply-speed sentence (replaces the metrics strip)
   demo/
     DemoBar.tsx              # switch side (portal/manager), reset demo, fast-forward clock
     DemoHome.tsx             # landing page: the J0 demo script as links
@@ -82,7 +84,7 @@ src/
 | `/manage/pipeline` | Hiring pipeline board, all positions | J3, J4 |
 | `/manage/pipeline?position=:id,:id` | Board filtered to one or more positions (`&collapsed=closed,offer` folds those lanes into strips; none by default) | J4, J5 |
 | `…?app=:applicationId` (on any manager page) | Application side panel: answers, actions, timeline. In the URL so the board keeps its place and Back closes it | J4 |
-| `/manage/staff` | Staff (Famly sidebar item, where hires land) | J5 |
+| `/manage/staff` | Staff, where hires land. The sidebar item is switched off for now; reached from a hired application's panel | J5 |
 | `/manage/positions/:id`, `/manage/applicants` | Redirects from v1 URLs | — |
 
 Create/edit position, hire, fill, archive and action confirmations are modals, not routes.
@@ -117,7 +119,8 @@ interface Application { id; candidateId; positionId; state: ApplicationState;
              rightToWork: boolean; note; cv: { name; sizeBytes; type }; confirmedTrue: true };
   statusToken; createdAt; firstRepliedAt?; timeline: TimelineEvent[] }
 interface Interview { at; mode: 'in_person' | 'online'; location /* address or meeting link */ }  // Application.interview?, set on invite
-interface TimelineEvent { at; kind: 'status' | 'message' | 'note'; from?; to?; body?; by: 'manager' | 'candidate' | 'system' }
+interface TimelineEvent { at; kind: 'status' | 'message' | 'note'; from?; to?; body?; about?: 'interview'; by: 'manager' | 'candidate' | 'system' }
+// note + about: 'interview' = interview notes; only allowed once the interview has happened (canAddInterviewNotes)
 interface StaffRecord { id; nurseryId; roomId?; name; email; phone; qualification;
   startDate; fromApplicationId }
 ```
@@ -132,7 +135,7 @@ interface StaffRecord { id; nurseryId; roomId?; name; email; phone; qualificatio
 
 ## UI conventions
 
-- Portal is designed at **375px first**: one column, large tap targets (≥44px), native inputs (`type="email"`, `tel`, `date`), one screen for the form, every field required. Errors are inline and focus jumps to the first one. The CV upload is a big tap target; the prototype keeps only the file's name, size and type (never the file) so it fits in `localStorage`.
+- Portal is designed at **375px first**: one column, large tap targets (≥44px), native inputs (`type="email"`, `tel`, `date`), one screen for the form, every field required except the note (labelled "(optional)"). Errors are inline and focus jumps to the first one. The CV upload is a big tap target; the prototype keeps only the file's name, size and type (never the file) so it fits in `localStorage`.
 - Manager screens are scannable at a glance. The next step sits on the card (M6), and the side panel opens without losing the board's place.
 - Overview positions default to **Active** (draft, open, paused); filled and archived sit behind **All**.
 

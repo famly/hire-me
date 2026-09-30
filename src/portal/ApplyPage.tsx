@@ -23,10 +23,10 @@ const AVAILABILITY: { value: Availability; label: string }[] = [
 const CV_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
 const CV_MAX_BYTES = 5 * 1024 * 1024
 
-type Key = 'name' | 'email' | 'phone' | 'qualifications' | 'earliestStart' | 'availability' | 'rightToWork' | 'cv' | 'note' | 'consent'
+type Key = 'name' | 'email' | 'phone' | 'qualifications' | 'earliestStart' | 'availability' | 'rightToWork' | 'cv' | 'consent'
 type Errors = Partial<Record<Key, string>>
 
-/** M2 — one screen, phone-first, every field required. */
+/** M2 — one screen, phone-first, every field required except the note about themselves. */
 export function ApplyPage() {
   const { slug, positionId } = useParams()
   const data = useStore()
@@ -79,7 +79,6 @@ export function ApplyPage() {
     if (!availability) next.availability = 'Please pick one'
     if (rightToWork === null) next.rightToWork = 'Please answer yes or no'
     if (!cv) next.cv = 'Please upload your CV'
-    if (note.trim().length < 20) next.note = 'Please write a sentence or two (at least 20 characters)'
     if (!consent) next.consent = 'Please confirm before sending'
     setErrors(next)
     if (Object.keys(next).length > 0) {
@@ -111,7 +110,7 @@ export function ApplyPage() {
         <ArrowLeft size={14} /> Back to role
       </Link>
       <h1 className="mt-3 text-2xl font-semibold tracking-tight">Apply: {position.title}</h1>
-      <p className="mt-1 text-stone-600">{nursery.name} · takes a few minutes · all fields are required</p>
+      <p className="mt-1 text-stone-600">{nursery.name} · takes a few minutes</p>
 
       <form onSubmit={onSubmit} noValidate className="mt-6 space-y-5">
         <Field label="Full name" htmlFor="f-name" error={errors.name}>
@@ -199,8 +198,8 @@ export function ApplyPage() {
           {errors.cv && <p className="text-sm text-red-700">{errors.cv}</p>}
         </div>
 
-        <Field label="Tell the nursery a bit about yourself" htmlFor="f-note" error={errors.note}>
-          <Textarea id="f-note" value={note} onChange={(e) => { setNote(e.target.value); clear('note') }} maxLength={500} placeholder="Your experience, the hours that suit you, anything you'd like to ask…" aria-invalid={!!errors.note} />
+        <Field label="Tell the nursery a bit about yourself (optional)" htmlFor="f-note">
+          <Textarea id="f-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} placeholder="Your experience, the hours that suit you, anything you'd like to ask…" />
         </Field>
 
         <div className="space-y-1.5">

@@ -13,7 +13,8 @@ import { ActionsProvider } from './ActionsProvider'
 import { useManagerData } from './useManagerData'
 
 // A stand-in for the Famly app shell, so the prototype reads as "inside Famly".
-// Only Recruitment (and Staff, where hires land) are part of this prototype.
+// Only Recruitment is part of this prototype. Staff is switched off in the menu for now;
+// its page is still reached from a hired application ("Staff record created: view").
 
 const FAKE_NAV = [
   { icon: House, label: 'Home' },
@@ -22,6 +23,7 @@ const FAKE_NAV = [
   { icon: MessageCircle, label: 'Messages' },
   { icon: CalendarDays, label: 'Rota' },
   { icon: Receipt, label: 'Invoicing' },
+  { icon: Users, label: 'Staff' },
 ]
 
 const side = ({ isActive }: { isActive: boolean }) =>
@@ -48,9 +50,6 @@ export function ManagerLayout() {
               <Icon size={18} /> {label}
             </span>
           ))}
-          <NavLink to="/manage/staff" className={side}>
-            <Users size={18} /> Staff
-          </NavLink>
           <NavLink to="/manage" className={({ isActive }) => side({ isActive: isActive && !inStaff })}>
             <UserPlus size={18} /> Recruitment
           </NavLink>
