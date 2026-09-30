@@ -1,0 +1,184 @@
+import { DAY } from './time'
+import type {
+  Actor,
+  Application,
+  ApplicationState,
+  CandidateStatus,
+  Message,
+  RejectionReason,
+  Timestamp,
+  TimelineEvent,
+} from './types'
+
+// Application lifecycle (docs/SPEC.md §4):
+// new → contacted → interview → offer → hired, with exits rejected / withdrawn / lapsed.
+
+export const ACTIVE_STATES: ApplicationState[] = ['new', 'contacted', 'interview', 'offer']
+
+export type ApplicationAction = 'contact' | 'invite' | 'offer' | 'hire' | 'reject' | 'lapse' | 'withdraw'
+
+const TRANSITIONS: Record<ApplicationAction, { from: ApplicationState[]; to: ApplicationState; by: Actor }> = {
+  contact: { from: ['new'], to: 'contacted', by: 'manager' },
+  invite: { from: ['new', 'contacted'], to: 'interview', by: 'manager' },
+  offer: { from: ['new', 'contacted', 'interview'], to: 'offer', by: 'manager' },
+  hire: { from: ACTIVE_STATES, to: 'hired', by: 'manager' },
+  reject: { from: ACTIVE_STATES, to: 'rejected', by: 'manager' },
+  lapse: { from: ACTIVE_STATES, to: 'lapsed', by: 'manager' },
+  withdraw: { from: ACTIVE_STATES, to: 'withdrawn', by: 'candidate' },
+}
+
+export const ACTION_LABEL: Record<ApplicationAction, string> = {
+  contact: 'Contact',
+  invite: 'Invite to interview',
+  offer: 'Make offer',
+  hire: 'Hire',
+  reject: 'Reject',
+  lapse: 'Mark as lapsed',
+  withdraw: 'Withdraw',
+}
+
+export const STATE_LABEL: Record<ApplicationState, string> = {
+  new: 'New',
+  contacted: 'Contacted',
+  interview: 'Interview',
+  offer: 'Offer',
+  hired: 'Hired',
+  rejected: 'Rejected',
+  withdrawn: 'Withdrawn',
+  lapsed: 'Lapsed',
+}
+
+/** No activity for this long after the first reply → the application has "gone quiet". */
+export const STALE_AFTER = 5 * DAY
+
+export function isActive(app: Application): boolean {
+  return ACTIVE_STATES.includes(app.state)
+}
+
+export function canTransition(app: Application, action: ApplicationAction): boolean {
+  return TRANSITIONS[action].from.includes(app.state)
+}
+
+export function lastActivityAt(app: Application): Timestamp {
+  return app.timeline.reduce((latest, e) => Math.max(latest, e.at), app.createdAt)
+}
+
+/**
+ * Derived, never stored. Only applies after the first reply: an unreplied "new"
+ * application is the nursery's delay, tracked by the wait badge instead.
+ */
+export function isStale(app: Application, now: Timestamp): boolean {
+  return isActive(app) && app.state !== 'new' && now - lastActivityAt(app) > STALE_AFTER
+}
+
+/** The step we expect next. The UI shows it as the primary button on the row. */
+export function nextAction(app: Application): ApplicationAction | null {
+  switch (app.state) {
+    case 'new':
+      return 'contact'
+    case 'contacted':
+      return 'invite'
+    case 'interview':
+      return 'offer'
+    case 'offer':
+      return 'hire'
+    default:
+      return null
+  }
+}
+
+/** Everything the manager may do right now. "Lapse" appears only once the application is stale. */
+export function managerActions(app: Application, now: Timestamp): ApplicationAction[] {
+  return (Object.keys(TRANSITIONS) as ApplicationAction[]).filter(
+    (action) =>
+      TRANSITIONS[action].by === 'manager' &&
+      canTransition(app, action) &&
+      (action !== 'lapse' || isStale(app, now)),
+  )
+}
+
+export function transitionApplication(
+  app: Application,
+  action: ApplicationAction,
+  now: Timestamp,
+  opts: { message?: Message; reason?: RejectionReason } = {},
+): Application {
+  if (!canTransition(app, action)) {
+    throw new Error(`Cannot "${action}" an application that is ${app.state}`)
+  }
+  const { to, by } = TRANSITIONS[action]
+  const events: TimelineEvent[] = [
+    { id: eventId(app, 0), at: now, by, kind: 'status', from: app.state, to },
+  ]
+  if (opts.message) {
+    events.push({ id: eventId(app, 1), at: now, by, kind: 'message', ...opts.message })
+  }
+  return {
+    ...app,
+    state: to,
+    firstRepliedAt: app.firstRepliedAt ?? (by === 'manager' ? now : undefined),
+    rejectionReason: action === 'reject' ? opts.reason : app.rejectionReason,
+    timeline: [...app.timeline, ...events],
+  }
+}
+
+export function addNote(app: Application, body: string, now: Timestamp): Application {
+  return {
+    ...app,
+    timeline: [...app.timeline, { id: eventId(app, 0), at: now, by: 'manager', kind: 'note', body }],
+  }
+}
+
+function eventId(app: Application, offset: number): string {
+  return `${app.id}-e${app.timeline.length + offset}`
+}
+
+// ---- Candidate-facing projection (docs/USER_JOURNEYS.md "Candidate-facing status") ----
+
+const PROJECTION: Record<ApplicationState, CandidateStatus> = {
+  new: 'received',
+  contacted: 'being_reviewed',
+  interview: 'invited_to_interview',
+  offer: 'offer',
+  hired: 'hired',
+  rejected: 'not_progressing',
+  withdrawn: 'closed',
+  lapsed: 'closed',
+}
+
+export function candidateStatus(app: Application): CandidateStatus {
+  return PROJECTION[app.state]
+}
+
+export const CANDIDATE_STATUS_LABEL: Record<CandidateStatus, string> = {
+  received: 'Received',
+  being_reviewed: 'Being reviewed',
+  invited_to_interview: 'Invited to interview',
+  offer: 'Offer',
+  hired: 'Hired',
+  not_progressing: 'Not progressing',
+  closed: 'Closed',
+}
+
+export function candidateStatusLine(app: Application, nurseryName: string): string {
+  switch (app.state) {
+    case 'new':
+      return `${nurseryName} has your application. You'll hear from them here and by email.`
+    case 'contacted':
+      return 'The nursery is looking at your application.'
+    case 'interview':
+      return 'The nursery would like to meet you. Check your email for details.'
+    case 'offer':
+      return "You've been offered the role. The nursery will be in touch about next steps."
+    case 'hired':
+      return 'Welcome to the team.'
+    case 'rejected':
+      return app.rejectionReason === 'position_filled'
+        ? "This position has now been filled, so the nursery won't be taking your application further."
+        : "The nursery won't be taking your application further this time."
+    case 'withdrawn':
+      return 'You withdrew this application.'
+    case 'lapsed':
+      return 'This application has been closed.'
+  }
+}

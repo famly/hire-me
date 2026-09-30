@@ -53,7 +53,7 @@ Hypothesis we inherit but don't trust blindly: *speed of first reply matters mos
 ### Application lifecycle
 `New → Contacted → Interview → Offer → Hired`
 Terminal exits from any active state: **Rejected** (by nursery), **Withdrawn** (by candidate), **Lapsed** (gone quiet).
-- "Gone quiet" is **derived, not a state the user sets upfront**: an active application with no activity for N days (prototype: N = 5) gets a *Stale* flag; manager confirms → Lapsed. (Rejected option: silent auto-close; it hides problems.)
+- "Gone quiet" is **derived, not a state the user sets upfront**: an active application with no activity for N days (prototype: N = 5) gets a *Stale* flag. Applies only after the first reply: an unreplied New application is the nursery's delay, surfaced by the wait badge, not the candidate going quiet; manager confirms → Lapsed. (Rejected option: silent auto-close; it hides problems.)
 - Position filled → open applications bulk-moved to Rejected with a "position filled" message. Nobody gets silence.
 - Candidate-facing status is a **plain-language projection**: Received · Being reviewed · Invited to interview · Offer · Hired · Not progressing · Closed.
 
@@ -95,6 +95,7 @@ Real auth/SSO, real email/SMS delivery, backend/multi-user sync, GDPR retention 
 | Qualification | Structured field on form | CV parsing (unreliable, slow to build); CV required (bad on phone) |
 | Manager's home | Queue sorted by wait time | Kanban per position (pretty, but hides who's waiting; poor across positions) |
 | Gone quiet | Derived Stale flag → manager confirms Lapsed | Explicit state set manually (never gets set); silent auto-close |
+| Stale scope | Only after first reply | Stale on unreplied New too (blames the candidate for our silence; duplicates the wait badge) |
 | Position filled | Bulk notify remaining | Leave them open (the "does not reply to everybody" problem) |
 | Hiring handoff | Hire creates prefilled staff record | Export/CSV; manual retype (today's pain) |
 | Portal scope | Per-nursery page (+group later) | Group-only page (small sites lose identity); embed widget only (needs their website) |

@@ -35,6 +35,8 @@ src/
     messages.ts              # templated candidate messages per transition
     metrics.ts               # timeToFirstReply, repliedWithin48h, timeToFill
     time.ts                  # relative time helpers; takes `now` as an argument
+    staff.ts                 # staffRecordFromApplication() — the hiring handoff
+    testing.ts               # test fixtures
     *.test.ts
   data/
     seed.ts                  # seed cast from USER_JOURNEYS; timestamps RELATIVE to now
