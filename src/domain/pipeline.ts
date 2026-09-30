@@ -1,6 +1,6 @@
 import { canTransition, lastActivityAt, type ApplicationAction } from './application'
 import { needsReply } from './queue'
-import type { Application } from './types'
+import type { Application, Timestamp } from './types'
 
 // The hiring pipeline is a board with a few static lanes. Lanes never appear or
 // disappear, so the manager always knows where to look.
@@ -31,6 +31,23 @@ export function laneOf(app: Application): Lane {
   }
 }
 
+/**
+ * Within the Interview lane: still to come, or happened and waiting for a decision.
+ * Derived from the interview time, so it moves on its own. No interview on record
+ * counts as "done" (a decision is due).
+ */
+export type InterviewPhase = 'upcoming' | 'done'
+
+export function interviewPhase(app: Application, now: Timestamp): InterviewPhase | null {
+  if (app.state !== 'interview') return null
+  return app.interview && app.interview.at > now ? 'upcoming' : 'done'
+}
+
+export const INTERVIEW_PHASE_LABEL: Record<InterviewPhase, string> = {
+  done: 'Interviewed · needs a decision',
+  upcoming: 'Upcoming',
+}
+
 const LANE_ACTION: Partial<Record<Lane, ApplicationAction>> = {
   interview: 'invite',
   offer: 'offer',
@@ -46,7 +63,8 @@ export function actionForLane(app: Application, lane: Lane): ApplicationAction |
 /**
  * Candidates: waiting for a first reply on top, longest wait first; then the ones
  *   you've contacted, the longest-ago contact first.
- * Interview: by interview date, earliest first (past ones need an outcome).
+ * Interview: by interview date, earliest first. That puts the ones needing a
+ *   decision (past, oldest first) above the upcoming ones (soonest first).
  * Offer: the ones that have been sitting there longest first.
  * Closed: most recent first.
  */

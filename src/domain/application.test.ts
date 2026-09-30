@@ -123,3 +123,11 @@ describe('interviews and stale', () => {
     expect(isStale(invited, at + STALE_AFTER + 1)).toBe(true)
   })
 })
+
+describe('candidate line after the interview', () => {
+  it('thanks them once the interview has happened', () => {
+    const app = makeApp({ state: 'interview', interview: { at: T0, mode: 'in_person', location: 'Oak Tree' } })
+    expect(candidateStatusLine(app, 'Oak Tree Nursery', T0 - 1)).toMatch(/details are below/)
+    expect(candidateStatusLine(app, 'Oak Tree Nursery', T0 + 1)).toMatch(/outcome/)
+  })
+})

@@ -47,7 +47,7 @@ export function StatusPage() {
           <p className={`mt-0.5 text-2xl font-semibold ${closed ? 'text-stone-600' : 'text-brand-700'}`}>
             {CANDIDATE_STATUS_LABEL[status]}
           </p>
-          <p className="mt-2 text-stone-700">{candidateStatusLine(app, nursery.name)}</p>
+          <p className="mt-2 text-stone-700">{candidateStatusLine(app, nursery.name, now)}</p>
 
           {!closed && (
             <ol className="mt-5 grid grid-cols-5 gap-1" aria-label="Progress">

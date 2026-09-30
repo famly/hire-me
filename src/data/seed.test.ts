@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isStale } from '../domain/application'
-import { laneOf, sortLane } from '../domain/pipeline'
+import { interviewPhase, laneOf, sortLane } from '../domain/pipeline'
 import { isOverdue } from '../domain/queue'
 import { buildSeed, MANAGER_NURSERY_ID } from './seed'
 
@@ -14,9 +14,17 @@ const name = (candidateId: string) => seed.candidates.find((c) => c.id === candi
 describe('seed supports the journeys', () => {
   it('J3: Candidates lane starts Amira (overdue), Chloe, Daniel, Sophie, then contacted; Ben is not visible', () => {
     const lane = sortLane('candidates', oakApps.filter((a) => laneOf(a) === 'candidates'))
-    expect(lane.map((a) => name(a.candidateId))).toEqual(['Amira Khan', 'Chloe Evans', 'Daniel Hughes', 'Sophie Turner', 'Ella Morgan', 'Jordan Reid'])
+    expect(lane.map((a) => name(a.candidateId))).toEqual(['Amira Khan', 'Chloe Evans', 'Daniel Hughes', 'Sophie Turner', 'Ella Morgan'])
     expect(oakApps.filter((a) => isOverdue(a, now)).map((a) => name(a.candidateId))).toEqual(['Amira Khan'])
     expect(oakApps.some((a) => a.candidateId === 'c-ben')).toBe(false)
+  })
+
+  it('J3: Interview lane has a past interview needing a decision (Marcus) and an upcoming one (Jordan)', () => {
+    const lane = sortLane('interview', oakApps.filter((a) => laneOf(a) === 'interview'))
+    expect(lane.map((a) => [name(a.candidateId), interviewPhase(a, now)])).toEqual([
+      ['Marcus Bell', 'done'],
+      ['Jordan Reid', 'upcoming'],
+    ])
   })
 
   it('J6: Amira is one candidate across two sites', () => {

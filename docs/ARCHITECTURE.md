@@ -32,7 +32,7 @@ src/
     candidate.ts             # findOrCreateCandidate(groupId, email) — group-scoped dedupe
     qualification.ts         # meetsRequirement(candidateQual, positionReq)
     queue.ts                 # needsReply(), waitingFor(), isOverdue() — reply speed
-    pipeline.ts              # LANES, laneOf(), actionForLane(), sortLane() — the board
+    pipeline.ts              # LANES, laneOf(), actionForLane(), sortLane(), interviewPhase() — the board
     messages.ts              # templated candidate messages per transition
     metrics.ts               # timeToFirstReply, repliedWithin48h, timeToFill
     time.ts                  # relative time helpers; takes `now` as an argument

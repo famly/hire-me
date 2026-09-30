@@ -1,11 +1,20 @@
 import { useState, type DragEvent } from 'react'
 import { useSearchParams } from 'react-router'
 import { ACTION_LABEL, nextAction } from '../domain/application'
-import { actionForLane, LANE_LABEL, LANES, laneOf, sortLane, type Lane } from '../domain/pipeline'
+import {
+  actionForLane,
+  INTERVIEW_PHASE_LABEL,
+  interviewPhase,
+  LANE_LABEL,
+  LANES,
+  laneOf,
+  sortLane,
+  type Lane,
+} from '../domain/pipeline'
 import { hiredCount, POSITION_STATE_LABEL, shouldSuggestFilled } from '../domain/position'
 import { needsReply } from '../domain/queue'
 import { relativeTime } from '../domain/time'
-import type { Application, ID } from '../domain/types'
+import type { Application, ID, Timestamp } from '../domain/types'
 import { candidateById, positionById, roomLabel } from '../store/selectors'
 import { useNow, useStore } from '../store/store'
 import { Button } from '../ui/Button'
@@ -18,7 +27,7 @@ import { useManagerData } from './useManagerData'
 
 const LANE_HINT: Record<Lane, string> = {
   candidates: 'Unanswered first, longest wait on top',
-  interview: 'Soonest interview first',
+  interview: 'Decisions first, then upcoming',
   offer: 'Longest in this stage first',
   closed: 'Every outcome, newest first',
 }
@@ -30,6 +39,7 @@ const LANE_HINT: Record<Lane, string> = {
  */
 export function PipelinePage() {
   const { data, positions, applications } = useManagerData()
+  const now = useNow()
   const actions = useActions()
   const [params, setParams] = useSearchParams()
   const [dragId, setDragId] = useState<ID | null>(null)
@@ -142,14 +152,20 @@ export function PipelinePage() {
                 </p>
               )}
               <div className="flex flex-1 flex-col gap-2">
-                {apps.map((a) => (
-                  <PipelineCard
-                    key={a.id}
-                    app={a}
-                    showPosition={selectedIds.length !== 1}
-                    onDragStart={() => setDragId(a.id)}
-                    onDragEnd={() => setDragId(null)}
-                  />
+                {apps.map((a, i) => (
+                  <div key={a.id} className="contents">
+                    {lane === 'interview' && phaseStarts(apps, i, now) && (
+                      <p className="px-1.5 pt-1 text-xs font-medium text-stone-500">
+                        {INTERVIEW_PHASE_LABEL[interviewPhase(a, now)!]}
+                      </p>
+                    )}
+                    <PipelineCard
+                      app={a}
+                      showPosition={selectedIds.length !== 1}
+                      onDragStart={() => setDragId(a.id)}
+                      onDragEnd={() => setDragId(null)}
+                    />
+                  </div>
                 ))}
                 {apps.length === 0 && !action && (
                   <p className="rounded-lg border border-dashed border-stone-300 px-3 py-4 text-center text-xs text-stone-400">Nobody here</p>
@@ -161,6 +177,11 @@ export function PipelinePage() {
       </div>
     </div>
   )
+}
+
+/** True where a new interview phase begins in the (sorted) lane, to draw its subheading. */
+function phaseStarts(apps: Application[], i: number, now: Timestamp): boolean {
+  return i === 0 || interviewPhase(apps[i], now) !== interviewPhase(apps[i - 1], now)
 }
 
 function PipelineCard({
@@ -179,12 +200,13 @@ function PipelineCard({
   const { open, start } = useActions()
   const candidate = candidateById(data, app.candidateId)
   const position = positionById(data, app.positionId)!
-  const next = nextAction(app)
   const closed = laneOf(app) === 'closed'
+  // Nothing to decide before the interview has happened; offering early stays possible from the panel.
+  const next = interviewPhase(app, now) === 'upcoming' ? null : nextAction(app)
 
   return (
     <article
-      draggable={next !== null}
+      draggable={!closed}
       onDragStart={(e) => {
         e.dataTransfer.effectAllowed = 'move'
         e.dataTransfer.setData('text/plain', app.id)

@@ -32,7 +32,7 @@ The top bar switches between **Job seeker** and **Manager**, moves the clock for
 2. **Reply as the manager.** Open *Hiring pipeline*. Your card is at the bottom of the unanswered group in the **Candidates** lane, with no flags because you meet the requirement. Amira Khan is at the top, the only red thing on screen (*No reply for 52h*). *Colours & flags* explains every badge. Click **Contact →**, then **Invite to interview →** (or drag the card to *Interview*): pick a time and paste an online meeting link. The message fills itself in and stays editable. The card now shows the date and join link, and your status tab shows *Your interview* on its own.
 3. **Hire.** Make an offer, then **Hire**. Confirm the prefilled staff record, and you're asked straight away to mark the position filled. Four people are still waiting; they each get a message, and their status pages say *Not progressing*.
 4. **Same person, two sites.** Amira has also applied to Willow House in the same group. Her card says so in grey, and her panel names the other manager.
-5. **Gone quiet.** Marcus Bell hasn't responded in 6 days and shows an amber *Quiet 6d*. Press **+1 day** a few times to watch waits turn red and others go quiet, then open Marcus and **Mark as lapsed**.
+5. **Gone quiet.** Marcus Bell was interviewed 7 days ago, nothing has happened since, and he shows an amber *Quiet 7d*. Press **+1 day** a few times to watch waits turn red, Ella go quiet and Jordan's interview move from *Upcoming* to *needs a decision*, then open Marcus and **Mark as lapsed**.
 6. **Positions.** On *Overview*, use the **Active / All** toggle and each row's **⋯** menu (pause, archive, edit and more). **New position** opens a modal, so you never leave the page.
 
 The seed data follows [docs/USER_JOURNEYS.md](docs/USER_JOURNEYS.md): one group (Acorn Family Nurseries), three nurseries, six positions and thirteen applications, each chosen to show one behaviour.
@@ -104,7 +104,7 @@ Each application gets its own unguessable status token. The candidate never sees
   - **New position** and **Edit** open a modal over the page.
 - **Hiring pipeline** (the working view): a kanban board with four **static lanes**: **Candidates** (new and contacted) · **Interview** · **Offer** · **Closed** (every outcome, hired included; shown by default).
   - It covers all positions, or any mix picked from a typeahead multi-select filter.
-  - The Candidates lane puts the unanswered first, longest wait on top. The Interview lane is sorted by soonest interview.
+  - The Candidates lane puts the unanswered first, longest wait on top. The Interview lane splits into two phases worked out from the interview time: *Interviewed · needs a decision* first (with "Make offer →"), then *Upcoming* (no next step until it has happened). Cards move between them on their own.
   - A card shows the name, the position, the wait in words ("Waiting 30h for a reply", or a red "No reply for 52h"), the interview date and place or link, and **flags only for exceptions**.
   - Move a card with its next-step link (Contact → Invite → Offer → Hire) or by dragging it forward: the lanes that accept it get a dashed outline. Every move opens the message to send, and inviting also schedules the interview.
 - **Application panel**: answers (qualifications, CV, right to work, their note), the interview, contact details, all allowed actions (including reject and lapse), internal notes, and the full timeline. It opens in place, so the board keeps its position.

@@ -171,13 +171,16 @@ export const CANDIDATE_STATUS_LABEL: Record<CandidateStatus, string> = {
   closed: 'Closed',
 }
 
-export function candidateStatusLine(app: Application, nurseryName: string): string {
+export function candidateStatusLine(app: Application, nurseryName: string, now?: Timestamp): string {
   switch (app.state) {
     case 'new':
       return `${nurseryName} has your application. You'll hear from them here and by email.`
     case 'contacted':
       return 'The nursery is looking at your application.'
     case 'interview':
+      if (app.interview && now !== undefined && app.interview.at <= now) {
+        return "Thanks for meeting the nursery. They'll let you know the outcome here and by email."
+      }
       return app.interview
         ? 'The nursery would like to meet you. The details are below and in your email.'
         : 'The nursery would like to meet you. Check your email for details.'

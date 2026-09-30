@@ -262,7 +262,7 @@ export function buildSeed(now: Timestamp): Data {
     seedApp('c-amira', 'p1', 52 * HOUR, { note: 'I have 6 years in a toddler room and my Level 3 since 2021.' }),
     seedApp('c-amira', 'p5', 8 * DAY, {}, [['contact', 7 * DAY], ['invite', 2 * DAY, { at: slot(2, 10), mode: 'in_person', location: 'Willow House, 3 Canynge Square, Bristol BS8 3LA' }]]),
     seedApp('c-chloe', 'p1', 30 * HOUR, { qualifications: ['l2-eyp', 'wt-l3'], note: 'Currently studying for my Level 3, finishing in spring.' }),
-    seedApp('c-jordan', 'p1', 4 * DAY, { availability: 'either' }, [['contact', 2 * DAY]]),
+    seedApp('c-jordan', 'p1', 4 * DAY, { availability: 'either' }, [['contact', 3 * DAY], ['invite', 1 * DAY, { at: slot(2, 14), mode: 'in_person', location: 'Oak Tree Nursery, 14 Cotham Grove, Bristol BS6 6AL' }]]),
     seedApp('c-marcus', 'p1', 14 * DAY, {}, [['contact', 13 * DAY], ['invite', 9 * DAY, { at: slot(-7, 14), mode: 'online', location: 'https://meet.google.com/oak-tree-marcus' }]]),
     seedApp('c-sophie', 'p2', 4 * HOUR, { qualifications: ['wt-l2'], availability: 'part_time', note: 'Just started my Level 2 at City of Bristol College. Mornings suit me best.' }),
     seedApp('c-daniel', 'p2', 26 * HOUR, { qualifications: ['none'], availability: 'part_time', rightToWork: false, note: 'Career changer, 10 years in retail. Two kids of my own!' }),

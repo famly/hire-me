@@ -51,7 +51,7 @@ Legend: ☐ not started · ◐ partly working · ☑ works end-to-end in the bro
 | **Amira Khan** | L3 | P1 | New | applied 52h ago, no reply | Red "No reply for 52h", top of the Candidates lane; cross-site (J6) |
 | **Amira Khan** | L3 | P5 | Interview | in person at Willow House in 2 days, 10:00 | "Also at Willow House"; upcoming interview |
 | Chloe Evans | L2 | P1 | New | 30h ago | Waiting, not overdue (grey); amber "Needs L3" |
-| Jordan Reid | L3 | P1 | Contacted | replied 2 days ago | Active pipeline |
+| Jordan Reid | L3 | P1 | Interview | in person at Oak Tree in 2 days, 14:00 | Upcoming interview; moves to "needs a decision" after +3 days |
 | **Marcus Bell** | L3 | P1 | Interview | interviewed online 7 days ago, nothing since | "Quiet 7d" (J8); past interview on the card |
 | Sophie Turner | working towards | P2 | New | 4h ago | Waiting (grey), no badges |
 | Daniel Hughes | none | P2 | New | 26h ago | Waiting (grey); amber "Right to work?" |
@@ -142,7 +142,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 | 2 | `/manage/pipeline` | See the **Hiring pipeline** board: static lanes Candidates · Interview · Offer · Closed (shown by default). Candidates: unanswered first, longest wait on top, then contacted. Filter by typing position names; pick several, clear with ✕ | `laneOf()`, `sortLane()`; "Waiting 30h for a reply" grey, red "No reply for 52h" when `isOverdue()` | ☑ |
 | 3 | — | Scan each card: name, position, wait in words, then **only exception flags**: amber (needs L3, right to work?, quiet), grey (also at another site). **Colours & flags** (popover) explains each one and where it comes from | `meetsRequirement()`, `isStale()`, `otherApplications()` | ☑ |
 
-**Done when:** the Candidates lane reads Amira (red), Chloe (30h), Daniel (26h), Sophie (4h), then Ella and Jordan (contacted); Amira is the only red thing on screen; Ben Foster (Birch Lane) is not visible.
+**Done when:** the Candidates lane reads Amira (red), Chloe (30h), Daniel (26h), Sophie (4h), then Ella (contacted); the Interview lane shows Marcus under "Interviewed · needs a decision" and Jordan under "Upcoming"; Amira is the only red thing on screen; Ben Foster (Birch Lane) is not visible.
 
 ---
 
@@ -206,7 +206,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 - [x] Marcus (interviewed 7 days ago, nothing since) shows an amber **Quiet 7d** badge. The threshold is 5 days without activity after the first reply; a past interview counts as activity, and an upcoming interview is never quiet.
 - [x] The card shows an amber **Quiet 6d**; open it and **Mark as lapsed** (offered only once stale) → confirm → `lapsed`, plus an optional closing message. The candidate sees "Closed".
-- [x] **+1 day** in the DemoBar pushes other applications towards stale (at +3 days, Ella and Jordan go quiet too).
+- [x] **+1 day** in the DemoBar pushes other applications towards stale (at +3 days Ella goes quiet too, and Jordan's interview has passed, so he moves to "needs a decision").
 
 **Done when:** stale is derived (never stored), and only the manager's confirmation creates the `lapsed` state.
 

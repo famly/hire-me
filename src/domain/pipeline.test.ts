@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { actionForLane, laneOf, sortLane } from './pipeline'
+import { actionForLane, interviewPhase, laneOf, sortLane } from './pipeline'
 import { HOUR } from './time'
 import { makeApp, T0 } from './testing'
 
@@ -39,5 +39,28 @@ describe('pipeline lanes', () => {
     const apps = [makeApp({ id: 'fresh', state: 'offer', timeline: at(50) }), makeApp({ id: 'old', state: 'offer', timeline: at(1) })]
     expect(sortLane('offer', apps).map((a) => a.id)).toEqual(['old', 'fresh'])
     expect(sortLane('closed', apps).map((a) => a.id)).toEqual(['fresh', 'old'])
+  })
+})
+
+describe('interview phases', () => {
+  const at = T0 + 48 * HOUR
+  const invited = makeApp({ state: 'interview', interview: { at, mode: 'in_person', location: 'Oak Tree' } })
+
+  it('is upcoming until the interview time, then needs a decision', () => {
+    expect(interviewPhase(invited, at - 1)).toBe('upcoming')
+    expect(interviewPhase(invited, at)).toBe('done')
+  })
+
+  it('treats a missing interview as needing a decision, and other states as no phase', () => {
+    expect(interviewPhase(makeApp({ state: 'interview' }), T0)).toBe('done')
+    expect(interviewPhase(makeApp({ state: 'offer' }), T0)).toBeNull()
+  })
+
+  it('orders decisions first (oldest first), then upcoming (soonest first)', () => {
+    const now = T0 + 100 * HOUR
+    const iv = (id: string, h: number) => makeApp({ id, state: 'interview', interview: { at: T0 + h * HOUR, mode: 'online', location: 'x' } })
+    const sorted = sortLane('interview', [iv('later', 150), iv('done-recent', 90), iv('soon', 110), iv('done-old', 10)])
+    expect(sorted.map((a) => a.id)).toEqual(['done-old', 'done-recent', 'soon', 'later'])
+    expect(sorted.map((a) => interviewPhase(a, now))).toEqual(['done', 'done', 'upcoming', 'upcoming'])
   })
 })
