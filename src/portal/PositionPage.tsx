@@ -43,7 +43,7 @@ export function PositionPage() {
               <h2 className="text-sm font-semibold">What happens when you apply</h2>
               <ul className="mt-3 space-y-3 text-sm text-stone-600">
                 <li className="flex gap-3">
-                  <MailCheck size={18} className="shrink-0 text-brand-600" /> One short form, about two minutes. No account or CV.
+                  <MailCheck size={18} className="shrink-0 text-brand-600" /> One short form and your CV. No account or password.
                 </li>
                 <li className="flex gap-3">
                   <Link2 size={18} className="shrink-0 text-brand-600" /> You get a private link showing where your application stands.

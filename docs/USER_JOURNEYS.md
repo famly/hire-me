@@ -110,11 +110,11 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 |---|---|---|---|---|
 | 1 | `/n/oak-tree` | See nursery name, location, a short "about", and open positions (P1, P2). P3 paused and P4 filled are hidden | Only `open` positions render | ☑ |
 | 2 | `/n/oak-tree/p/P1` | Read room/age group, qualification needed, hours, pay, description. Tap **Apply** | — | ☑ |
-| 3 | `…/apply` | Fill one screen: name, email, phone, qualification (none / working towards / L2 / L3), earliest start, availability, right-to-work checkbox, optional note. Submit | Validate inline. `findOrCreateCandidate(group, email)`, create Application `new` with status token, timeline event `received` | ☑ |
+| 3 | `…/apply` | Fill one screen, **every field required**: name, email, phone, qualifications (type to search, pick several, chips with ✕), earliest start, hours, right to work (yes/no), **CV** (PDF/Word ≤5 MB), a note about themselves, and the consent switch. Submit | Inline errors, focus on the first. `findOrCreateCandidate(group, email)`, create Application `new` with status token, timeline event `received` | ☑ |
 | 4 | `/applied/:token` | See "Application sent to Oak Tree Nursery", what happens next, and the **private status link** (copy button) | Show the link as "we've also emailed this" (simulated) | ☑ |
 
-**Done when:** a submission takes under 2 minutes on a phone, there's no login, and the new application appears on the manager side.
-**Edge cases:** the same email applying again to the same position → show the existing status link instead of a duplicate; missing right-to-work → allowed, flagged to the manager rather than blocked (decision: don't gatekeep in the form).
+**Done when:** a submission takes a few minutes on a phone (including picking a CV from Files or Drive), there's no login, and the new application appears on the manager side with its qualifications and CV name.
+**Edge cases:** the same email applying again to the same position → show the existing status link instead of a duplicate; right to work "no" → allowed, flagged amber to the manager, never blocked; picking "No childcare qualification yet" clears the others (and vice versa); CV that isn't PDF/Word or is over 5 MB → inline error.
 
 ---
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { QUALIFICATION_LABEL } from '../domain/qualification'
+import { levelOf, QUALIFICATION_LABEL } from '../domain/qualification'
 import { messageFor } from '../domain/messages'
 import type { ID } from '../domain/types'
 import { candidateById, nurseryById, positionById } from '../store/selectors'
@@ -56,7 +56,7 @@ export function HireDialog({ applicationId, onClose, onHired }: { applicationId:
         <ReadOnly label="Nursery" value={nursery.name} />
         <ReadOnly label="Email" value={candidate.email} />
         <ReadOnly label="Phone" value={candidate.phone} />
-        <ReadOnly label="Qualification" value={QUALIFICATION_LABEL[app.answers.qualification]} />
+        <ReadOnly label="Qualification" value={QUALIFICATION_LABEL[levelOf(app.answers.qualifications)]} />
         <ReadOnly label="Role" value={position.title} />
       </dl>
       <div className="grid grid-cols-2 gap-3">

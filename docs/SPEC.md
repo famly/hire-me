@@ -42,7 +42,7 @@ Hypothesis we inherit but don't trust blindly: *speed of first reply matters mos
 - **Group** 1—n **Nursery** 1—n **Room** (age group).
 - **Position** — belongs to Nursery (+ optional Room). Title, qualification required (None / L2 / L3), hours/contract, pay range, headcount (default 1), description.
 - **Candidate** — the job seeker in our system. **Not a user account, not a staff record.** Identified by email, **scoped to the Group** (so the same person at 3 sites of a group is one candidate, but never visible to other groups).
-- **Application** — Candidate × Position. Holds answers (qualification, availability, right to work, message), status, timeline of events/messages, access token for status link.
+- **Application** — Candidate × Position. Holds answers (qualifications, availability, right to work, CV, a note, confirmation that it's true), status, timeline of events/messages, access token for status link.
 - **Staff record** (given, pre-exists in Famly) — created *from* a Hired application, prefilled: name, contact, qualification, nursery, room, start date.
 
 ### Position lifecycle
@@ -62,7 +62,7 @@ Terminal exits from any active state: **Rejected** (by nursery), **Withdrawn** (
 ### Must (the demo)
 **Portal**
 - M1 Public nursery page, one shareable URL per nursery: nursery info + Open positions (room/age group, qualification, hours, pay).
-- M2 Position detail + **one-pass mobile apply form**: name, email, phone, qualification (structured: none / L2 / L3 / working towards), earliest start + availability, right-to-work checkbox, optional short note. No CV required, no account.
+- M2 Position detail + **one-screen mobile apply form, every field required**: name, email, phone, **qualifications** (typeahead multi-select from a catalogue of real UK childcare qualifications, each mapped to a level; chips with ✕; "No childcare qualification yet" is exclusive), earliest start, hours (full-time / part-time / either), right to work (yes / no; "no" is allowed and flagged), **CV upload** (PDF/Word ≤5 MB), a short note about themselves, and a **consent switch** confirming the information is true. No account.
 - M3 Confirmation + **private status link** (tokenised URL, no login) showing plain-language status and the next step.
 
 **Manager**
@@ -82,7 +82,7 @@ Terminal exits from any active state: **Rejected** (by nursery), **Withdrawn** (
 ### Could
 - Group-level portal page (all nurseries of a group) and group-manager view.
 - "Other openings in this group" on candidate confirmation.
-- CV upload, interview slot picker, candidate withdraw button on status page.
+- Interview slot picker for the candidate, candidate withdraw button on status page.
 
 ### Won't (documented as next steps)
 Real auth/SSO, real email/SMS delivery, backend/multi-user sync, GDPR retention & deletion automation, job-board syndication (Indeed etc.), right-to-work/DBS check integrations, i18n, analytics pipeline.
@@ -92,7 +92,9 @@ Real auth/SSO, real email/SMS delivery, backend/multi-user sync, GDPR retention 
 |---|---|---|
 | Candidate identity | No account; email + tokenised status link | Password accounts (friction, no trust on a break); fully anonymous (can't reply or dedupe) |
 | What a candidate *is* | Group-scoped Candidate, separate from staff | Draft staff record on apply (pollutes staff data, GDPR); global cross-group profile (privacy, competitors) |
-| Qualification | Structured field on form | CV parsing (unreliable, slow to build); CV required (bad on phone) |
+| Qualification | Multi-select from a catalogue of real qualifications, each mapped to a level (highest wins) | **v1 single choice of level** (people hold several; managers recognise names like CACHE Level 3, not "L3"). CV parsing (unreliable, slow to build) |
+| CV | Required upload (PDF/Word) alongside the structured answers | **v1 no CV** (reviewer call: managers expect one and want it before a call; phone file pickers reach Drive/Files). Structured answers still drive matching, so nobody has to read the CV to triage |
+| Required fields | Everything required, plus a consent switch ("information is true") | Optional note and right-to-work checkbox (v1): an unticked box was ambiguous between "no" and "skipped", so right to work is now a yes/no answer |
 | Hiring pipeline | Kanban with 4 static lanes (Candidates · Interview · Offer · Closed), across positions or filtered to several | **v1 wait-sorted list** (status spread across badges, hard to scan). **v2 five lanes** New · Contacted · Interview · Offer · Hired ("New" vs "Contacted" split was confusing; Hired is an outcome, so it sits in Closed) |
 | Badges | One colour, one meaning: red = act now (no reply >48h, the only red), amber = worth a check, grey = information, green = live/done. Badges only for exceptions, always under the name. Stage is the lane, not a pill | **v1 per-status colours + 3-level wait colours**: two "2 waiting" badges in different colours read as noise and needed explaining |
 | Position create / edit | Modal over the overview | **v1 separate page** (disruptive, loses context) |

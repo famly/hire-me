@@ -76,12 +76,23 @@ export interface Candidate {
   phone: string
 }
 
+/** What we keep about an uploaded CV. The prototype stores only this, not the file itself. */
+export interface CvFile {
+  name: string
+  sizeBytes: number
+  type: string
+}
+
 export interface ApplicationAnswers {
-  qualification: Qualification
+  /** Ids from QUALIFICATION_CATALOG; the level for matching comes from levelOf(). */
+  qualifications: string[]
   earliestStart: string // ISO date (yyyy-mm-dd)
   availability: Availability
   rightToWork: boolean
-  note?: string
+  note: string
+  cv: CvFile
+  /** They confirmed the information is true when submitting. */
+  confirmedTrue: true
 }
 
 export type RejectionReason = 'position_filled'
@@ -114,6 +125,7 @@ export interface StaffRecord {
   email: string
   phone: string
   qualification: Qualification
+  qualifications: string[]
   startDate: string // ISO date
   createdAt: Timestamp
   fromApplicationId?: ID

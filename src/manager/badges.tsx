@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { isStale, lastActivityAt } from '../domain/application'
 import { otherApplications } from '../domain/candidate'
 import { POSITION_STATE_LABEL } from '../domain/position'
-import { meetsRequirement, QUALIFICATION_SHORT } from '../domain/qualification'
+import { levelOf, meetsRequirement, QUALIFICATION_SHORT } from '../domain/qualification'
 import { isOverdue, waitingFor } from '../domain/queue'
 import { formatDuration } from '../domain/time'
 import type { Application, PositionState, Qualification, Timestamp } from '../domain/types'
@@ -50,7 +50,7 @@ export function OverdueCount({ count }: { count: number }) {
 /** Amber / grey exceptions, always in this order, always under the name. Renders nothing if all is fine. */
 export function ExceptionBadges({ app, required, now }: { app: Application; required: Qualification; now: Timestamp }) {
   const data = useStore()
-  const below = !meetsRequirement(app.answers.qualification, required)
+  const below = !meetsRequirement(levelOf(app.answers.qualifications), required)
   const stale = isStale(app, now)
   const otherSites = otherApplications(app, data.applications)
     .map((a) => nurseryById(data, positionById(data, a.positionId)!.nurseryId))

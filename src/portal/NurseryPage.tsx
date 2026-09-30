@@ -49,7 +49,7 @@ export function NurseryPage() {
           ))}
         </div>
         {open.length > 0 && (
-          <p className="mt-4 text-sm text-stone-500">Apply in about two minutes from your phone. No account, no CV needed.</p>
+          <p className="mt-4 text-sm text-stone-500">Apply in a few minutes from your phone. No account needed, just your CV.</p>
         )}
       </section>
     </>

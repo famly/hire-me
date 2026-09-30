@@ -68,7 +68,7 @@ src/
 | `/` | Demo home: links into both sides | J0 |
 | `/n/:nurserySlug` | Public nursery page, open positions | J1 |
 | `/n/:nurserySlug/p/:positionId` | Position detail | J1 |
-| `/n/:nurserySlug/p/:positionId/apply` | One-pass apply form | J1 |
+| `/n/:nurserySlug/p/:positionId/apply` | One-screen apply form (all fields required) | J1 |
 | `/applied/:token` | Confirmation + status link | J1 |
 | `/status/:token` | Candidate status page (no login) | J2 |
 | `/manage` | Positions overview | J3 |
@@ -106,7 +106,8 @@ interface Position { id; nurseryId; roomId?; title; requiredQualification: Quali
   hours; payRange; headcount; description; state: PositionState; createdAt }
 interface Candidate { id; groupId; email; name; phone }          // NOT a user, NOT staff
 interface Application { id; candidateId; positionId; state: ApplicationState;
-  answers: { qualification; earliestStart; availability; rightToWork; note? };
+  answers: { qualifications: string[] /* catalogue ids → levelOf() */; earliestStart; availability;
+             rightToWork: boolean; note; cv: { name; sizeBytes; type }; confirmedTrue: true };
   statusToken; createdAt; firstRepliedAt?; timeline: TimelineEvent[] }
 interface TimelineEvent { at; kind: 'status' | 'message' | 'note'; from?; to?; body?; by: 'manager' | 'candidate' | 'system' }
 interface StaffRecord { id; nurseryId; roomId?; name; email; phone; qualification;
@@ -123,7 +124,7 @@ interface StaffRecord { id; nurseryId; roomId?; name; email; phone; qualificatio
 
 ## UI conventions
 
-- Portal is designed at **375px first**: one column, large tap targets (≥44px), native inputs (`type="email"`, `tel`, `date`), no CV upload, one screen for the form.
+- Portal is designed at **375px first**: one column, large tap targets (≥44px), native inputs (`type="email"`, `tel`, `date`), one screen for the form, every field required. Errors are inline and focus jumps to the first one. The CV upload is a big tap target; the prototype keeps only the file's name, size and type (never the file) so it fits in `localStorage`.
 - Manager screens are scannable at a glance. The next step sits on the card (M6), and the side panel opens without losing the board's place.
 - Overview positions default to **Active** (draft, open, paused); filled and archived sit behind **All**.
 
@@ -134,7 +135,7 @@ All in [src/manager/badges.tsx](../src/manager/badges.tsx). If a new badge doesn
 | Colour | Meaning | Used for |
 |---|---|---|
 | **Red** | Act now | No first reply after 48h (`isOverdue`). The only red in the product: "No reply for 52h" on the card, "N overdue" on the overview |
-| **Amber** | Worth a check before moving them on | Below the required qualification · right to work not confirmed · gone quiet (stale) |
+| **Amber** | Worth a check before moving them on | Below the required qualification (`levelOf(qualifications)`) · answered "no" to right to work · gone quiet (stale) |
 | **Grey** | Information | "Waiting 30h for a reply" (plain text, under 48h) · also applied at another site · outcome label in the Closed lane |
 | **Green** | Live / done | Position open on the portal · Hired |
 

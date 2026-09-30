@@ -1,8 +1,8 @@
-import { ArrowRightLeft, ExternalLink, Mail, Phone, StickyNote, X } from 'lucide-react'
+import { ArrowRightLeft, ExternalLink, FileText, Mail, Phone, StickyNote, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { STATE_LABEL } from '../domain/application'
-import { QUALIFICATION_LABEL } from '../domain/qualification'
+import { qualificationLabel } from '../domain/qualification'
 import { formatDate, relativeTime } from '../domain/time'
 import type { Actor, ID, TimelineEvent } from '../domain/types'
 import { candidateById, nurseryById, positionById } from '../store/selectors'
@@ -85,14 +85,29 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
             <a href={`tel:${candidate.phone}`} className="flex items-center gap-2 text-brand-700 hover:underline">
               <Phone size={14} /> {candidate.phone}
             </a>
-            <Detail label="Qualification" value={QUALIFICATION_LABEL[app.answers.qualification]} />
             <Detail label="Earliest start" value={formatDate(app.answers.earliestStart)} />
             <Detail label="Hours" value={AVAILABILITY_LABEL[app.answers.availability]} />
-            <Detail label="Right to work in the UK" value={app.answers.rightToWork ? 'Confirmed' : 'Not confirmed'} />
+            <Detail label="Right to work in the UK" value={app.answers.rightToWork ? 'Yes' : 'No'} />
+            <div>
+              <p className="text-xs text-stone-500">CV</p>
+              <p className="flex items-center gap-1.5 text-stone-800" title="Prototype: only the file name is kept, not the file">
+                <FileText size={14} className="shrink-0 text-stone-400" />
+                <span className="truncate">{app.answers.cv.name}</span>
+                <span className="shrink-0 text-xs text-stone-500">{Math.max(1, Math.round(app.answers.cv.sizeBytes / 1024))} KB</span>
+              </p>
+            </div>
+            <div className="col-span-2">
+              <p className="text-xs text-stone-500">Qualifications</p>
+              <ul className="mt-1 flex flex-wrap gap-1.5">
+                {app.answers.qualifications.map((id) => (
+                  <li key={id} className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs text-stone-700">
+                    {qualificationLabel(id)}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </section>
-          {app.answers.note && (
-            <blockquote className="rounded-lg bg-stone-50 p-3 text-sm text-stone-700 italic">"{app.answers.note}"</blockquote>
-          )}
+          <blockquote className="rounded-lg bg-stone-50 p-3 text-sm text-stone-700 italic">"{app.answers.note}"</blockquote>
 
           <section>
             <h3 className="text-sm font-semibold">Timeline</h3>
