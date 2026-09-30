@@ -165,6 +165,12 @@ export const useStore = create<State>()(
   ),
 )
 
+// Persist the seed immediately on first load. Otherwise a second tab would build its own
+// seed (with different status tokens) before anything had been written.
+if (typeof window !== 'undefined' && !localStorage.getItem(STORAGE_KEY)) {
+  useStore.setState({})
+}
+
 // Cross-tab sync: portal in one tab, manager in another, both live during the walkthrough.
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (e) => {
