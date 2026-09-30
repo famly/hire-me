@@ -4,6 +4,7 @@ import type {
   Application,
   ApplicationState,
   Interview,
+  InterviewSlots,
   CandidateStatus,
   Message,
   RejectionReason,
@@ -85,11 +86,14 @@ export function isStale(app: Application, now: Timestamp): boolean {
   return now - quietSince(app, now) > STALE_AFTER
 }
 
-/** The step we expect next. The UI shows it as the primary button on the row. */
+/**
+ * The step we expect next. The UI shows it as the link on the card and the primary
+ * button in the panel. For anyone not yet interviewed it's the invite: that's the
+ * reply that moves things on. "Contact" stays available in the panel.
+ */
 export function nextAction(app: Application): ApplicationAction | null {
   switch (app.state) {
     case 'new':
-      return 'contact'
     case 'contacted':
       return 'invite'
     case 'interview':
@@ -115,7 +119,7 @@ export function transitionApplication(
   app: Application,
   action: ApplicationAction,
   now: Timestamp,
-  opts: { message?: Message; reason?: RejectionReason; interview?: Interview } = {},
+  opts: { message?: Message; reason?: RejectionReason; interview?: Interview; slots?: InterviewSlots } = {},
 ): Application {
   if (!canTransition(app, action)) {
     throw new Error(`Cannot "${action}" an application that is ${app.state}`)
@@ -133,7 +137,32 @@ export function transitionApplication(
     firstRepliedAt: app.firstRepliedAt ?? (by === 'manager' ? now : undefined),
     rejectionReason: action === 'reject' ? opts.reason : app.rejectionReason,
     interview: action === 'invite' && opts.interview ? opts.interview : app.interview,
+    interviewSlots: action === 'invite' ? (opts.interview ? undefined : opts.slots) : app.interviewSlots,
     timeline: [...app.timeline, ...events],
+  }
+}
+
+/** When they were invited to interview (the latest move into that state). */
+export function invitedAt(app: Application): Timestamp | undefined {
+  return app.timeline.findLast((e) => e.kind === 'status' && e.to === 'interview')?.at
+}
+
+/** Offered times the candidate can still pick: the ones not yet passed. */
+export function openSlots(app: Application, now: Timestamp): Timestamp[] {
+  return (app.interviewSlots?.options ?? []).filter((at) => at > now).sort((a, b) => a - b)
+}
+
+/** The candidate picks one of the offered times; it becomes the interview. */
+export function pickInterviewSlot(app: Application, slot: Timestamp, now: Timestamp): Application {
+  const slots = app.interviewSlots
+  if (app.state !== 'interview' || !slots || !openSlots(app, now).includes(slot)) {
+    throw new Error('That interview time is not on offer')
+  }
+  return {
+    ...app,
+    interview: { at: slot, mode: slots.mode, location: slots.location },
+    interviewSlots: undefined,
+    timeline: [...app.timeline, { id: eventId(app, 0), at: now, by: 'candidate', kind: 'booked', slot }],
   }
 }
 
@@ -198,6 +227,9 @@ export function candidateStatusLine(app: Application, nurseryName: string, now?:
     case 'contacted':
       return 'The nursery is looking at your application.'
     case 'interview':
+      if (!app.interview && app.interviewSlots) {
+        return 'The nursery would like to meet you. Pick the time that suits you best below.'
+      }
       if (app.interview && now !== undefined && app.interview.at <= now) {
         return "Thanks for meeting the nursery. They'll let you know the outcome here and by email."
       }

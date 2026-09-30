@@ -60,7 +60,11 @@ export function OverviewStats({ applications, positions }: { applications: Appli
           label="Upcoming interviews"
           count={a.upcoming.length}
           first={next}
-          detail={next ? `Next: ${name(next)}, ${formatDateTime(next.interview!.at)}` : 'None booked'}
+          detail={
+            [next && `Next: ${name(next)}, ${formatDateTime(next.interview!.at)}`, a.awaitingTime.length > 0 && `${a.awaitingTime.length} picking a time`]
+              .filter(Boolean)
+              .join(' · ') || 'None booked'
+          }
         />
         <Tile
           icon={Handshake}

@@ -1,6 +1,6 @@
 import type { ApplicationAction } from './application'
 import { formatDateTimeLong } from './time'
-import type { Interview, Message } from './types'
+import type { Interview, InterviewSlots, Message } from './types'
 
 // Templated candidate messages. Delivery is simulated: a sent message becomes a
 // timeline event that both the manager and the candidate's status page read.
@@ -14,7 +14,11 @@ export interface MessageContext {
   managerName: string
 }
 
-export function messageFor(kind: MessageKind, ctx: MessageContext, extra: { interview?: Interview } = {}): Message {
+export function messageFor(
+  kind: MessageKind,
+  ctx: MessageContext,
+  extra: { interview?: Interview; slots?: InterviewSlots } = {},
+): Message {
   const first = ctx.candidateName.trim().split(/\s+/)[0]
   const sign = `\n\n${ctx.managerName}\n${ctx.nurseryName}`
   switch (kind) {
@@ -29,6 +33,14 @@ export function messageFor(kind: MessageKind, ctx: MessageContext, extra: { inte
         body: `Hi ${first}, thanks for applying for the ${ctx.positionTitle} role. I'd love to hear a bit more about you. Could you give me a call or reply with a good time to talk?${sign}`,
       }
     case 'invite': {
+      const s = extra.slots
+      if (!extra.interview && s) {
+        const where = s.mode === 'online' ? 'Where: online (you will get the link once you pick a time)' : `Where: ${s.location}`
+        return {
+          subject: `Interview invitation – ${ctx.positionTitle}`,
+          body: `Hi ${first}, we'd like to ${s.mode === 'online' ? 'meet you online' : 'invite you in to meet the team and see the room'}. Please pick the time that suits you best on your status page:\n\n${s.options.map((at) => `• ${formatDateTimeLong(at)}`).join('\n')}\n\n${where}\n\nIf none of these work, just reply and we'll find another.${sign}`,
+        }
+      }
       const i = extra.interview
       const details = i
         ? `\n\nWhen: ${formatDateTimeLong(i.at)}\n${i.mode === 'online' ? `Where: online, join here: ${i.location}` : `Where: ${i.location}`}\n\nIf that time doesn't work, just reply and we'll find another.`

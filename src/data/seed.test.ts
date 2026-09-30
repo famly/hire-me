@@ -19,11 +19,12 @@ describe('seed supports the journeys', () => {
     expect(oakApps.some((a) => a.candidateId === 'c-ben')).toBe(false)
   })
 
-  it('J3: Interview lane has a past interview needing a decision (Marcus) and an upcoming one (Jordan)', () => {
-    const lane = sortLane('interview', oakApps.filter((a) => laneOf(a) === 'interview'))
-    expect(lane.map((a) => [name(a.candidateId), interviewPhase(a, now)])).toEqual([
-      ['Marcus Bell', 'done'],
+  it('J3: Interview lane has a decision due (Marcus), an upcoming interview (Jordan) and one waiting for a time (Liam)', () => {
+    const lane = oakApps.filter((a) => laneOf(a) === 'interview')
+    expect(lane.map((a) => [name(a.candidateId), interviewPhase(a, now)]).sort()).toEqual([
       ['Jordan Reid', 'upcoming'],
+      ['Liam Walsh', 'awaiting'],
+      ['Marcus Bell', 'done'],
     ])
   })
 

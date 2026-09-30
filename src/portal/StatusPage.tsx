@@ -1,10 +1,12 @@
-import { Mail } from 'lucide-react'
+import { MapPin, Mail, Video } from 'lucide-react'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { CANDIDATE_STATUS_LABEL, candidateStatus, candidateStatusLine } from '../domain/application'
-import { formatDate } from '../domain/time'
-import type { CandidateStatus } from '../domain/types'
+import { CANDIDATE_STATUS_LABEL, candidateStatus, candidateStatusLine, openSlots } from '../domain/application'
+import { formatDate, formatDateTimeLong } from '../domain/time'
+import type { Application, CandidateStatus } from '../domain/types'
 import { applicationByToken, candidateById, nurseryById, positionById } from '../store/selectors'
 import { useNow, useStore } from '../store/store'
+import { Button } from '../ui/Button'
 import { InterviewDetails } from '../ui/InterviewDetails'
 import { NotFound } from './NurseryPage'
 import { NurseryHeader } from './PortalLayout'
@@ -63,6 +65,8 @@ export function StatusPage() {
           )}
         </section>
 
+        {app.state === 'interview' && !app.interview && app.interviewSlots && <PickATime app={app} now={now} />}
+
         {app.state === 'interview' && app.interview && (
           <section className="mt-4 rounded-xl bg-white p-4 ring-1 ring-stone-200">
             <h2 className="mb-2 text-sm font-semibold">Your interview</h2>
@@ -97,5 +101,51 @@ export function StatusPage() {
         </p>
       </div>
     </>
+  )
+}
+
+/** The candidate chooses one of the times the nursery offered. It becomes their interview. */
+function PickATime({ app, now }: { app: Application; now: number }) {
+  const pick = useStore((s) => s.pickInterviewSlot)
+  const options = openSlots(app, now)
+  const [chosen, setChosen] = useState<number | null>(null)
+  const slots = app.interviewSlots!
+
+  return (
+    <section className="mt-4 rounded-xl bg-white p-4 ring-1 ring-stone-200">
+      <h2 className="text-sm font-semibold">Pick a time for your interview</h2>
+      <p className="mt-1 flex items-start gap-1.5 text-sm text-stone-600">
+        {slots.mode === 'online' ? <Video size={16} className="mt-0.5 shrink-0 text-stone-400" /> : <MapPin size={16} className="mt-0.5 shrink-0 text-stone-400" />}
+        {slots.mode === 'online' ? "Online. You'll see the link here once you've picked." : slots.location}
+      </p>
+      {options.length === 0 ? (
+        <p className="mt-3 text-sm text-stone-600">These times have passed. Reply to the nursery's email and they'll find another.</p>
+      ) : (
+        <form
+          className="mt-3 space-y-3"
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (chosen !== null) pick(app.id, chosen)
+          }}
+        >
+          <fieldset className="space-y-2">
+            <legend className="sr-only">Interview times</legend>
+            {options.map((at) => (
+              <label
+                key={at}
+                className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-lg px-3 text-sm ring-1 ring-inset has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-600 ${chosen === at ? 'font-medium ring-2 ring-brand-600' : 'ring-stone-300'}`}
+              >
+                <input type="radio" name="slot" value={at} checked={chosen === at} onChange={() => setChosen(at)} className="size-4 accent-brand-600" />
+                {formatDateTimeLong(at)}
+              </label>
+            ))}
+          </fieldset>
+          <Button type="submit" size="lg" disabled={chosen === null}>
+            Confirm this time
+          </Button>
+          <p className="text-xs text-stone-500">None of these work? Reply to the nursery's email and they'll find another.</p>
+        </form>
+      )}
+    </section>
   )
 }

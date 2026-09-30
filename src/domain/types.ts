@@ -112,8 +112,10 @@ export interface Application {
   createdAt: Timestamp
   firstRepliedAt?: Timestamp
   rejectionReason?: RejectionReason
-  /** Set when invited to interview. */
+  /** Set when invited with a fixed time, or once the candidate picks one of the offered times. */
   interview?: Interview
+  /** Times offered on invite for the candidate to pick from. Cleared when they pick. */
+  interviewSlots?: InterviewSlots
   timeline: TimelineEvent[]
 }
 
@@ -124,6 +126,12 @@ export interface Interview {
   location: string
 }
 
+export interface InterviewSlots {
+  options: Timestamp[]
+  mode: Interview['mode']
+  location: string
+}
+
 export type Actor = 'manager' | 'candidate' | 'system'
 
 export type TimelineEvent =
@@ -131,6 +139,8 @@ export type TimelineEvent =
   | { id: ID; at: Timestamp; by: Actor; kind: 'message'; subject: string; body: string }
   /** Internal, never shown to the candidate. `about: 'interview'` = notes from the interview itself. */
   | { id: ID; at: Timestamp; by: Actor; kind: 'note'; body: string; about?: 'interview' }
+  /** The candidate picked one of the offered interview times. */
+  | { id: ID; at: Timestamp; by: Actor; kind: 'booked'; slot: Timestamp }
 
 export interface StaffRecord {
   id: ID

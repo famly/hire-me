@@ -5,10 +5,12 @@ import {
   isStale,
   managerActions,
   nextAction,
+  openSlots,
+  pickInterviewSlot,
   STALE_AFTER,
   transitionApplication,
 } from './application'
-import { HOUR } from './time'
+import { DAY, HOUR } from './time'
 import { makeApp, T0 } from './testing'
 import type { ApplicationState } from './types'
 
@@ -40,7 +42,8 @@ describe('application transitions', () => {
   })
 
   it('suggests the expected next step', () => {
-    expect(nextAction(makeApp({ state: 'new' }))).toBe('contact')
+    expect(nextAction(makeApp({ state: 'new' }))).toBe('invite')
+    expect(nextAction(makeApp({ state: 'contacted' }))).toBe('invite')
     expect(nextAction(makeApp({ state: 'offer' }))).toBe('hire')
     expect(nextAction(makeApp({ state: 'rejected' }))).toBeNull()
   })
@@ -140,5 +143,28 @@ describe('offer declined', () => {
     const declined = transitionApplication(offer, 'decline', T0)
     expect(declined.state).toBe('declined')
     expect(candidateStatus(declined)).toBe('offer_declined')
+  })
+})
+
+describe('offered interview times', () => {
+  const slots = { options: [T0 + 2 * DAY, T0 + 3 * DAY], mode: 'in_person' as const, location: 'Oak Tree' }
+  const invited = transitionApplication(makeApp(), 'invite', T0, { slots })
+
+  it('invites without a fixed time and waits for the candidate', () => {
+    expect(invited.interview).toBeUndefined()
+    expect(openSlots(invited, T0)).toEqual(slots.options)
+    expect(candidateStatusLine(invited, 'Oak Tree', T0)).toMatch(/Pick the time/)
+  })
+
+  it('turns the picked time into the interview and logs it', () => {
+    const booked = pickInterviewSlot(invited, T0 + 3 * DAY, T0 + HOUR)
+    expect(booked.interview).toEqual({ at: T0 + 3 * DAY, mode: 'in_person', location: 'Oak Tree' })
+    expect(booked.interviewSlots).toBeUndefined()
+    expect(booked.timeline.at(-1)).toMatchObject({ kind: 'booked', by: 'candidate', slot: T0 + 3 * DAY })
+  })
+
+  it('refuses a time that was not offered or has passed', () => {
+    expect(() => pickInterviewSlot(invited, T0 + 5 * DAY, T0)).toThrow()
+    expect(() => pickInterviewSlot(invited, T0 + 2 * DAY, T0 + 2 * DAY + HOUR)).toThrow()
   })
 })

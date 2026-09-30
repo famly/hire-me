@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { actionForLane, interviewPhase, laneOf, sortLane } from './pipeline'
-import { HOUR } from './time'
+import { DAY, HOUR } from './time'
 import { makeApp, T0 } from './testing'
 
 const at = (h: number) => [{ id: `e${h}`, at: T0 + h * HOUR, by: 'manager' as const, kind: 'note' as const, body: '' }]
@@ -62,5 +62,12 @@ describe('interview phases', () => {
     const sorted = sortLane('interview', [iv('later', 150), iv('done-recent', 90), iv('soon', 110), iv('done-old', 10)])
     expect(sorted.map((a) => a.id)).toEqual(['done-old', 'done-recent', 'soon', 'later'])
     expect(sorted.map((a) => interviewPhase(a, now))).toEqual(['done', 'done', 'upcoming', 'upcoming'])
+  })
+})
+
+describe('interview phase: waiting for a time', () => {
+  it('is "awaiting" while the candidate has offered times and no interview', () => {
+    const app = makeApp({ state: 'interview', interviewSlots: { options: [T0 + DAY], mode: 'online', location: 'https://x.y' } })
+    expect(interviewPhase(app, T0)).toBe('awaiting')
   })
 })

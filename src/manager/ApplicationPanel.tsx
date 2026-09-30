@@ -1,7 +1,7 @@
 import { CalendarDays, CircleDot, ExternalLink, Mail, Phone, StickyNote, X } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
-import { canAddInterviewNotes, interviewNotes, isActive } from '../domain/application'
+import { canAddInterviewNotes, interviewNotes, invitedAt, isActive } from '../domain/application'
 import { qualificationLabel } from '../domain/qualification'
 import { formatDate, formatDateTime, relativeTime } from '../domain/time'
 import { timelineEntries, type TimelineEntry } from '../domain/timeline'
@@ -11,6 +11,7 @@ import { useNow, useStore } from '../store/store'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Field'
 import { InterviewDetails } from '../ui/InterviewDetails'
+import { InterviewOptions } from '../ui/InterviewOptions'
 import { StatusPill } from '../ui/StatusPill'
 import { ExceptionBadges, WaitIndicator } from './badges'
 import { AllActions } from './AllActions'
@@ -94,6 +95,12 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
 
         <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
           <CrossSiteSection app={app} />
+          {!app.interview && app.interviewSlots && (
+            <section className="rounded-lg bg-stone-50 p-3">
+              <h3 className="mb-2 text-xs font-medium text-stone-500">Interview</h3>
+              <InterviewOptions slots={app.interviewSlots} sentAt={invitedAt(app) ?? app.createdAt} firstName={firstName} now={now} />
+            </section>
+          )}
           {app.interview && (
             <section className="space-y-3 rounded-lg bg-stone-50 p-3">
               <div>

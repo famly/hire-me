@@ -56,7 +56,7 @@ Legend: ☐ not started · ◐ partly working · ☑ works end-to-end in the bro
 | Sophie Turner | working towards | P2 | New | 4h ago | Waiting (grey), no badges |
 | Daniel Hughes | none | P2 | New | 26h ago | Waiting (grey); amber "Right to work?" |
 | Grace Adeyemi | L2 | P2 | Offer | offered yesterday, trial-hour notes from her interview | Late pipeline; "Offers waiting for an answer" |
-| Liam Walsh | none | P2 | Rejected | — | Terminal state |
+| Liam Walsh | none | P2 | Interview | invited yesterday with 3 times to pick from, hasn't picked | *Waiting for a time* in the Interview lane |
 | Ella Morgan | L3 | P3 | Contacted | — | Applicants on a paused position (goes quiet at +3 days) |
 | Noah Patel | L2 | P4 | Hired | 12 days ago | Existing staff record; time-to-fill metric |
 | Ruby Clarke | L2 | P2 | Offer declined | offered 4 days ago, said no 2 days ago | The "Offer declined" outcome in Closed |
@@ -73,7 +73,7 @@ Legend: ☐ not started · ◐ partly working · ☑ works end-to-end in the bro
 |---|---|---|
 | new | **Received** | Oak Tree Nursery has your application. You'll hear from them here and by email. |
 | contacted | **Being reviewed** | The nursery is looking at your application. |
-| interview | **Invited to interview** | The nursery would like to meet you. The details are below and in your email. (Plus a "Your interview" box: date, time, address or join link.) |
+| interview | **Invited to interview** | The nursery would like to meet you. The details are below and in your email. (Plus a "Your interview" box: date, time, address or join link.) If they were offered a choice: "Pick the time that suits you best below", with the times as big radio buttons and **Confirm this time**. |
 | offer | **Offer** | You've been offered the role. The nursery will be in touch about next steps. |
 | hired | **Hired** | Welcome to the team. |
 | rejected | **Not progressing** | The nursery won't be taking your application further this time. {reason if "position filled"} |
@@ -141,10 +141,10 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
 | 1 | `/manage` | See **what needs you now** (4 waiting for a reply, 1 overdue: Amira; Marcus to decide on; Jordan's interview next; Grace's offer out), each tile opening that person. Below: Oak Tree's **active** positions (toggle to All) with state and counts: needs reply as a plain number plus a red "N overdue" only if someone waited >48h / in progress / hired of headcount | Counts derived, never stored | ☑ |
-| 2 | `/manage/pipeline` | See the **Hiring pipeline** board: static lanes Candidates · Interview · Offer · Closed. Any lane folds into a narrow strip (⇥⇤ in its header) and back. Candidates: unanswered first, longest wait on top, then contacted. Interview: *Needs a decision* then *Upcoming*, each a labelled group with a count. **Filter by position**: type names, pick several, clear with ✕ | `laneOf()`, `sortLane()`; "Waiting 30h for a reply" grey, red "No reply for 52h" when `isOverdue()` | ☑ |
+| 2 | `/manage/pipeline` | See the **Hiring pipeline** board: static lanes Candidates · Interview · Offer · Closed. Any lane folds into a narrow strip (⇥⇤ in its header) and back. Candidates: unanswered first, longest wait on top, then contacted. Interview: *Needs a decision*, *Upcoming*, then *Waiting for a time*, each a labelled group with a count. **Filter by position**: type names, pick several, clear with ✕ | `laneOf()`, `sortLane()`; "Waiting 30h for a reply" grey, red "No reply for 52h" when `isOverdue()` | ☑ |
 | 3 | — | Scan each card: name and **match score** (hover it for the explanation and the points), position, wait in words, then **only exception flags**: amber (needs L3, right to work?, quiet), grey (also at another site). The **CV** is on the card. **Colours & flags** (popover) explains each one and where it comes from | `matchApplication()`, `meetsRequirement()`, `isStale()`, `otherApplications()` | ☑ |
 
-**Done when:** the Candidates lane reads Amira (red), Chloe (30h), Daniel (26h), Sophie (4h), then Ella (contacted); the Interview lane shows Marcus under "Needs a decision" and Jordan under "Upcoming"; Closed shows Ruby's "Offer declined"; Amira is the only red thing on screen; Ben Foster (Birch Lane) is not visible.
+**Done when:** the Candidates lane reads Amira (red), Chloe (30h), Daniel (26h), Sophie (4h), then Ella (contacted); the Interview lane shows Marcus under "Needs a decision", Jordan under "Upcoming" and Liam under "Waiting for a time"; Closed shows Ruby's "Offer declined"; Amira is the only red thing on screen; Ben Foster (Birch Lane) is not visible.
 
 ---
 
@@ -154,8 +154,8 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | `/manage/pipeline` (optionally `?position=p1`) | On the card, click the next step (Contact · Invite to interview · Make offer · Hire), or **drag the card** forward to any later lane (the lanes that accept it get a dashed outline and "Drop to …") (drop on Closed = reject). Lanes that can't take the card dim while dragging. Reject and everything else are in the panel | `nextAction()`, `actionForLane()` (forward only), `managerActions()`; set `firstRepliedAt` on the first manager action | ☑ |
-| 2 | — | See a short preview of the email (**Edit** opens subject and message; switch off "Email" to skip it), then confirm with a two-word button ("Send invite"). **Inviting also schedules the interview**: date, time, in person (address, defaulting to the nursery) or online (a meeting link is **created automatically**; switch it off to paste your own). The message fills in the details until edited by hand | Template from `messages.ts`; timeline `status` + `message` events | ☑ |
+| 1 | `/manage/pipeline` (optionally `?position=p1`) | On the card, click the next step (**Invite to interview** on every Candidates card, the only link there · Make offer · Hire; Contact is in the panel), or **drag the card** forward to any later lane (the lanes that accept it get a dashed outline and "Drop to …") (drop on Closed = reject). Lanes that can't take the card dim while dragging. Reject and everything else are in the panel | `nextAction()`, `actionForLane()` (forward only), `managerActions()`; set `firstRepliedAt` on the first manager action | ☑ |
+| 2 | — | See a short preview of the email (**Edit** opens subject and message; switch off "Email" to skip it), then confirm with a two-word button ("Send invite"). **Inviting also schedules the interview**: a set date and time, or *Let them pick* with 2–4 times (they choose on their status page; until then the card sits in *Waiting for a time*), in person (address, defaulting to the nursery) or online (a meeting link is **created automatically**; switch it off to paste your own). The message fills in the details until edited by hand | Template from `messages.ts`; timeline `status` + `message` events | ☑ |
 | 3 | `?app=:id` side panel | Click the card to open the detail: contact, CV and match score up top, answers, the labelled "Message from …", all actions, and a **timeline of plain steps** (who, when, the email folded under each step; an upcoming interview on top as "Next"), internal notes. After the interview, **interview notes** go in the Interview section and appear under the *Interviewed* step. From Offer: **Offer declined** records that they said no | `timelineEntries()`, `canAddInterviewNotes()`; notes are `note` events, never public | ☑ |
 
 **Done when:** the card moves to its new lane, drops out of "needs reply", and the candidate's status page reflects it.

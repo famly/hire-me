@@ -32,23 +32,26 @@ export function laneOf(app: Application): Lane {
 }
 
 /**
- * Within the Interview lane: still to come, or happened and waiting for a decision.
+ * Within the Interview lane: happened and waiting for a decision, still to come, or
+ * invited with a choice of times the candidate hasn't picked from yet.
  * Derived from the interview time, so it moves on its own. No interview on record
  * counts as "done" (a decision is due).
  */
-export type InterviewPhase = 'upcoming' | 'done'
+export type InterviewPhase = 'upcoming' | 'done' | 'awaiting'
 
 export function interviewPhase(app: Application, now: Timestamp): InterviewPhase | null {
   if (app.state !== 'interview') return null
+  if (!app.interview && app.interviewSlots) return 'awaiting'
   return app.interview && app.interview.at > now ? 'upcoming' : 'done'
 }
 
-/** Always in this order: decisions due first, then what's coming up. */
-export const INTERVIEW_PHASES: InterviewPhase[] = ['done', 'upcoming']
+/** Always in this order: decisions due first, then what's coming up, then invites still waiting for a time. */
+export const INTERVIEW_PHASES: InterviewPhase[] = ['done', 'upcoming', 'awaiting']
 
 export const INTERVIEW_PHASE_LABEL: Record<InterviewPhase, string> = {
   done: 'Needs a decision',
   upcoming: 'Upcoming',
+  awaiting: 'Waiting for a time',
 }
 
 const LANE_ACTION: Partial<Record<Lane, ApplicationAction>> = {

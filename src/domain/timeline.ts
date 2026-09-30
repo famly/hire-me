@@ -1,3 +1,4 @@
+import { formatDateTime } from './time'
 import type { Actor, Application, ApplicationState, Message, Timestamp } from './types'
 
 // The application's history as a list of plain steps for the manager's panel.
@@ -40,7 +41,9 @@ export function timelineEntries(app: Application, now: Timestamp): TimelineEntry
       continue
     }
     const last = entries[entries.length - 1]
-    if (e.kind === 'status') {
+    if (e.kind === 'booked') {
+      entries.push({ id: e.id, kind: 'step', at: e.at, by: e.by, title: `Picked a time: ${formatDateTime(e.slot)}` })
+    } else if (e.kind === 'status') {
       const title =
         e.to === 'rejected' && app.rejectionReason === 'position_filled' ? 'Rejected: position filled' : STEP_TITLE[e.to]
       entries.push({ id: e.id, kind: 'step', at: e.at, by: e.by, title })

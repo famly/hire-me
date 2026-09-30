@@ -32,7 +32,7 @@ src/
     candidate.ts             # findOrCreateCandidate(groupId, email) — group-scoped dedupe
     qualification.ts         # meetsRequirement(candidateQual, positionReq)
     queue.ts                 # needsReply(), waitingFor(), isOverdue() — reply speed
-    pipeline.ts              # LANES, laneOf(), actionForLane(), sortLane(), interviewPhase() — the board
+    pipeline.ts              # LANES, laneOf(), actionForLane(), sortLane(), interviewPhase() (done / upcoming / awaiting)
     relevance.ts             # matchApplication(): 0–100 match score, named factors, written explanation
     timeline.ts              # timelineEntries(): raw events → plain steps (status + its email = one step)
     attention.ts             # attention(): who's waiting, decisions due, upcoming, offers out — overview tiles
@@ -68,6 +68,7 @@ src/
     Switch                   # on/off toggle (apply-form consent, send email, auto meeting link)
     ChoiceGroup              # equal-width single choice; apply form (hours, right to work) and interview mode
     InterviewDetails         # when / where / join link; pipeline card (compact), panel, candidate status page
+    InterviewOptions         # offered times still waiting for the candidate's pick; card (compact) and panel
 ```
 
 ## Routes
@@ -118,8 +119,9 @@ interface Application { id; candidateId; positionId; state: ApplicationState;
   answers: { qualifications: string[] /* catalogue ids → levelOf() */; earliestStart; availability;
              rightToWork: boolean; note; cv: { name; sizeBytes; type }; confirmedTrue: true };
   statusToken; createdAt; firstRepliedAt?; timeline: TimelineEvent[] }
-interface Interview { at; mode: 'in_person' | 'online'; location /* address or meeting link */ }  // Application.interview?, set on invite
-interface TimelineEvent { at; kind: 'status' | 'message' | 'note'; from?; to?; body?; about?: 'interview'; by: 'manager' | 'candidate' | 'system' }
+interface Interview { at; mode: 'in_person' | 'online'; location /* address or meeting link */ }  // Application.interview?, set on invite or when a slot is picked
+interface InterviewSlots { options: Timestamp[]; mode; location }  // Application.interviewSlots?, offered on invite, cleared by pickInterviewSlot()
+interface TimelineEvent { at; kind: 'status' | 'message' | 'note' | 'booked' /* candidate picked a slot */; from?; to?; body?; about?: 'interview'; by: 'manager' | 'candidate' | 'system' }
 // note + about: 'interview' = interview notes; only allowed once the interview has happened (canAddInterviewNotes)
 interface StaffRecord { id; nurseryId; roomId?; name; email; phone; qualification;
   startDate; fromApplicationId }

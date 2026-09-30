@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { buildSeed, MANAGER_NURSERY_ID, type Data } from '../data/seed'
-import { addNote, transitionApplication, type ApplicationAction } from '../domain/application'
+import { addNote, pickInterviewSlot, transitionApplication, type ApplicationAction } from '../domain/application'
 import { existingApplication, findOrCreateCandidate } from '../domain/candidate'
 import { messageFor, type MessageContext } from '../domain/messages'
 import { fillPosition, transitionPosition, type PositionAction } from '../domain/position'
 import { staffRecordFromApplication } from '../domain/staff'
-import type { Application, ApplicationAnswers, ID, Interview, Message, Position, StaffRecord } from '../domain/types'
+import type { Application, ApplicationAnswers, ID, Interview, InterviewSlots, Message, Position, StaffRecord } from '../domain/types'
 import { newId, newToken } from './ids'
 
 // Store actions orchestrate, the domain decides (docs/ARCHITECTURE.md "Layering rules").
@@ -33,7 +33,14 @@ interface State extends Data {
   reset: () => void
   fastForward: (ms: number) => void
   submitApplication: (input: ApplyInput) => { token: string; duplicate: boolean }
-  applyAction: (applicationId: ID, action: ApplicationAction, message?: Message, extra?: { interview?: Interview }) => void
+  applyAction: (
+    applicationId: ID,
+    action: ApplicationAction,
+    message?: Message,
+    extra?: { interview?: Interview; slots?: InterviewSlots },
+  ) => void
+  /** Candidate side: pick one of the offered interview times. */
+  pickInterviewSlot: (applicationId: ID, slot: number) => void
   addNote: (applicationId: ID, body: string, about?: 'interview') => void
   hire: (applicationId: ID, message: Message | undefined, staff: Pick<StaffRecord, 'startDate' | 'roomId'>) => void
   transitionPosition: (positionId: ID, action: PositionAction) => void
@@ -118,9 +125,12 @@ export const useStore = create<State>()(
           set((s) => ({
             applications: replace(
               s.applications,
-              transitionApplication(app(applicationId), action, now(), { message, interview: extra.interview }),
+              transitionApplication(app(applicationId), action, now(), { message, interview: extra.interview, slots: extra.slots }),
             ),
           })),
+
+        pickInterviewSlot: (applicationId, slot) =>
+          set((s) => ({ applications: replace(s.applications, pickInterviewSlot(app(applicationId), slot, now())) })),
 
         addNote: (applicationId, body, about) =>
           set((s) => ({ applications: replace(s.applications, addNote(app(applicationId), body, now(), about)) })),

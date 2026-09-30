@@ -1,7 +1,7 @@
-import { CalendarClock, ChevronsLeftRight, ChevronsRightLeft, ListChecks } from 'lucide-react'
+import { CalendarClock, ChevronsLeftRight, ChevronsRightLeft, Hourglass, ListChecks } from 'lucide-react'
 import { useState, type DragEvent } from 'react'
 import { useSearchParams } from 'react-router'
-import { ACTION_LABEL, nextAction } from '../domain/application'
+import { ACTION_LABEL, invitedAt, nextAction } from '../domain/application'
 import {
   actionForLane,
   INTERVIEW_PHASE_LABEL,
@@ -23,6 +23,7 @@ import { useNow, useStore } from '../store/store'
 import { Button } from '../ui/Button'
 import { Field } from '../ui/Field'
 import { InterviewDetails } from '../ui/InterviewDetails'
+import { InterviewOptions } from '../ui/InterviewOptions'
 import { MultiCombobox } from '../ui/MultiCombobox'
 import { StatusPill } from '../ui/StatusPill'
 import { useActions } from './actionsContext'
@@ -31,11 +32,11 @@ import { CvChip } from './CvChip'
 import { MatchScore } from './MatchScore'
 import { useManagerData } from './useManagerData'
 
-const PHASE_ICON: Record<InterviewPhase, typeof ListChecks> = { done: ListChecks, upcoming: CalendarClock }
+const PHASE_ICON: Record<InterviewPhase, typeof ListChecks> = { done: ListChecks, upcoming: CalendarClock, awaiting: Hourglass }
 
 const LANE_HINT: Record<Lane, string> = {
   candidates: 'Unanswered first, longest wait on top',
-  interview: 'Decisions due first, then upcoming',
+  interview: 'Decisions first, then upcoming',
   offer: 'Longest in this stage first',
   closed: 'Every outcome, newest first',
 }
@@ -251,8 +252,9 @@ function PipelineCard({
   const candidate = candidateById(data, app.candidateId)
   const position = positionById(data, app.positionId)!
   const closed = laneOf(app) === 'closed'
-  // Nothing to decide before the interview has happened; offering early stays possible from the panel.
-  const next = interviewPhase(app, now) === 'upcoming' ? null : nextAction(app)
+  // Nothing to decide before the interview has happened (or while they pick a time); offering early stays possible from the panel.
+  const phase = interviewPhase(app, now)
+  const next = phase === 'upcoming' || phase === 'awaiting' ? null : nextAction(app)
 
   return (
     <article
@@ -281,6 +283,9 @@ function PipelineCard({
         <p className="text-xs text-stone-500">Contacted {relativeTime(app.firstRepliedAt, now)}</p>
       )}
       {app.state === 'interview' && app.interview && <InterviewDetails interview={app.interview} now={now} compact />}
+      {phase === 'awaiting' && app.interviewSlots && (
+        <InterviewOptions slots={app.interviewSlots} sentAt={invitedAt(app) ?? app.createdAt} firstName={candidate.name.split(' ')[0]} now={now} compact />
+      )}
       <ExceptionBadges app={app} required={position.requiredQualification} now={now} />
       <div className="flex items-center justify-between gap-2">
         {next ? (

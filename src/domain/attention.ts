@@ -15,6 +15,8 @@ export interface Attention {
   toDecide: Application[]
   /** Interviews still to come, soonest first. */
   upcoming: Application[]
+  /** Invited with a choice of times, the candidate hasn't picked yet; longest waiting first. */
+  awaitingTime: Application[]
   /** Offers made, no answer yet, oldest offer first. */
   offersOut: Application[]
 }
@@ -27,6 +29,7 @@ export function attention(applications: Application[], now: Timestamp): Attentio
     overdue: awaitingReply.filter((a) => isOverdue(a, now)),
     toDecide: applications.filter((a) => interviewPhase(a, now) === 'done').sort(byInterview),
     upcoming: applications.filter((a) => interviewPhase(a, now) === 'upcoming').sort(byInterview),
+    awaitingTime: applications.filter((a) => interviewPhase(a, now) === 'awaiting').sort((a, b) => lastActivityAt(a) - lastActivityAt(b)),
     offersOut: applications.filter((a) => a.state === 'offer').sort((a, b) => lastActivityAt(a) - lastActivityAt(b)),
   }
 }
