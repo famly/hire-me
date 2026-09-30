@@ -7,6 +7,8 @@ export interface Actions {
   start: (applicationId: ID, action: ApplicationAction) => void
   /** Open the application side panel. */
   open: (applicationId: ID) => void
+  /** Confirm filling a position, notifying everyone still waiting. */
+  fill: (positionId: ID) => void
 }
 
 export const ActionsContext = createContext<Actions | null>(null)

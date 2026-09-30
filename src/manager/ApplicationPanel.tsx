@@ -69,6 +69,11 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
           <div className="mt-4">
             <AllActions app={app} />
           </div>
+          {app.state === 'hired' && data.staff.some((s) => s.fromApplicationId === app.id) && (
+            <Link to="/manage/staff" className="mt-3 inline-block text-sm text-emerald-700 hover:underline">
+              ✓ Staff record created in Famly: view
+            </Link>
+          )}
         </header>
 
         <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">

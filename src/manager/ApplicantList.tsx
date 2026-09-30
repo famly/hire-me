@@ -14,7 +14,7 @@ import { RowActions } from './RowActions'
 const SECTIONS = [
   { key: 'reply', title: 'Waiting for a first reply', test: needsReply },
   { key: 'active', title: 'In progress', test: (a: Application) => isActive(a) && !needsReply(a) },
-  { key: 'closed', title: 'Closed', test: (a: Application) => !isActive(a) },
+  { key: 'closed', title: 'Hired & closed', test: (a: Application) => !isActive(a) },
 ] as const
 
 /** The queue: sorted by who has waited longest, grouped so "needs reply" is always on top. */

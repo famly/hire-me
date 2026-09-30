@@ -1,10 +1,14 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
 import type { ApplicationAction } from '../domain/application'
+import { shouldSuggestFilled } from '../domain/position'
 import type { ID } from '../domain/types'
+import { useStore } from '../store/store'
 import { ActionDialog } from './ActionDialog'
 import { ActionsContext } from './actionsContext'
 import { ApplicationPanel } from './ApplicationPanel'
+import { FillDialog } from './FillDialog'
+import { HireDialog } from './HireDialog'
 
 /**
  * Owns the manager's action flow: which dialog is open, and the side panel.
@@ -13,6 +17,7 @@ import { ApplicationPanel } from './ApplicationPanel'
 export function ActionsProvider({ children }: { children: ReactNode }) {
   const [params, setParams] = useSearchParams()
   const [pending, setPending] = useState<{ applicationId: ID; action: ApplicationAction } | null>(null)
+  const [fillId, setFillId] = useState<ID | null>(null)
   const openId = params.get('app')
 
   const open = useCallback(
@@ -30,7 +35,11 @@ export function ActionsProvider({ children }: { children: ReactNode }) {
     })
 
   const actions = useMemo(
-    () => ({ start: (applicationId: ID, action: ApplicationAction) => setPending({ applicationId, action }), open }),
+    () => ({
+      start: (applicationId: ID, action: ApplicationAction) => setPending({ applicationId, action }),
+      open,
+      fill: (positionId: ID) => setFillId(positionId),
+    }),
     [open],
   )
 
@@ -38,9 +47,24 @@ export function ActionsProvider({ children }: { children: ReactNode }) {
     <ActionsContext.Provider value={actions}>
       {children}
       {openId && <ApplicationPanel applicationId={openId} onClose={close} />}
-      {pending && (
+      {pending?.action === 'hire' && (
+        <HireDialog
+          applicationId={pending.applicationId}
+          onClose={() => setPending(null)}
+          onHired={() => {
+            // Hires reached headcount → prompt straight away to fill and notify the rest.
+            const state = useStore.getState()
+            const app = state.applications.find((a) => a.id === pending.applicationId)!
+            const position = state.positions.find((p) => p.id === app.positionId)!
+            setPending(null)
+            if (shouldSuggestFilled(position, state.applications)) setFillId(position.id)
+          }}
+        />
+      )}
+      {pending && pending.action !== 'hire' && (
         <ActionDialog applicationId={pending.applicationId} action={pending.action} onClose={() => setPending(null)} />
       )}
+      {fillId && <FillDialog positionId={fillId} onClose={() => setFillId(null)} />}
     </ActionsContext.Provider>
   )
 }

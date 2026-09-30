@@ -13,7 +13,7 @@ Feature IDs (M1–M8, S1–S5) refer to [SPEC.md §5](SPEC.md). Routes refer to 
 | J2 | Check where my application stands | Job seeker | M3 | Must | ☑ |
 | J3 | Morning triage: who's waiting? | Manager | M4 M5 M7 | Must | ☑ |
 | J4 | Move an applicant forward | Manager | M6 | Must | ☑ |
-| J5 | Hire → staff record → close the position | Manager | M8 S1 | Must/Should | ☐ |
+| J5 | Hire → staff record → close the position | Manager | M8 S1 | Must/Should | ☑ |
 | J6 | Same person, two sites | Manager | S2 | Should | ☐ |
 | J7 | Open, edit or pause a position | Manager | S3 | Should | ☐ |
 | J8 | Gone quiet → stale → lapsed | Manager | S4 | Should | ☐ |
@@ -166,11 +166,11 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | P1 pipeline | Click **Hire** on an Offer (or earlier: allowed, with a confirm) | Application → `hired`; hired message | ☐ |
-| 2 | — | Confirm a **prefilled staff record**: name, contact, qualification, nursery, room, start date (from earliest start) | Create `StaffRecord` with `fromApplicationId` | ☐ |
-| 3 | — | Prompt: "P1 has 1 of 1 hired. Mark as filled and notify the other 3 applicants?" | Suggest `filled` when hires = headcount | ☐ |
-| 4 | — | Confirm | Position → `filled` (off the portal); remaining active applications → `rejected` with the "position filled" message (S1) | ☐ |
-| 5 | `/manage/staff` | See the new staff member next to Noah Patel | — | ☐ |
+| 1 | P1 pipeline | Click **Hire** on an Offer (earlier states are allowed, with a warning in the dialog) | Application → `hired`; welcome message | ☑ |
+| 2 | — | Confirm a **prefilled staff record**: name, contact, qualification, nursery, room, start date (from earliest start) | Create `StaffRecord` with `fromApplicationId` | ☑ |
+| 3 | — | Prompt opens straight after the hire: "You've hired 1 of 1… these 4 applicants are still waiting" with the message preview. "Not yet" leaves a banner on the pipeline | Suggest `filled` when hires = headcount | ☑ |
+| 4 | — | Confirm | Position → `filled` (off the portal); remaining active applications → `rejected` with the "position filled" message (S1) | ☑ |
+| 5 | `/manage/staff` | See the new staff member next to Noah Patel, badged "Hired via Recruitment" (opens the application) | — | ☑ |
 
 **Done when:** nobody on P1 is left in an active state, and every one of them has a message on their status page.
 

@@ -5,6 +5,7 @@ import { ApplicantsPage } from './manager/ApplicantsPage'
 import { ManagerLayout } from './manager/ManagerLayout'
 import { OverviewPage } from './manager/OverviewPage'
 import { PipelinePage } from './manager/PipelinePage'
+import { StaffPage } from './manager/StaffPage'
 import { AppliedPage } from './portal/AppliedPage'
 import { ApplyPage } from './portal/ApplyPage'
 import { NurseryPage } from './portal/NurseryPage'
@@ -29,6 +30,7 @@ export default function App() {
           <Route index element={<OverviewPage />} />
           <Route path="applicants" element={<ApplicantsPage />} />
           <Route path="positions/:positionId" element={<PipelinePage />} />
+          <Route path="staff" element={<StaffPage />} />
         </Route>
         <Route path="*" element={<DemoHome />} />
       </Routes>
