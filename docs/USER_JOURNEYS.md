@@ -139,7 +139,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
 | 1 | `/manage` | See Oak Tree positions with state and counts: **needs reply** (coloured by the oldest wait) / in progress / hired of headcount | Counts derived, never stored | ☑ |
-| 2 | `/manage/applicants` | See every applicant across positions, **sorted by longest waiting for a first reply** | `sortByLongestWait()`; wait badge neutral/amber/red | ☐ |
+| 2 | `/manage/applicants` | See every applicant across positions, **sorted by longest waiting for a first reply**, grouped: waiting for a first reply / in progress / closed | `sortQueue()`; wait badge neutral/amber/red | ☑ |
 | 3 | — | Scan each row: name, position, qualification badge (Meets / Below), wait badge, status | `meetsRequirement()` | ☐ |
 
 **Done when:** Amira (52h, red) is first, then Chloe (30h, amber) and Daniel (26h, amber), and Ben Foster (Birch Lane) is not visible.

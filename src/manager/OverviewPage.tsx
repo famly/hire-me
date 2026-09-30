@@ -1,31 +1,18 @@
 import { ChevronRight, ExternalLink } from 'lucide-react'
 import { Link } from 'react-router'
 import { isActive } from '../domain/application'
-import { POSITION_STATE_LABEL, hiredCount } from '../domain/position'
+import { hiredCount } from '../domain/position'
 import { needsReply, waitLevel, type WaitLevel } from '../domain/queue'
 import type { Position, PositionState } from '../domain/types'
 import { roomLabel } from '../store/selectors'
 import { useNow } from '../store/store'
-import { Badge, type Tone } from '../ui/Badge'
 import { Card } from '../ui/Card'
+import { PositionStateBadge, WaitCountBadge } from './badges'
 import { useManagerData } from './useManagerData'
 
-const STATE_TONE: Record<PositionState, Tone> = {
-  draft: 'neutral',
-  open: 'green',
-  paused: 'amber',
-  filled: 'brand',
-  closed: 'neutral',
-}
-
-export const WAIT_TONE: Record<WaitLevel, Tone> = { fresh: 'neutral', amber: 'amber', red: 'red' }
 const WAIT_RANK: WaitLevel[] = ['fresh', 'amber', 'red']
 
 const STATE_ORDER: PositionState[] = ['open', 'paused', 'draft', 'filled', 'closed']
-
-export function PositionStateBadge({ state }: { state: PositionState }) {
-  return <Badge tone={STATE_TONE[state]}>{POSITION_STATE_LABEL[state]}</Badge>
-}
 
 /** M4 — every position at the nursery, with what needs attention. */
 export function OverviewPage() {
@@ -92,7 +79,7 @@ export function OverviewPage() {
               </span>
               <span className="text-sm sm:text-right">
                 {c.needsReply > 0 ? (
-                  <Badge tone={WAIT_TONE[c.worstWait]}>{c.needsReply} waiting</Badge>
+                  <WaitCountBadge count={c.needsReply} level={c.worstWait} />
                 ) : (
                   <span className="hidden text-stone-400 sm:inline">–</span>
                 )}

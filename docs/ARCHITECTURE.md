@@ -31,7 +31,7 @@ src/
     application.ts           # application transitions, allowedActions(), isStale(), candidateStatus()
     candidate.ts             # findOrCreateCandidate(groupId, email) — group-scoped dedupe
     qualification.ts         # meetsRequirement(candidateQual, positionReq)
-    queue.ts                 # waitingSince(), sortByLongestWait(), waitBadge()
+    queue.ts                 # waitingSince(), sortQueue(), waitBadge()
     messages.ts              # templated candidate messages per transition
     metrics.ts               # timeToFirstReply, repliedWithin48h, timeToFill
     time.ts                  # relative time helpers; takes `now` as an argument
@@ -122,4 +122,4 @@ interface StaffRecord { id; nurseryId; roomId?; name; email; phone; qualificatio
 
 ## Testing scope
 
-Vitest covers: transition tables (allowed/illegal), `candidateStatus()` for every state, `isStale()` boundaries, `sortByLongestWait()`, group-scoped candidate dedupe, "position filled → remaining applications rejected with message", and metrics maths. Nothing else is tested. We click through the rest using the journeys.
+Vitest covers: transition tables (allowed/illegal), `candidateStatus()` for every state, `isStale()` boundaries, `sortQueue()`, group-scoped candidate dedupe, "position filled → remaining applications rejected with message", and metrics maths. Nothing else is tested. We click through the rest using the journeys.

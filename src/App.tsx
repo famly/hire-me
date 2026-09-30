@@ -1,8 +1,10 @@
 import { HashRouter, Route, Routes } from 'react-router'
 import { DemoBar } from './demo/DemoBar'
 import { DemoHome } from './demo/DemoHome'
+import { ApplicantsPage } from './manager/ApplicantsPage'
 import { ManagerLayout } from './manager/ManagerLayout'
 import { OverviewPage } from './manager/OverviewPage'
+import { PipelinePage } from './manager/PipelinePage'
 import { AppliedPage } from './portal/AppliedPage'
 import { ApplyPage } from './portal/ApplyPage'
 import { NurseryPage } from './portal/NurseryPage'
@@ -25,6 +27,8 @@ export default function App() {
         </Route>
         <Route path="/manage" element={<ManagerLayout />}>
           <Route index element={<OverviewPage />} />
+          <Route path="applicants" element={<ApplicantsPage />} />
+          <Route path="positions/:positionId" element={<PipelinePage />} />
         </Route>
         <Route path="*" element={<DemoHome />} />
       </Routes>
