@@ -8,7 +8,7 @@ Feature IDs (M1–M8, S1–S5) refer to [SPEC.md §5](SPEC.md). Routes refer to 
 
 | ID | Journey | Actor | Features | Priority | Status |
 |---|---|---|---|---|---|
-| J0 | Reviewer walkthrough (the 10-min demo) | Reviewer | all Must | Must | ☐ |
+| J0 | Reviewer walkthrough (the 10-min demo) | Reviewer | all Must | Must | ☑ |
 | J1 | Find a job and apply from a phone | Job seeker | M1 M2 M3 | Must | ☑ |
 | J2 | Check where my application stands | Job seeker | M3 | Must | ☑ |
 | J3 | Morning triage: who's waiting? | Manager | M4 M5 M7 | Must | ☑ |
@@ -88,14 +88,14 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 **Actor:** Famly reviewer, desktop, about 10 minutes, no instructions beyond the README link.
 **Goal:** understand both sides and the model without being guided.
 
-- [ ] Open the link → **Demo home** (`/`) explains the two sides in two lines and links to "Job seeker" and "Manager".
-- [ ] DemoBar is always visible: switch side, **Reset demo**, **+1 day**.
-- [ ] Run J1 as Zara (the DemoBar hints to narrow the window or use device mode).
-- [ ] Switch to the manager: Zara's application is in the queue with "Meets L3".
-- [ ] Run J4 on Zara → her status link shows "Invited to interview" (second tab updates live).
-- [ ] Run J5 on Zara → staff record appears → P1 suggests Filled → notify remaining → Chloe's status shows "Not progressing".
-- [ ] Open Amira → see the cross-site badge (J6).
-- [ ] +1 day → Marcus is even more stale → mark Lapsed (J8).
+- [x] Open the link → **Demo home** (`/`) explains the two sides in two lines and links to "Job seeker" and "Manager".
+- [x] DemoBar is always visible: switch side, **Reset demo**, **+1 day**.
+- [x] Run J1 as Zara (the DemoBar hints to narrow the window or use device mode).
+- [x] Switch to the manager: Zara's application is in the queue with "Meets L3".
+- [x] Run J4 on Zara → her status link shows "Invited to interview" (second tab updates live).
+- [x] Run J5 on Zara → staff record appears → P1 suggests Filled → notify remaining → Chloe's status shows "Not progressing".
+- [x] Open Amira → see the cross-site badge (J6).
+- [x] +1 day → Marcus is even more stale → mark Lapsed (J8).
 
 **Done when:** every step above works from a fresh reset with no console errors.
 
