@@ -1,33 +1,41 @@
+import { CalendarClock, ChevronsLeftRight, ChevronsRightLeft, ListChecks } from 'lucide-react'
 import { useState, type DragEvent } from 'react'
 import { useSearchParams } from 'react-router'
 import { ACTION_LABEL, nextAction } from '../domain/application'
 import {
   actionForLane,
   INTERVIEW_PHASE_LABEL,
+  INTERVIEW_PHASES,
   interviewPhase,
   LANE_LABEL,
   LANES,
   laneOf,
   sortLane,
+  type InterviewPhase,
   type Lane,
 } from '../domain/pipeline'
 import { hiredCount, POSITION_STATE_LABEL, shouldSuggestFilled } from '../domain/position'
 import { needsReply } from '../domain/queue'
 import { relativeTime } from '../domain/time'
-import type { Application, ID, Timestamp } from '../domain/types'
+import type { Application, ID } from '../domain/types'
 import { candidateById, positionById, roomLabel } from '../store/selectors'
 import { useNow, useStore } from '../store/store'
 import { Button } from '../ui/Button'
-import { MultiCombobox } from '../ui/MultiCombobox'
+import { Field } from '../ui/Field'
 import { InterviewDetails } from '../ui/InterviewDetails'
+import { MultiCombobox } from '../ui/MultiCombobox'
 import { StatusPill } from '../ui/StatusPill'
 import { useActions } from './actionsContext'
 import { ExceptionBadges, LegendPopover, WaitIndicator } from './badges'
+import { CvChip } from './CvChip'
+import { MatchScore } from './MatchScore'
 import { useManagerData } from './useManagerData'
+
+const PHASE_ICON: Record<InterviewPhase, typeof ListChecks> = { done: ListChecks, upcoming: CalendarClock }
 
 const LANE_HINT: Record<Lane, string> = {
   candidates: 'Unanswered first, longest wait on top',
-  interview: 'Decisions first, then upcoming',
+  interview: 'Decisions due first, then upcoming',
   offer: 'Longest in this stage first',
   closed: 'Every outcome, newest first',
 }
@@ -36,6 +44,7 @@ const LANE_HINT: Record<Lane, string> = {
  * M5 — the hiring pipeline: one board, static lanes, one card per application.
  * Filter to one or more positions (?position=p1,p2). Move a card by dragging it
  * forward, or with its next-step link; either way the action dialog opens with a message.
+ * Any lane folds into a narrow strip (?collapsed=closed,offer) and still takes drops.
  */
 export function PipelinePage() {
   const { data, positions, applications } = useManagerData()
@@ -45,9 +54,8 @@ export function PipelinePage() {
   const [dragId, setDragId] = useState<ID | null>(null)
 
   const selectedIds = (params.get('position') ?? '').split(',').filter((id) => positions.some((p) => p.id === id))
-  const showClosed = params.get('closed') !== '0'
+  const collapsed = (params.get('collapsed') ?? '').split(',').filter((l): l is Lane => LANES.includes(l as Lane))
   const scoped = selectedIds.length ? applications.filter((a) => selectedIds.includes(a.positionId)) : applications
-  const lanes = showClosed ? LANES : LANES.filter((l) => l !== 'closed')
   const dragged = scoped.find((a) => a.id === dragId)
   const single = selectedIds.length === 1 ? positions.find((p) => p.id === selectedIds[0]) : undefined
   const readyToFill = positions.filter((p) => selectedIds.includes(p.id) && shouldSuggestFilled(p, applications))
@@ -58,6 +66,10 @@ export function PipelinePage() {
       else p.delete(key)
       return p
     })
+  const toggleLane = (lane: Lane) => {
+    const next = collapsed.includes(lane) ? collapsed.filter((l) => l !== lane) : [...collapsed, lane]
+    setParam('collapsed', next.length ? next.join(',') : null)
+  }
 
   const positionOptions = positions
     .filter((p) => p.state !== 'archived' || selectedIds.includes(p.id))
@@ -69,24 +81,18 @@ export function PipelinePage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-start gap-3">
+      <div className="flex flex-wrap items-end gap-3">
         <div className="w-full sm:w-96">
-          <MultiCombobox
-            options={positionOptions}
-            value={selectedIds}
-            onChange={(ids) => setParam('position', ids.length ? ids.join(',') : null)}
-            placeholder="All positions · type to filter"
-          />
+          <Field label="Filter by position" htmlFor="pipeline-position">
+            <MultiCombobox
+              id="pipeline-position"
+              options={positionOptions}
+              value={selectedIds}
+              onChange={(ids) => setParam('position', ids.length ? ids.join(',') : null)}
+              placeholder="All positions · type to filter"
+            />
+          </Field>
         </div>
-        <label className="inline-flex h-10 items-center gap-2 text-sm text-stone-700">
-          <input
-            type="checkbox"
-            checked={showClosed}
-            onChange={(e) => setParam('closed', e.target.checked ? null : '0')}
-            className="size-4 accent-brand-600"
-          />
-          Show closed
-        </label>
         <div className="sm:ml-auto">
           <LegendPopover />
         </div>
@@ -119,32 +125,69 @@ export function PipelinePage() {
       ))}
 
       <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3 sm:mx-0 sm:px-0">
-        {lanes.map((lane) => {
+        {LANES.map((lane) => {
           const apps = sortLane(lane, scoped.filter((a) => laneOf(a) === lane))
           const action = dragged ? actionForLane(dragged, lane) : null
+          const folded = collapsed.includes(lane)
+          const dropProps = {
+            onDragOver: (e: DragEvent) => action && e.preventDefault(),
+            onDrop: (e: DragEvent) => {
+              e.preventDefault()
+              if (dragged && action) actions.start(dragged.id, action)
+              setDragId(null)
+            },
+          }
+          const tone = !dragged
+            ? 'border-transparent bg-stone-100'
+            : action
+              ? 'border-dashed border-brand-500 bg-brand-50'
+              : 'border-transparent bg-stone-100 opacity-40'
+
+          if (folded) {
+            return (
+              <section key={lane} aria-label={`${LANE_LABEL[lane]}, ${apps.length}, collapsed`} {...dropProps} className={`w-12 shrink-0 rounded-xl border-2 transition ${tone}`}>
+                <button
+                  type="button"
+                  onClick={() => toggleLane(lane)}
+                  aria-label={`Expand ${LANE_LABEL[lane]}`}
+                  title={`Expand ${LANE_LABEL[lane]}`}
+                  className="flex h-full min-h-64 w-full flex-col items-center gap-3 rounded-lg py-3 text-stone-600 hover:bg-stone-200/60"
+                >
+                  <ChevronsLeftRight size={16} aria-hidden />
+                  <span className="text-xs text-stone-500">{apps.length}</span>
+                  <span className="text-sm font-semibold text-stone-800 [writing-mode:vertical-rl]">{LANE_LABEL[lane]}</span>
+                </button>
+              </section>
+            )
+          }
+
+          const groups: { phase?: InterviewPhase; apps: Application[] }[] =
+            lane === 'interview'
+              ? INTERVIEW_PHASES.map((phase) => ({ phase, apps: apps.filter((a) => interviewPhase(a, now) === phase) })).filter((g) => g.apps.length)
+              : [{ apps }]
           return (
             <section
               key={lane}
               aria-label={`${LANE_LABEL[lane]}, ${apps.length}`}
-              onDragOver={(e: DragEvent) => action && e.preventDefault()}
-              onDrop={(e: DragEvent) => {
-                e.preventDefault()
-                if (dragged && action) actions.start(dragged.id, action)
-                setDragId(null)
-              }}
-              className={`flex w-[85%] shrink-0 snap-start flex-col rounded-xl border-2 p-2 transition sm:w-80 xl:w-auto xl:min-w-0 xl:flex-1 ${
-                !dragged
-                  ? 'border-transparent bg-stone-100'
-                  : action
-                    ? 'border-dashed border-brand-500 bg-brand-50'
-                    : 'border-transparent bg-stone-100 opacity-40'
-              }`}
+              {...dropProps}
+              className={`flex w-[85%] shrink-0 snap-start flex-col rounded-xl border-2 p-2 transition sm:w-80 xl:w-auto xl:min-w-0 xl:flex-1 ${tone}`}
             >
-              <header className="px-1.5 pt-1 pb-2">
-                <h3 className="flex items-baseline justify-between text-sm font-semibold text-stone-800">
-                  {LANE_LABEL[lane]} <span className="font-normal text-stone-500">{apps.length}</span>
-                </h3>
-                <p className="text-xs text-stone-500">{LANE_HINT[lane]}</p>
+              <header className="flex items-start gap-2 px-1.5 pt-1 pb-2">
+                <div className="min-w-0 flex-1">
+                  <h3 className="flex items-baseline justify-between text-sm font-semibold text-stone-800">
+                    {LANE_LABEL[lane]} <span className="font-normal text-stone-500">{apps.length}</span>
+                  </h3>
+                  <p className="text-xs text-stone-500">{LANE_HINT[lane]}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => toggleLane(lane)}
+                  aria-label={`Collapse ${LANE_LABEL[lane]}`}
+                  title={`Collapse ${LANE_LABEL[lane]}`}
+                  className="-mt-0.5 -mr-1 grid size-7 shrink-0 place-items-center rounded-md text-stone-500 hover:bg-stone-200 hover:text-stone-800"
+                >
+                  <ChevronsRightLeft size={16} aria-hidden />
+                </button>
               </header>
               {action && (
                 <p className="mb-2 rounded-lg bg-white/70 px-3 py-2 text-center text-sm font-medium text-brand-700">
@@ -152,19 +195,18 @@ export function PipelinePage() {
                 </p>
               )}
               <div className="flex flex-1 flex-col gap-2">
-                {apps.map((a, i) => (
-                  <div key={a.id} className="contents">
-                    {lane === 'interview' && phaseStarts(apps, i, now) && (
-                      <p className="px-1.5 pt-1 text-xs font-medium text-stone-500">
-                        {INTERVIEW_PHASE_LABEL[interviewPhase(a, now)!]}
-                      </p>
-                    )}
-                    <PipelineCard
-                      app={a}
-                      showPosition={selectedIds.length !== 1}
-                      onDragStart={() => setDragId(a.id)}
-                      onDragEnd={() => setDragId(null)}
-                    />
+                {groups.map((g, i) => (
+                  <div key={g.phase ?? 'all'} className="contents">
+                    {g.phase && <PhaseHeading phase={g.phase} count={g.apps.length} spaced={i > 0} />}
+                    {g.apps.map((a) => (
+                      <PipelineCard
+                        key={a.id}
+                        app={a}
+                        showPosition={selectedIds.length !== 1}
+                        onDragStart={() => setDragId(a.id)}
+                        onDragEnd={() => setDragId(null)}
+                      />
+                    ))}
                   </div>
                 ))}
                 {apps.length === 0 && !action && (
@@ -179,9 +221,17 @@ export function PipelinePage() {
   )
 }
 
-/** True where a new interview phase begins in the (sorted) lane, to draw its subheading. */
-function phaseStarts(apps: Application[], i: number, now: Timestamp): boolean {
-  return i === 0 || interviewPhase(apps[i], now) !== interviewPhase(apps[i - 1], now)
+/** A sub-group inside the Interview lane. "Needs a decision" is the one to act on, so it wears the action colour. */
+function PhaseHeading({ phase, count, spaced }: { phase: InterviewPhase; count: number; spaced: boolean }) {
+  const Icon = PHASE_ICON[phase]
+  return (
+    <div className={`flex items-center gap-2 px-1 ${spaced ? 'pt-3' : ''} ${phase === 'done' ? 'text-brand-700' : 'text-stone-600'}`}>
+      <Icon size={14} aria-hidden className="shrink-0" />
+      <span className="text-xs font-semibold tracking-wide whitespace-nowrap uppercase">{INTERVIEW_PHASE_LABEL[phase]}</span>
+      <span className="rounded-full bg-white px-1.5 text-xs font-medium ring-1 ring-stone-200">{count}</span>
+      <span className={`h-px flex-1 ${phase === 'done' ? 'bg-brand-200' : 'bg-stone-300'}`} />
+    </div>
+  )
 }
 
 function PipelineCard({
@@ -221,7 +271,7 @@ function PipelineCard({
     >
       <div className="flex items-start justify-between gap-2">
         <p className="min-w-0 truncate font-medium">{candidate.name}</p>
-        {closed && <StatusPill state={app.state} />}
+        {closed ? <StatusPill state={app.state} /> : <MatchScore app={app} position={position} now={now} />}
       </div>
       {showPosition && <p className="-mt-1.5 truncate text-xs text-stone-500">{position.title}</p>}
       <div>
@@ -232,18 +282,23 @@ function PipelineCard({
       )}
       {app.state === 'interview' && app.interview && <InterviewDetails interview={app.interview} now={now} compact />}
       <ExceptionBadges app={app} required={position.requiredQualification} now={now} />
-      {next && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            start(app.id, next)
-          }}
-          className="block text-sm font-medium text-brand-700 hover:underline"
-        >
-          {ACTION_LABEL[next]} →
-        </button>
-      )}
+      <div className="flex items-center justify-between gap-2">
+        {next ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              start(app.id, next)
+            }}
+            className="block text-sm font-medium text-brand-700 hover:underline"
+          >
+            {ACTION_LABEL[next]} →
+          </button>
+        ) : (
+          <span />
+        )}
+        <CvChip cv={app.answers.cv} />
+      </div>
     </article>
   )
 }

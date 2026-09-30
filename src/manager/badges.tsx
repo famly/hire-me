@@ -1,4 +1,4 @@
-import { Building2, Clock, Info, Moon, TriangleAlert } from 'lucide-react'
+import { Building2, Clock, Info, Moon, Sparkles, TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { isStale, quietSince } from '../domain/application'
 import { otherApplications } from '../domain/candidate'
@@ -17,6 +17,7 @@ import { Popover } from '../ui/Popover'
 //   amber = worth a check before you move them on.
 //   grey  = for information.
 //   green = live / done.
+//   brand (Famly purple) = the match score, a hint rather than an alert.
 // Badges only appear for exceptions. No badge means nothing to worry about.
 
 export function PositionStateBadge({ state }: { state: PositionState }) {
@@ -136,6 +137,19 @@ export function LegendPopover() {
                 <Building2 size={12} /> Also at Willow House
               </Badge>,
               'The same person (same email) has applied to another nursery in your group.',
+            )}
+            {row(
+              <Badge tone="brand">
+                <Sparkles size={12} /> 82
+              </Badge>,
+              'Match score out of 100, from their answers. Hover it for the explanation. A hint only: it never reorders the board.',
+            )}
+            {row(
+              <span className="flex flex-wrap gap-1">
+                <Badge tone="green">Hired</Badge>
+                <Badge>Offer declined</Badge>
+              </span>,
+              'In Closed, how it ended: hired, rejected, withdrawn, lapsed, or they turned the offer down.',
             )}
           </ul>
           <p className="border-t border-stone-100 pt-3 text-xs text-stone-500">

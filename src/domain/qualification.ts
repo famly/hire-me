@@ -19,6 +19,10 @@ export const QUALIFICATION_SHORT: Record<Qualification, string> = {
   L3: 'L3',
 }
 
+export function rankOf(q: Qualification): number {
+  return RANK[q]
+}
+
 export function meetsRequirement(has: Qualification, required: Qualification): boolean {
   return RANK[has] >= RANK[required]
 }

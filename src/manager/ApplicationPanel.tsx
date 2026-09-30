@@ -1,10 +1,11 @@
-import { ArrowRightLeft, ExternalLink, FileText, Mail, Phone, StickyNote, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { CalendarDays, CircleDot, ExternalLink, Mail, Phone, StickyNote, X } from 'lucide-react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
-import { STATE_LABEL } from '../domain/application'
+import { isActive } from '../domain/application'
 import { qualificationLabel } from '../domain/qualification'
-import { formatDate, relativeTime } from '../domain/time'
-import type { Actor, ID, TimelineEvent } from '../domain/types'
+import { formatDate, formatDateTime, relativeTime } from '../domain/time'
+import { timelineEntries, type TimelineEntry } from '../domain/timeline'
+import type { Actor, ID } from '../domain/types'
 import { candidateById, nurseryById, positionById } from '../store/selectors'
 import { useNow, useStore } from '../store/store'
 import { Button } from '../ui/Button'
@@ -12,8 +13,10 @@ import { Textarea } from '../ui/Field'
 import { InterviewDetails } from '../ui/InterviewDetails'
 import { StatusPill } from '../ui/StatusPill'
 import { ExceptionBadges, WaitIndicator } from './badges'
-import { CrossSiteSection } from './CrossSite'
 import { AllActions } from './AllActions'
+import { CrossSiteSection } from './CrossSite'
+import { CvChip } from './CvChip'
+import { MatchScore } from './MatchScore'
 
 const AVAILABILITY_LABEL = { full_time: 'Full-time', part_time: 'Part-time', either: 'Full- or part-time' }
 
@@ -35,7 +38,8 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
   const candidate = candidateById(data, app.candidateId)
   const position = positionById(data, app.positionId)!
   const nursery = nurseryById(data, position.nurseryId)
-  const actorName = (by: Actor) => (by === 'manager' ? nursery.managerName : by === 'candidate' ? candidate.name : 'Famly')
+  const actorName = (by: Actor) => (by === 'manager' ? nursery.managerName : by === 'candidate' ? candidate.name : 'Sent automatically')
+  const firstName = candidate.name.split(/\s+/)[0]
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end bg-stone-900/30" onClick={onClose}>
@@ -51,6 +55,7 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-lg font-semibold">{candidate.name}</h2>
                 <StatusPill state={app.state} />
+                {isActive(app) && <MatchScore app={app} position={position} now={now} />}
               </div>
               <p className="text-sm text-stone-500">
                 <Link to={`/manage/pipeline?position=${position.id}`} className="hover:underline">
@@ -58,6 +63,15 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
                 </Link>{' '}
                 · applied {relativeTime(app.createdAt, now)}
               </p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                <a href={`mailto:${candidate.email}`} className="flex min-w-0 items-center gap-1.5 text-brand-700 hover:underline">
+                  <Mail size={14} className="shrink-0" /> <span className="truncate">{candidate.email}</span>
+                </a>
+                <a href={`tel:${candidate.phone}`} className="flex items-center gap-1.5 text-brand-700 hover:underline">
+                  <Phone size={14} /> {candidate.phone}
+                </a>
+                <CvChip cv={app.answers.cv} full />
+              </div>
             </div>
             <button type="button" onClick={onClose} className="rounded p-1 text-stone-500 hover:bg-stone-100" aria-label="Close">
               <X size={20} />
@@ -86,23 +100,9 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
             </section>
           )}
           <section className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-            <a href={`mailto:${candidate.email}`} className="flex items-center gap-2 truncate text-brand-700 hover:underline">
-              <Mail size={14} className="shrink-0" /> {candidate.email}
-            </a>
-            <a href={`tel:${candidate.phone}`} className="flex items-center gap-2 text-brand-700 hover:underline">
-              <Phone size={14} /> {candidate.phone}
-            </a>
             <Detail label="Earliest start" value={formatDate(app.answers.earliestStart)} />
             <Detail label="Hours" value={AVAILABILITY_LABEL[app.answers.availability]} />
             <Detail label="Right to work in the UK" value={app.answers.rightToWork ? 'Yes' : 'No'} />
-            <div>
-              <p className="text-xs text-stone-500">CV</p>
-              <p className="flex items-center gap-1.5 text-stone-800" title="Prototype: only the file name is kept, not the file">
-                <FileText size={14} className="shrink-0 text-stone-400" />
-                <span className="truncate">{app.answers.cv.name}</span>
-                <span className="shrink-0 text-xs text-stone-500">{Math.max(1, Math.round(app.answers.cv.sizeBytes / 1024))} KB</span>
-              </p>
-            </div>
             <div className="col-span-2">
               <p className="text-xs text-stone-500">Qualifications</p>
               <ul className="mt-1 flex flex-wrap gap-1.5">
@@ -114,7 +114,10 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
               </ul>
             </div>
           </section>
-          <blockquote className="rounded-lg bg-stone-50 p-3 text-sm text-stone-700 italic">"{app.answers.note}"</blockquote>
+          <section>
+            <h3 className="text-xs text-stone-500">Message from {firstName}</h3>
+            <blockquote className="mt-1 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">{app.answers.note}</blockquote>
+          </section>
 
           <section>
             <h3 className="text-sm font-semibold">Timeline</h3>
@@ -134,9 +137,9 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
                 </Button>
               )}
             </form>
-            <ol className="mt-4 space-y-4">
-              {[...app.timeline].reverse().map((e) => (
-                <TimelineItem key={e.id} event={e} actor={actorName(e.by)} now={now} />
+            <ol className="mt-5 ml-2.5 space-y-5 border-l-2 border-stone-200 pl-6">
+              {timelineEntries(app, now).map((e) => (
+                <TimelineItem key={e.id} entry={e} actorName={actorName} now={now} />
               ))}
             </ol>
           </section>
@@ -164,40 +167,55 @@ function Detail({ label, value }: { label: string; value: string }) {
   )
 }
 
-function TimelineItem({ event, actor, now }: { event: TimelineEvent; actor: string; now: number }) {
-  const when = <span className="text-xs text-stone-400">{relativeTime(event.at, now)}</span>
-  if (event.kind === 'status') {
+/** One step on the rail: what happened, who did it and when, and the email that went with it. */
+function TimelineItem({ entry, actorName, now }: { entry: TimelineEntry; actorName: (by: Actor) => string; now: number }) {
+  const when = (
+    <span title={formatDateTime(entry.at)}>{entry.kind === 'interview' && entry.upcoming ? formatDateTime(entry.at) : relativeTime(entry.at, now)}</span>
+  )
+  const dot = (icon: ReactNode, className = 'bg-white text-stone-500 ring-stone-300') => (
+    <span className={`absolute top-0 -left-[37px] grid size-6 place-items-center rounded-full ring-1 ${className}`}>{icon}</span>
+  )
+
+  if (entry.kind === 'note') {
     return (
-      <li className="flex gap-3 text-sm">
-        <ArrowRightLeft size={16} className="mt-0.5 shrink-0 text-stone-400" />
-        <p>
-          {event.from === null ? `${actor} applied` : `${actor} moved to ${STATE_LABEL[event.to]}`} {when}
+      <li className="relative text-sm">
+        {dot(<StickyNote size={12} />, 'bg-amber-50 text-amber-600 ring-amber-200')}
+        <p className="text-xs text-stone-500">
+          Internal note · {actorName(entry.by)} · {when}
         </p>
+        <p className="mt-1 rounded-lg bg-amber-50 p-2.5 whitespace-pre-line">{entry.body}</p>
       </li>
     )
   }
-  if (event.kind === 'note') {
+  if (entry.kind === 'interview') {
     return (
-      <li className="flex gap-3 text-sm">
-        <StickyNote size={16} className="mt-0.5 shrink-0 text-amber-500" />
-        <div className="min-w-0 flex-1 rounded-lg bg-amber-50 p-2.5">
-          <p className="text-xs text-stone-500">
-            Note by {actor} {when}
-          </p>
-          <p className="mt-1 whitespace-pre-line">{event.body}</p>
-        </div>
+      <li className="relative text-sm">
+        {dot(<CalendarDays size={12} />, entry.upcoming ? 'border border-dashed border-brand-500 bg-white text-brand-600 ring-transparent' : undefined)}
+        <p className="font-medium text-stone-900">
+          {entry.title}
+          {entry.upcoming && <span className="ml-2 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700">Next</span>}
+        </p>
+        <p className="text-xs text-stone-500">{when}</p>
       </li>
     )
   }
+  const email = entry.email
   return (
-    <li className="flex gap-3 text-sm">
-      <Mail size={16} className="mt-0.5 shrink-0 text-brand-500" />
-      <details className="min-w-0 flex-1">
-        <summary className="cursor-pointer">
-          Email from {actor}: <span className="font-medium">{event.subject}</span> {when}
-        </summary>
-        <p className="mt-2 rounded-lg bg-stone-50 p-2.5 whitespace-pre-line text-stone-700">{event.body}</p>
-      </details>
+    <li className="relative text-sm">
+      {entry.kind === 'step' ? dot(<CircleDot size={12} />) : dot(<Mail size={12} />)}
+      <p className="font-medium text-stone-900">{entry.kind === 'step' ? entry.title : 'Email'}</p>
+      <p className="text-xs text-stone-500">
+        {actorName(entry.by)} · {when}
+      </p>
+      {email && (
+        <details className="group mt-1.5">
+          <summary className="flex cursor-pointer list-none items-center gap-1.5 text-xs text-brand-700 hover:underline">
+            <Mail size={12} aria-hidden className="shrink-0" />
+            <span className="truncate">Email: {email.subject}</span>
+          </summary>
+          <p className="mt-2 rounded-lg bg-stone-50 p-2.5 whitespace-pre-line text-stone-700">{email.body}</p>
+        </details>
+      )}
     </li>
   )
 }

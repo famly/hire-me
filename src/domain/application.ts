@@ -12,11 +12,12 @@ import type {
 } from './types'
 
 // Application lifecycle (docs/SPEC.md §4):
-// new → contacted → interview → offer → hired, with exits rejected / withdrawn / lapsed.
+// new → contacted → interview → offer → hired, with exits rejected / withdrawn / lapsed,
+// and declined when they turn the offer down.
 
 export const ACTIVE_STATES: ApplicationState[] = ['new', 'contacted', 'interview', 'offer']
 
-export type ApplicationAction = 'contact' | 'invite' | 'offer' | 'hire' | 'reject' | 'lapse' | 'withdraw'
+export type ApplicationAction = 'contact' | 'invite' | 'offer' | 'hire' | 'reject' | 'lapse' | 'withdraw' | 'decline'
 
 const TRANSITIONS: Record<ApplicationAction, { from: ApplicationState[]; to: ApplicationState; by: Actor }> = {
   contact: { from: ['new'], to: 'contacted', by: 'manager' },
@@ -26,6 +27,7 @@ const TRANSITIONS: Record<ApplicationAction, { from: ApplicationState[]; to: App
   reject: { from: ACTIVE_STATES, to: 'rejected', by: 'manager' },
   lapse: { from: ACTIVE_STATES, to: 'lapsed', by: 'manager' },
   withdraw: { from: ACTIVE_STATES, to: 'withdrawn', by: 'candidate' },
+  decline: { from: ['offer'], to: 'declined', by: 'manager' },
 }
 
 export const ACTION_LABEL: Record<ApplicationAction, string> = {
@@ -36,6 +38,7 @@ export const ACTION_LABEL: Record<ApplicationAction, string> = {
   reject: 'Reject',
   lapse: 'Mark as lapsed',
   withdraw: 'Withdraw',
+  decline: 'Offer declined',
 }
 
 export const STATE_LABEL: Record<ApplicationState, string> = {
@@ -47,6 +50,7 @@ export const STATE_LABEL: Record<ApplicationState, string> = {
   rejected: 'Rejected',
   withdrawn: 'Withdrawn',
   lapsed: 'Lapsed',
+  declined: 'Offer declined',
 }
 
 /** No activity for this long after the first reply → the application has "gone quiet". */
@@ -155,6 +159,7 @@ const PROJECTION: Record<ApplicationState, CandidateStatus> = {
   rejected: 'not_progressing',
   withdrawn: 'closed',
   lapsed: 'closed',
+  declined: 'offer_declined',
 }
 
 export function candidateStatus(app: Application): CandidateStatus {
@@ -168,6 +173,7 @@ export const CANDIDATE_STATUS_LABEL: Record<CandidateStatus, string> = {
   offer: 'Offer',
   hired: 'Hired',
   not_progressing: 'Not progressing',
+  offer_declined: 'Offer declined',
   closed: 'Closed',
 }
 
@@ -196,5 +202,7 @@ export function candidateStatusLine(app: Application, nurseryName: string, now?:
       return 'You withdrew this application.'
     case 'lapsed':
       return 'This application has been closed.'
+    case 'declined':
+      return "You turned down the offer. Thanks for letting the nursery know, and good luck with what's next."
   }
 }

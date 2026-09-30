@@ -27,6 +27,10 @@ describe('seed supports the journeys', () => {
     ])
   })
 
+  it('J3: Closed lane shows an offer Ruby turned down', () => {
+    expect(oakApps.filter((a) => a.state === 'declined').map((a) => name(a.candidateId))).toEqual(['Ruby Clarke'])
+  })
+
   it('J6: Amira is one candidate across two sites', () => {
     expect(seed.applications.filter((a) => a.candidateId === 'c-amira')).toHaveLength(2)
   })

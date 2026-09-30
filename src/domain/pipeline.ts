@@ -7,7 +7,7 @@ import type { Application, Timestamp } from './types'
 
 export type Lane = 'candidates' | 'interview' | 'offer' | 'closed'
 
-/** Always in this order. "Closed" holds every outcome: hired, rejected, withdrawn, lapsed. */
+/** Always in this order. "Closed" holds every outcome: hired, rejected, withdrawn, lapsed, offer declined. */
 export const LANES: Lane[] = ['candidates', 'interview', 'offer', 'closed']
 
 export const LANE_LABEL: Record<Lane, string> = {
@@ -43,8 +43,11 @@ export function interviewPhase(app: Application, now: Timestamp): InterviewPhase
   return app.interview && app.interview.at > now ? 'upcoming' : 'done'
 }
 
+/** Always in this order: decisions due first, then what's coming up. */
+export const INTERVIEW_PHASES: InterviewPhase[] = ['done', 'upcoming']
+
 export const INTERVIEW_PHASE_LABEL: Record<InterviewPhase, string> = {
-  done: 'Interviewed · needs a decision',
+  done: 'Needs a decision',
   upcoming: 'Upcoming',
 }
 

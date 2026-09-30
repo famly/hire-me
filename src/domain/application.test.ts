@@ -131,3 +131,14 @@ describe('candidate line after the interview', () => {
     expect(candidateStatusLine(app, 'Oak Tree Nursery', T0 + 1)).toMatch(/outcome/)
   })
 })
+
+describe('offer declined', () => {
+  it('is only possible from an offer, and closes the application', () => {
+    const offer = makeApp({ state: 'offer' })
+    expect(managerActions(offer, T0)).toContain('decline')
+    expect(managerActions(makeApp({ state: 'interview' }), T0)).not.toContain('decline')
+    const declined = transitionApplication(offer, 'decline', T0)
+    expect(declined.state).toBe('declined')
+    expect(candidateStatus(declined)).toBe('offer_declined')
+  })
+})

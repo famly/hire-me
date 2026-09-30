@@ -58,6 +58,11 @@ export function messageFor(kind: MessageKind, ctx: MessageContext, extra: { inte
         subject: `Update on the ${ctx.positionTitle} role`,
         body: `Hi ${first}, thank you for applying for the ${ctx.positionTitle} role. The position has now been filled, so we won't be taking your application further. We'd be glad to hear from you for future roles.${sign}`,
       }
+    case 'decline':
+      return {
+        subject: `Your offer from ${ctx.nurseryName}`,
+        body: `Hi ${first}, thanks for letting me know you won't be taking the ${ctx.positionTitle} role. I'm sorry it didn't work out this time, and you'd be very welcome to apply again in future.${sign}`,
+      }
     case 'lapse':
       return {
         subject: `Closing your application to ${ctx.nurseryName}`,

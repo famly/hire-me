@@ -16,6 +16,8 @@ export type ApplicationState =
   | 'rejected'
   | 'withdrawn'
   | 'lapsed'
+  /** They turned the offer down. Recorded by the manager, since the answer usually comes by phone. */
+  | 'declined'
 
 /** Plain-language projection shown to the candidate. Internal states never leak. */
 export type CandidateStatus =
@@ -25,6 +27,7 @@ export type CandidateStatus =
   | 'offer'
   | 'hired'
   | 'not_progressing'
+  | 'offer_declined'
   | 'closed'
 
 export type Availability = 'full_time' | 'part_time' | 'either'

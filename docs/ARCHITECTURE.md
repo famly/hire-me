@@ -33,6 +33,8 @@ src/
     qualification.ts         # meetsRequirement(candidateQual, positionReq)
     queue.ts                 # needsReply(), waitingFor(), isOverdue() — reply speed
     pipeline.ts              # LANES, laneOf(), actionForLane(), sortLane(), interviewPhase() — the board
+    relevance.ts             # matchApplication(): 0–100 match score, named factors, written explanation
+    timeline.ts              # timelineEntries(): raw events → plain steps (status + its email = one step)
     messages.ts              # templated candidate messages per transition
     metrics.ts               # timeToFirstReply, repliedWithin48h, timeToFill
     time.ts                  # relative time helpers; takes `now` as an argument
@@ -50,15 +52,18 @@ src/
     ManagerLayout, OverviewPage, PipelinePage (board), ApplicationPanel, StaffPage
     ActionsProvider          # owns dialogs: action, hire, fill, archive, position form (all modals)
     badges.tsx               # the whole badge system in one file (see "Badges" below)
+    MatchScore.tsx           # match chip + hover explanation (Popover)
+    CvChip.tsx               # CV on the card and in the panel (Popover with the file details)
   demo/
     DemoBar.tsx              # switch side (portal/manager), reset demo, fast-forward clock
     DemoHome.tsx             # landing page: the J0 demo script as links
   ui/                        # shared components, reused on both sides (never duplicate one)
     Badge, Button, Card, EmptyState, Field (Input/Select/Textarea), Modal, StatusPill
-    Popover                  # floating panel; Menu (⋯ actions) and the board legend are built on it
+    Popover                  # floating panel; Menu (⋯ actions), the board legend, match score and CV chip
+                             #   `hover` opens on mouse-over too; `fixed` escapes the board's scroll clipping
     MultiCombobox            # multi-select typeahead, chips below with ✕, clear-all ✕ in the box
                              #   used by: pipeline position filter, apply-form qualifications
-    Switch                   # on/off toggle (apply-form consent)
+    Switch                   # on/off toggle (apply-form consent, send email, auto meeting link)
     ChoiceGroup              # equal-width single choice; apply form (hours, right to work) and interview mode
     InterviewDetails         # when / where / join link; pipeline card (compact), panel, candidate status page
 ```
@@ -75,7 +80,7 @@ src/
 | `/status/:token` | Candidate status page (no login) | J2 |
 | `/manage` | Positions overview | J3 |
 | `/manage/pipeline` | Hiring pipeline board, all positions | J3, J4 |
-| `/manage/pipeline?position=:id,:id` | Board filtered to one or more positions (`&closed=0` hides the Closed lane, shown by default) | J4, J5 |
+| `/manage/pipeline?position=:id,:id` | Board filtered to one or more positions (`&collapsed=closed,offer` folds those lanes into strips; none by default) | J4, J5 |
 | `…?app=:applicationId` (on any manager page) | Application side panel: answers, actions, timeline. In the URL so the board keeps its place and Back closes it | J4 |
 | `/manage/staff` | Staff (Famly sidebar item, where hires land) | J5 |
 | `/manage/positions/:id`, `/manage/applicants` | Redirects from v1 URLs | — |
@@ -99,10 +104,10 @@ type Qualification = 'none' | 'working_towards' | 'L2' | 'L3';
 type PositionState = 'draft' | 'open' | 'paused' | 'filled' | 'archived';
 type ApplicationState =
   | 'new' | 'contacted' | 'interview' | 'offer' | 'hired'
-  | 'rejected' | 'withdrawn' | 'lapsed';
+  | 'rejected' | 'withdrawn' | 'lapsed' | 'declined'; // declined = turned the offer down
 type CandidateStatus = // public projection
   | 'received' | 'being_reviewed' | 'invited_to_interview' | 'offer'
-  | 'hired' | 'not_progressing' | 'closed';
+  | 'hired' | 'not_progressing' | 'offer_declined' | 'closed';
 
 interface Position { id; nurseryId; roomId?; title; requiredQualification: Qualification;
   hours; payRange; headcount; description; state: PositionState; createdAt }
@@ -119,7 +124,7 @@ interface StaffRecord { id; nurseryId; roomId?; name; email; phone; qualificatio
 
 ## Persistence and demo mechanics
 
-- Zustand `persist` under one key (`famly-recruit-v1`). Bump the version suffix whenever the shape changes, so we don't have to write migrations.
+- Zustand `persist` under one key (`famly-recruit-v2`). Bump the version suffix whenever the shape changes, so we don't have to write migrations.
 - **Seed timestamps are relative to first load** (for example "applied 52h ago"), so wait badges look right on any day of the demo.
 - **Reset demo** in the DemoBar reseeds. **Fast-forward +1 day** moves a `clockOffset` in the store; `now()` = real time + offset. That's how J8 (stale) is demoed.
 - **Cross-tab sync:** listen for the `storage` event and rehydrate, so the portal in one tab and the manager in another update live during the walkthrough.
@@ -139,8 +144,9 @@ All in [src/manager/badges.tsx](../src/manager/badges.tsx). If a new badge doesn
 |---|---|---|
 | **Red** | Act now | No first reply after 48h (`isOverdue`). The only red in the product: "No reply for 52h" on the card, "N overdue" on the overview |
 | **Amber** | Worth a check before moving them on | Below the required qualification (`levelOf(qualifications)`) · answered "no" to right to work · gone quiet (stale) |
-| **Grey** | Information | "Waiting 30h for a reply" (plain text, under 48h) · also applied at another site · outcome label in the Closed lane |
+| **Grey** | Information | "Waiting 30h for a reply" (plain text, under 48h) · also applied at another site · outcome label in the Closed lane (Rejected, Withdrawn, Lapsed, **Offer declined**) |
 | **Green** | Live / done | Position open on the portal · Hired |
+| **Brand** (purple) | A hint, not an alert | The match score chip (`matchApplication`). Deliberately not red/amber/green, so it never reads as a verdict |
 
 Rules: badges appear **only for exceptions** (no badge = nothing to worry about); on a card they always sit **under the name, in the order above**; the stage is the **lane**, never a pill on the card; the **Colours & flags** popover on the board explains every badge and says where each flag comes from. Never block on a flag.
 - Copy is plain and warm on the portal and terse on the manager side. Use UK English and £.
@@ -148,4 +154,4 @@ Rules: badges appear **only for exceptions** (no badge = nothing to worry about)
 
 ## Testing scope
 
-Vitest covers: transition tables (allowed/illegal), `candidateStatus()` for every state, `isStale()` boundaries, `isOverdue()`, lanes (`laneOf`, forward-only `actionForLane`, `sortLane`), group-scoped candidate dedupe, "position filled → remaining applications rejected with message", and metrics maths. Nothing else is tested. We click through the rest using the journeys.
+Vitest covers: transition tables (allowed/illegal), `candidateStatus()` for every state, `isStale()` boundaries, `isOverdue()`, lanes (`laneOf`, forward-only `actionForLane`, `sortLane`), group-scoped candidate dedupe, "position filled → remaining applications rejected with message", metrics maths, the match score (`relevance.test.ts`) and timeline steps (`timeline.test.ts`). Nothing else is tested. We click through the rest using the journeys.
