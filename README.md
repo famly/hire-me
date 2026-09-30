@@ -5,7 +5,7 @@
 
 > One page to apply. One board to hire from. A hire becomes a staff record without retyping.
 
-Every nursery gets a public page where a job seeker applies from their phone in about two minutes, with no account. The manager gets one hiring pipeline inside Famly: a board with a lane per stage, where the only thing in red is someone waiting too long for a reply. Every action sends a message, and hiring creates the Famly staff record already filled in.
+Every nursery gets a public page where a job seeker applies from their phone in a few minutes, with no account. The manager gets one hiring pipeline inside Famly: a board with a lane per stage, where the only thing in red is someone waiting too long for a reply. Every action sends a message, and hiring creates the Famly staff record already filled in.
 
 ---
 
@@ -29,7 +29,7 @@ Every nursery gets a public page where a job seeker applies from their phone in 
 The top bar switches between **Job seeker** and **Manager**, moves the clock forward (**+1 day**) and **Reset**s the data. It works best with the job seeker in one tab (narrow the window or use device mode) and the manager in another. The two tabs stay in sync live.
 
 1. **Apply as a job seeker.** On Oak Tree Nursery's page, open *Level 3 Practitioner* and apply. Keep the status link open.
-2. **Reply as the manager.** Open *Hiring pipeline*. Your card is in the **New** lane with no badges, because you meet the requirement. Amira Khan is at the top of the lane, the only red thing on screen (no reply for 52h). Click **Contact →** on your card, or drag it to *Interview*: the message is prefilled and editable. Your status tab updates on its own.
+2. **Reply as the manager.** Open *Hiring pipeline*. Your card is at the bottom of the unanswered group in the **Candidates** lane, with no flags because you meet the requirement. Amira Khan is at the top, the only red thing on screen (*No reply for 52h*). *Colours & flags* explains every badge. Click **Contact →**, then **Invite to interview →** (or drag the card to *Interview*): pick a time and paste an online meeting link. The message fills itself in and stays editable. The card now shows the date and join link, and your status tab shows *Your interview* on its own.
 3. **Hire.** Make an offer, then **Hire**. Confirm the prefilled staff record, and you're asked straight away to mark the position filled. Four people are still waiting; they each get a message, and their status pages say *Not progressing*.
 4. **Same person, two sites.** Amira has also applied to Willow House in the same group. Her card says so in grey, and her panel names the other manager.
 5. **Gone quiet.** Marcus Bell hasn't responded in 6 days and shows an amber *Quiet 6d*. Press **+1 day** a few times to watch waits turn red and others go quiet, then open Marcus and **Mark as lapsed**.
@@ -46,9 +46,9 @@ The brief gives one fact (Famly holds a **staff record**) and one hunch (**first
 | Leak | Root cause | What the prototype does |
 |---|---|---|
 | Nobody can point a curious person anywhere | No stable address | One public URL per nursery, showing only what's open right now |
-| Applying means an email address or a printed form | High friction, on a phone, on a break | One screen, about two minutes, no account, no CV |
-| "Reads a CV and guesses" | Unstructured input | Qualification is a structured answer, matched against the requirement |
-| Eleven arrive at once; the strong ones take another job first | No sense of who has waited longest | The New lane is sorted by wait time for a first reply; anyone past 48h turns red, and red means nothing else |
+| Applying means an email address or a printed form | High friction, on a phone, on a break | One screen, a few minutes, no account; the CV comes from the phone's files |
+| "Reads a CV and guesses" | Unstructured input | Qualifications are picked from a list of real ones, each mapped to a level and matched against the requirement. The CV is there, but triage doesn't depend on reading it |
+| Eleven arrive at once; the strong ones take another job first | No sense of who has waited longest | The Candidates lane puts the unanswered first, longest wait on top; anyone past 48h turns red, and red means nothing else |
 | Three sites, three conversations | Identity per inbox, not per person | One candidate per group, matched by email |
 | "Does not reply to everybody" | Replying costs effort | Every action sends a templated message; filling a position notifies everyone left |
 | The hire gets typed into Famly by hand | Two systems | Hiring creates the staff record, prefilled |
@@ -71,15 +71,16 @@ The **manager's time** is the scarce resource: hiring is their fourth job. So ev
 
 1. **Nursery page** (`/n/oak-tree`): who the nursery is and the open roles. Each role shows room and age group, qualification, hours and pay up front.
 2. **Position page**: the role, plus *what happens when you apply*. That section is there to earn trust: no account, you get a private link, and the manager replies directly.
-3. **Apply form**, one screen:
+3. **Apply form**, one screen, every field required:
    - name, email and mobile
-   - qualification: none / working towards / Level 2 / Level 3
+   - **qualifications**: type to search a list of real UK childcare qualifications (CACHE, Early Years Educator, NNEB, EYTS, QTS, first aid…) and pick several; they appear as chips with an ✕
    - earliest start and hours
-   - right to work
-   - an optional note
+   - right to work: yes or no ("no" is allowed and flagged, never blocked)
+   - **CV** (PDF or Word, up to 5 MB) and a short note about themselves
+   - a **consent switch**: the information is true
 
-   There's no CV and no password. Errors show inline and clear as you fix them. If the same email applies to the same role again, it gets its existing link back.
-4. **Confirmation and private status page**: the status link is their only "account". The page shows a plain-language status (*Received → Being reviewed → Invited to interview → Offer → Hired*, or *Not progressing* / *Closed*) and every message the nursery sent.
+   There's no password. Errors show inline and focus jumps to the first. If the same email applies to the same role again, it gets its existing link back.
+4. **Confirmation and private status page**: the status link is their only "account". The page shows a plain-language status (*Received → Being reviewed → Invited to interview → Offer → Hired*, or *Not progressing* / *Closed*) every message the nursery sent and, once invited, their interview: when, and the address or the join link.
 
 **What they are in our system:** a **Candidate**. That is not a user account and not a staff record. A Candidate is identified by email and **scoped to the group**:
 
@@ -101,21 +102,22 @@ Each application gets its own unguessable status token. The candidate never sees
   - the positions list, **Active** by default (All shows filled and archived), with *needs reply* (plus a red "N overdue" only when true), *in progress* and *hired of headcount*;
   - a **⋯ menu** on each row: open pipeline, edit, publish / pause / resume, mark as filled, view listing, archive;
   - **New position** and **Edit** open a modal over the page.
-- **Hiring pipeline** (the working view): a kanban board with **static lanes**: New · Contacted · Interview · Offer · Hired, with Closed on demand.
-  - It covers all positions, or one position picked from the filter.
-  - The New lane is sorted by longest wait for a first reply.
-  - A card shows the name, the waiting time, the position, and **badges only for exceptions**.
-  - Move a card with its next-step link (Contact → Invite → Offer → Hire) or by dragging it forward. Every move opens the message to send.
-- **Application panel**: answers, contact details, all allowed actions (including reject and lapse), internal notes, and the full timeline. It opens in place, so the board keeps its position.
+- **Hiring pipeline** (the working view): a kanban board with four **static lanes**: **Candidates** (new and contacted) · **Interview** · **Offer** · **Closed** (every outcome, hired included; shown by default).
+  - It covers all positions, or any mix picked from a typeahead multi-select filter.
+  - The Candidates lane puts the unanswered first, longest wait on top. The Interview lane is sorted by soonest interview.
+  - A card shows the name, the position, the wait in words ("Waiting 30h for a reply", or a red "No reply for 52h"), the interview date and place or link, and **flags only for exceptions**.
+  - Move a card with its next-step link (Contact → Invite → Offer → Hire) or by dragging it forward: the lanes that accept it get a dashed outline. Every move opens the message to send, and inviting also schedules the interview.
+- **Application panel**: answers (qualifications, CV, right to work, their note), the interview, contact details, all allowed actions (including reject and lapse), internal notes, and the full timeline. It opens in place, so the board keeps its position.
 - **Staff** (Famly's own sidebar item): where hires land, badged *Hired via Recruitment*.
 
 **One colour, one meaning.** The first version used a colour per status plus three wait colours, and it needed explaining: two "2 waiting" badges, one amber and one red. Now the rules are:
 
 - **Red** means act now: no reply after 48h. Nothing else in the product is red.
-- **Amber** means worth a check: below the required qualification, right to work not confirmed, or gone quiet.
+- **Amber** means worth a check: below the required qualification, answered "no" to right to work, or gone quiet.
 - **Grey** is information. **Green** means live or done.
 - Badges only appear for exceptions, always under the name in the same order.
-- The stage is the lane, never a pill on the card. A legend sits above the board.
+- The stage is the lane, never a pill on the card.
+- A **Colours & flags** popover on the board explains each flag and where it comes from. Flags are derived from the application and its activity; nobody adds them by hand.
 
 ### Domain model
 
@@ -176,7 +178,8 @@ stateDiagram-v2
     Lapsed --> [*]
 ```
 
-- **"Gone quiet" is a derived flag, not a state.** An active application with no activity for 5 days *after the first reply* is flagged, and the manager confirms **Lapsed**. An unreplied *New* application is our delay, not theirs, and the red overdue flag covers it.
+- **States vs lanes.** The board groups states so it stays simple: *New* and *Contacted* share the Candidates lane, and every end state (*Hired*, *Rejected*, *Withdrawn*, *Lapsed*) sits in Closed with a label.
+- **"Gone quiet" is a derived flag, not a state.** An active application with no activity for 5 days *after the first reply* is flagged (a past interview counts as activity; an upcoming one is never quiet), and the manager confirms **Lapsed**. An unreplied *New* application is our delay, not theirs, and the red overdue flag covers it.
 - **Hire is allowed from any active state**, with a warning if there was no offer. A manager may want to hire on the spot after a good trial shift.
 - Every transition lives in one explicit table in [src/domain/](src/domain/). The UI renders only the actions the table allows, and illegal moves throw.
 
@@ -188,10 +191,13 @@ stateDiagram-v2
 |---|---|---|
 | Candidate identity | No account: email plus a tokenised status link | **Password accounts**: friction and no trust on a break. **Fully anonymous**: we couldn't reply or dedupe |
 | What a candidate *is* | Group-scoped Candidate, separate from staff | **Draft staff record on apply**: pollutes staff data and raises GDPR problems. **Global cross-group profile**: privacy, and groups are competitors |
-| Qualification | Structured answer, matched with a badge | **CV parsing**: unreliable and slow to build. **CV required**: bad on a phone |
+| Qualification | Multi-select from a list of real qualifications, each mapped to a level (the highest counts) | **v1: a single choice of level**: people hold several, and managers recognise "CACHE Level 3", not "L3". **CV parsing**: unreliable and slow to build |
+| CV | Required upload, alongside structured answers | **v1: no CV**, reversed after review: managers expect one before calling. The structured answers still drive triage |
+| Required fields | All required, plus a consent switch | **v1: optional note and a right-to-work checkbox**: an unticked box couldn't tell "no" from "skipped" |
 | Qualification below requirement | Flag, never block | **Hard gate**: a manager may want an L2 who finishes their L3 in spring |
-| Right to work | Flag to the manager | **Block in the form**: gatekeeping belongs to the employer's check, not a checkbox |
-| Hiring pipeline | Kanban with static lanes across positions (filterable); the New lane is sorted by longest wait | **v1: a wait-sorted list**, dropped after review: status was spread across badges and it was hard to scan. **Kanban per position only**: managers look across positions |
+| Right to work | Yes/no answer; "no" is flagged | **Block in the form**: gatekeeping belongs to the employer's check, not a form field |
+| Hiring pipeline | Kanban with four static lanes (Candidates · Interview · Offer · Closed) across positions, filterable to any mix | **v1: a wait-sorted list**: status was spread across badges, hard to scan. **v2: five lanes** New · Contacted · Interview · Offer · Hired: the New/Contacted split confused people, and Hired is an outcome |
+| Interviews | Scheduled on invite: when, in person or online with a link, shown on the card and to the candidate | **Just an "Interview" status**: the manager has to find the date in their email. **Candidate self-booking**: better, but needs real calendars; next step |
 | Badges | One colour, one meaning; badges only for exceptions; the stage is the lane | **v1: per-status colours plus three wait levels**, which needed explaining |
 | Acting | Next step on the card, or drag forward (drop on Closed = reject), always with an editable message | **Status dropdown**: no message, so "does not reply" stays true. **Fixed messages**: managers want their own voice |
 | Positions | Active/All toggle, ⋯ quick menu per row, create/edit in a modal | **v1: a separate position page** for actions and a page for the form, which was disruptive |
@@ -225,7 +231,7 @@ With real data, I'd add:
 
 - **The apply funnel**: portal view → form start → submit, split by mobile and desktop.
 - **Share of hires created without retyping**: staff records that came from an application.
-- **The hypothesis test**: bucket applications by time to first reply and compare interview-show, offer-acceptance and hire rates across the buckets. If fast replies don't convert better, sorting the New lane by wait is wrong and we'd rank by fit instead.
+- **The hypothesis test**: bucket applications by time to first reply and compare interview-show, offer-acceptance and hire rates across the buckets. If fast replies don't convert better, sorting the Candidates lane by wait is wrong and we'd rank by fit instead.
 - **Agency-cover days avoided**: a survey at first; the business case.
 
 ---
@@ -238,15 +244,17 @@ Taken to fit the time box. Each is deliberate and reversible.
 - **Faked session.** You're always Priya Shah at Oak Tree. There are no roles, and no group-manager view.
 - **Emails are simulated.** A sent message is a timeline event that the status page reads. No delivery, no bounces, no replies from the candidate.
 - **Status tokens are stored in plain text.** In production they'd be hashed server-side, expire, be rate-limited, and be re-sent by magic link on request.
-- **GDPR is not handled.** There is a privacy notice, but no consent record, retention period or deletion.
+- **GDPR is not handled.** There is a privacy notice and a "this is true" confirmation, but no data-processing consent record, retention period or deletion.
+- **CVs aren't stored.** The form checks the type and size, and the prototype keeps only the file's name, size and type (browser storage is too small for files). The panel shows the name; opening the file needs a backend.
+- **Interviews can't be rescheduled** from the UI yet, and there's no calendar invite (.ics).
 - **Archiving a position** (as opposed to filling it) doesn't notify applicants yet. They stay in the pipeline for the manager to reply to. That's a gap against "nobody gets silence".
 - **Drag and drop is desktop only** (native HTML5). On touch, the next-step link and the panel do the same job.
 - **Not built from the spec:**
   - bulk-reject a selection
   - candidate withdraw button (the domain supports it)
-  - CV upload and interview slot picking
+  - candidates picking an interview slot themselves
   - "other openings in this group" on the confirmation page
-- **Tests cover the domain only**: transitions, projection, stale, overdue, lanes and their order, dedupe, metrics and seed expectations. The UI was checked by scripted browser runs of each journey at phone and desktop widths; those scripts are not committed.
+- **Tests cover the domain only**: transitions, projection, stale and interviews, overdue, lanes and their order, qualification levels, dedupe, metrics and seed expectations. The UI was checked by scripted browser runs of each journey at phone and desktop widths; those scripts are not committed.
 - **Free-text pay and contract**, a fixed 5-day stale threshold, and only one nursery's staff list.
 
 ## What I'd do next

@@ -43,8 +43,8 @@ export function DemoHome() {
       <section className="mt-10">
         <h2 className="text-sm font-semibold tracking-wide text-stone-500 uppercase">Suggested walkthrough</h2>
         <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-stone-700">
-          <li>As a job seeker, apply for the Level 3 Practitioner role at Oak Tree. Keep the status link open in a tab.</li>
-          <li>As the manager, open Hiring pipeline, find the new card in the New lane, and invite them to interview (click or drag). The status tab updates.</li>
+          <li>As a job seeker, apply for the Level 3 Practitioner role at Oak Tree (any small PDF works as the CV). Keep the status link open in a tab.</li>
+          <li>As the manager, open Hiring pipeline, find the new card in the Candidates lane, contact them, then invite them to interview (click or drag) with a time and an online link. The status tab shows the interview.</li>
           <li>Hire them, confirm the prefilled staff record, then mark the position filled and notify everyone else.</li>
           <li>Open Amira Khan: she has also applied to Willow House, in the same group.</li>
           <li>Marcus Bell has gone quiet (amber). Press "+1 day" to watch waits turn red, then open Marcus and mark him as lapsed.</li>
