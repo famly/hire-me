@@ -9,8 +9,8 @@ Feature IDs (M1–M8, S1–S5) refer to [SPEC.md §5](SPEC.md). Routes refer to 
 | ID | Journey | Actor | Features | Priority | Status |
 |---|---|---|---|---|---|
 | J0 | Reviewer walkthrough (the 10-min demo) | Reviewer | all Must | Must | ☐ |
-| J1 | Find a job and apply from a phone | Job seeker | M1 M2 M3 | Must | ◐ |
-| J2 | Check where my application stands | Job seeker | M3 | Must | ☐ |
+| J1 | Find a job and apply from a phone | Job seeker | M1 M2 M3 | Must | ☑ |
+| J2 | Check where my application stands | Job seeker | M3 | Must | ☑ |
 | J3 | Morning triage: who's waiting? | Manager | M4 M5 M7 | Must | ☐ |
 | J4 | Move an applicant forward | Manager | M6 | Must | ☐ |
 | J5 | Hire → staff record → close the position | Manager | M8 S1 | Must/Should | ☐ |
@@ -111,7 +111,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 | 1 | `/n/oak-tree` | See nursery name, location, a short "about", and open positions (P1, P2). P3 paused and P4 filled are hidden | Only `open` positions render | ☑ |
 | 2 | `/n/oak-tree/p/P1` | Read room/age group, qualification needed, hours, pay, description. Tap **Apply** | — | ☑ |
 | 3 | `…/apply` | Fill one screen: name, email, phone, qualification (none / working towards / L2 / L3), earliest start, availability, right-to-work checkbox, optional note. Submit | Validate inline. `findOrCreateCandidate(group, email)`, create Application `new` with status token, timeline event `received` | ☑ |
-| 4 | `/applied/:token` | See "Application sent to Oak Tree Nursery", what happens next, and the **private status link** (copy button) | Show the link as "we've also emailed this" (simulated) | ☐ |
+| 4 | `/applied/:token` | See "Application sent to Oak Tree Nursery", what happens next, and the **private status link** (copy button) | Show the link as "we've also emailed this" (simulated) | ☑ |
 
 **Done when:** a submission takes under 2 minutes on a phone, there's no login, and the new application appears on the manager side.
 **Edge cases:** the same email applying again to the same position → show the existing status link instead of a duplicate; missing right-to-work → allowed, flagged to the manager rather than blocked (decision: don't gatekeep in the form).
@@ -124,8 +124,8 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | `/status/:token` | See position, nursery, current **public status**, the status-page line, and a simple timeline of messages received | Render only via `candidateStatus()` and `message` events | ☐ |
-| 2 | — | Unknown or garbage token | Friendly "we couldn't find that application" and a link to the nursery page | ☐ |
+| 1 | `/status/:token` | See position, nursery, current **public status**, the status-page line, and a simple timeline of messages received | Render only via `candidateStatus()` and `message` events | ☑ |
+| 2 | — | Unknown or garbage token | Friendly "we couldn't find that application, check the link in your email" (a bad token reveals no nursery, so no nursery link) | ☑ |
 
 **Done when:** every internal state maps to the public table above and nothing internal leaks (no "stale", no "lapsed" wording, no manager notes).
 
