@@ -33,13 +33,12 @@ If two docs disagree: SPEC wins on product, ARCHITECTURE wins on code. Fix the l
 
 ## Commands
 
-Filled in after scaffold (`chore: scaffold`). Expected:
-
 ```bash
-npm run dev        # local dev server
-npm run build      # typecheck + production build
-npm run test       # vitest (domain logic)
-npm run lint
+npm run dev        # local dev server (http://localhost:5173)
+npm run build      # typecheck + production build → dist/
+npm run test       # vitest, domain logic (src/**/*.test.ts)
+npm run typecheck  # tsc -b only
+npm run lint       # oxlint
 ```
 
 ## Definition of done (per change)

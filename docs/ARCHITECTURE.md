@@ -7,11 +7,12 @@ A frontend-only clickable prototype. It has to open from a link in any modern br
 | Concern | Choice | Why | Rejected |
 |---|---|---|---|
 | Build | **Vite + React + TypeScript (strict)** | Fastest scaffold, most familiar to reviewers, types keep the domain model honest | Next.js (SSR/server not needed, more config); plain HTML (state gets messy by M6) |
-| Routing | **React Router, `HashRouter`** | Static hosting with no rewrite rules; deep links like `/#/status/<token>` survive a refresh | `BrowserRouter` (404s on GitHub Pages refresh) |
+| Routing | **React Router (v8), `HashRouter`** | Static hosting with no rewrite rules; deep links like `/#/status/<token>` survive a refresh | `BrowserRouter` (404s on GitHub Pages refresh) |
 | State | **Zustand** + `persist` middleware → `localStorage` | Tiny API, no boilerplate, state survives reloads for the demo | Redux (ceremony); React context only (re-render pain, no persistence) |
 | Styling | **Tailwind CSS v4** | Fast, mobile-first by default, no design-system work | Component libraries (MUI/shadcn): setup time, generic look |
 | Icons | **lucide-react** | Tree-shaken, consistent | — |
 | Dates | Native `Intl` + small helpers in `domain/time.ts` | Only relative times and simple formatting needed | date-fns/dayjs (not worth a dependency) |
+| Lint | **oxlint** (ships with the Vite template) | Fast, zero config | ESLint (slower, more config for no gain here) |
 | Tests | **Vitest**, domain logic only | Lifecycles and projections are where bugs hide; UI is checked by clicking | Playwright/E2E (time box) |
 | Hosting | **GitHub Pages** via GitHub Actions | Repo is already on GitHub, free, gives a shareable link | Vercel/Netlify (another account for reviewers to trust) |
 
