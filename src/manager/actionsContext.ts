@@ -9,6 +9,10 @@ export interface Actions {
   open: (applicationId: ID) => void
   /** Confirm filling a position, notifying everyone still waiting. */
   fill: (positionId: ID) => void
+  /** Open the position form in a modal. No id → new position. */
+  editPosition: (positionId?: ID) => void
+  /** Confirm archiving a position. */
+  archive: (positionId: ID) => void
 }
 
 export const ActionsContext = createContext<Actions | null>(null)

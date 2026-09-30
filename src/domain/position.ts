@@ -1,16 +1,16 @@
 import { isActive, transitionApplication } from './application'
 import type { Application, Message, Position, PositionState, Timestamp } from './types'
 
-// Position lifecycle (docs/SPEC.md §4): draft → open → filled, open ⇄ paused, any → closed.
+// Position lifecycle (docs/SPEC.md §4): draft → open → filled, open ⇄ paused, any → archived.
 
-export type PositionAction = 'publish' | 'pause' | 'resume' | 'fill' | 'close'
+export type PositionAction = 'publish' | 'pause' | 'resume' | 'fill' | 'archive'
 
 const TRANSITIONS: Record<PositionAction, { from: PositionState[]; to: PositionState }> = {
   publish: { from: ['draft'], to: 'open' },
   pause: { from: ['open'], to: 'paused' },
   resume: { from: ['paused'], to: 'open' },
   fill: { from: ['open', 'paused'], to: 'filled' },
-  close: { from: ['draft', 'open', 'paused'], to: 'closed' },
+  archive: { from: ['draft', 'open', 'paused'], to: 'archived' },
 }
 
 export const POSITION_ACTION_LABEL: Record<PositionAction, string> = {
@@ -18,7 +18,7 @@ export const POSITION_ACTION_LABEL: Record<PositionAction, string> = {
   pause: 'Pause',
   resume: 'Resume',
   fill: 'Mark as filled',
-  close: 'Close',
+  archive: 'Archive',
 }
 
 export const POSITION_STATE_LABEL: Record<PositionState, string> = {
@@ -26,7 +26,7 @@ export const POSITION_STATE_LABEL: Record<PositionState, string> = {
   open: 'Open',
   paused: 'Paused',
   filled: 'Filled',
-  closed: 'Closed',
+  archived: 'Archived',
 }
 
 /** Only open positions appear on the public portal. */

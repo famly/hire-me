@@ -16,7 +16,7 @@ export function StaffPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="font-semibold">Staff records · {nursery.name}</h2>
+        <h2 className="font-semibold">{nursery.name}</h2>
         <p className="text-sm text-stone-500">
           In Famly, this record carries the rota, qualification, room and app access. Hires from Recruitment arrive here
           already filled in. Only recent hires are shown in this prototype.

@@ -1,22 +1,18 @@
-import { ArrowLeft } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
 import { QUALIFICATION_LABEL, QUALIFICATIONS } from '../domain/qualification'
-import type { Qualification } from '../domain/types'
+import type { ID, Qualification } from '../domain/types'
 import { positionById } from '../store/selectors'
 import { useStore, type PositionInput } from '../store/store'
 import { Button } from '../ui/Button'
-import { Card } from '../ui/Card'
 import { Field, Input, Select, Textarea } from '../ui/Field'
+import { Modal } from '../ui/Modal'
 import { useManagerData } from './useManagerData'
 
-/** S3 — create or edit a position. New positions start as Draft or go straight to Open. */
-export function PositionFormPage() {
-  const { positionId } = useParams()
+/** S3 — create or edit a position in a modal, without leaving the overview. New positions start as Draft or go straight to Open. */
+export function PositionFormModal({ positionId, onClose }: { positionId?: ID; onClose: () => void }) {
   const { data, nursery } = useManagerData()
   const createPosition = useStore((s) => s.createPosition)
   const updatePosition = useStore((s) => s.updatePosition)
-  const navigate = useNavigate()
   const existing = positionById(data, positionId)
   const rooms = data.rooms.filter((r) => r.nurseryId === nursery.id)
 
@@ -50,12 +46,9 @@ export function PositionFormPage() {
       headcount: Math.max(1, form.headcount),
       description: form.description.trim(),
     }
-    if (existing) {
-      updatePosition(existing.id, input)
-      navigate(`/manage/positions/${existing.id}`)
-    } else {
-      navigate(`/manage/positions/${createPosition(input, publish)}`)
-    }
+    if (existing) updatePosition(existing.id, input)
+    else createPosition(input, publish)
+    onClose()
   }
 
   const onSubmit = (e: FormEvent) => {
@@ -64,12 +57,7 @@ export function PositionFormPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-4">
-      <Link to={existing ? `/manage/positions/${existing.id}` : '/manage'} className="inline-flex items-center gap-1 text-sm text-stone-600">
-        <ArrowLeft size={14} /> Back
-      </Link>
-      <h2 className="text-lg font-semibold">{existing ? `Edit ${existing.title}` : 'New position'}</h2>
-      <Card className="p-5">
+    <Modal title={existing ? `Edit ${existing.title}` : 'New position'} onClose={onClose} wide>
         <form onSubmit={onSubmit} className="space-y-4">
           <Field label="Title" htmlFor="pf-title">
             <Input id="pf-title" value={form.title} onChange={(e) => set('title', e.target.value)} placeholder="e.g. Level 3 Practitioner" />
@@ -112,6 +100,9 @@ export function PositionFormPage() {
           </Field>
           {error && <p className="text-sm text-red-700">{error}</p>}
           <div className="flex flex-wrap justify-end gap-2 pt-2">
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
             {existing ? (
               <Button type="submit">Save changes</Button>
             ) : (
@@ -124,7 +115,6 @@ export function PositionFormPage() {
             )}
           </div>
         </form>
-      </Card>
-    </div>
+    </Modal>
   )
 }

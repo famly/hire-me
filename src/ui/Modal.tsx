@@ -6,7 +6,9 @@ export function Modal({
   onClose,
   children,
   footer,
+  wide,
 }: {
+  wide?: boolean
   title: string
   onClose: () => void
   children: ReactNode
@@ -24,7 +26,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white shadow-xl sm:rounded-2xl"
+        className={`max-h-[90vh] w-full ${wide ? 'max-w-2xl' : 'max-w-lg'} overflow-y-auto rounded-t-2xl bg-white shadow-xl sm:rounded-2xl`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-stone-200 px-5 py-4">

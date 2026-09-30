@@ -12,7 +12,7 @@ import { newId, newToken } from './ids'
 
 // Store actions orchestrate, the domain decides (docs/ARCHITECTURE.md "Layering rules").
 
-const STORAGE_KEY = 'famly-recruit-v1'
+const STORAGE_KEY = 'famly-recruit-v2'
 
 export interface ApplyInput {
   positionId: ID

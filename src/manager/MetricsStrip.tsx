@@ -1,6 +1,6 @@
 import { medianTimeToFill, medianTimeToFirstReply, repliedWithin48hShare } from '../domain/metrics'
-import { needsReply } from '../domain/queue'
-import { formatDuration, HOUR } from '../domain/time'
+import { needsReply, OVERDUE_AFTER } from '../domain/queue'
+import { formatDuration } from '../domain/time'
 import type { Application, Position } from '../domain/types'
 import { useNow } from '../store/store'
 
@@ -9,8 +9,8 @@ import { useNow } from '../store/store'
 export function MetricsStrip({ applications, positions }: { applications: Application[]; positions: Position[] }) {
   const now = useNow()
   const replied = applications.filter((a) => a.firstRepliedAt !== undefined)
-  const overdue = applications.filter((a) => needsReply(a) && now - a.createdAt > 48 * HOUR)
-  const within = replied.filter((a) => a.firstRepliedAt! - a.createdAt <= 48 * HOUR).length
+  const overdue = applications.filter((a) => needsReply(a) && now - a.createdAt > OVERDUE_AFTER)
+  const within = replied.filter((a) => a.firstRepliedAt! - a.createdAt <= OVERDUE_AFTER).length
   const share = repliedWithin48hShare(applications, now)
   const ttfr = medianTimeToFirstReply(applications)
   const ttf = medianTimeToFill(positions)

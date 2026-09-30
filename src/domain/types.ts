@@ -5,7 +5,7 @@ export type Timestamp = number
 
 export type Qualification = 'none' | 'working_towards' | 'L2' | 'L3'
 
-export type PositionState = 'draft' | 'open' | 'paused' | 'filled' | 'closed'
+export type PositionState = 'draft' | 'open' | 'paused' | 'filled' | 'archived'
 
 export type ApplicationState =
   | 'new'

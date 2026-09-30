@@ -48,16 +48,16 @@ Legend: ☐ not started · ◐ partly working · ☑ works end-to-end in the bro
 
 | Candidate | Qual | Position | State | Timing | Demonstrates |
 |---|---|---|---|---|---|
-| **Amira Khan** | L3 | P1 | New | applied 52h ago, no reply | Red wait badge, top of queue; cross-site (J6) |
+| **Amira Khan** | L3 | P1 | New | applied 52h ago, no reply | Red overdue flag, top of the New lane; cross-site (J6) |
 | **Amira Khan** | L3 | P5 | Interview | — | "Also applied to Willow House (Interview)" |
-| Chloe Evans | L2 | P1 | New | 30h ago | Amber badge; "Below requirement" |
+| Chloe Evans | L2 | P1 | New | 30h ago | Waiting, not overdue (grey); amber "Needs L3" |
 | Jordan Reid | L3 | P1 | Contacted | replied 2 days ago | Active pipeline |
 | **Marcus Bell** | L3 | P1 | Interview | last activity 6 days ago | Stale flag (J8) |
-| Sophie Turner | working towards | P2 | New | 4h ago | Neutral badge |
-| Daniel Hughes | none | P2 | New | 26h ago | Amber badge, meets "none" |
+| Sophie Turner | working towards | P2 | New | 4h ago | Waiting (grey), no badges |
+| Daniel Hughes | none | P2 | New | 26h ago | Waiting (grey); amber "Right to work?" |
 | Grace Adeyemi | L2 | P2 | Offer | — | Late pipeline |
 | Liam Walsh | none | P2 | Rejected | — | Terminal state |
-| Ella Morgan | L3 | P3 | Contacted | — | Applicants on a paused position |
+| Ella Morgan | L3 | P3 | Contacted | — | Applicants on a paused position (goes quiet at +3 days) |
 | Noah Patel | L2 | P4 | Hired | 12 days ago | Existing staff record; time-to-fill metric |
 | Ruby Clarke | L2 | P4 | Rejected ("position filled") | — | Bulk notify result |
 | Ben Foster | working towards | P6 | New | — | Other site: **not** visible to Priya |
@@ -91,7 +91,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 - [x] Open the link → **Demo home** (`/`) explains the two sides in two lines and links to "Job seeker" and "Manager".
 - [x] DemoBar is always visible: switch side, **Reset demo**, **+1 day**.
 - [x] Run J1 as Zara (the DemoBar hints to narrow the window or use device mode).
-- [x] Switch to the manager: Zara's application is in the queue with "Meets L3".
+- [x] Switch to the manager's Hiring pipeline: Zara's card is in the New lane with no badges (she meets L3).
 - [x] Run J4 on Zara → her status link shows "Invited to interview" (second tab updates live).
 - [x] Run J5 on Zara → staff record appears → P1 suggests Filled → notify remaining → Chloe's status shows "Not progressing".
 - [x] Open Amira → see the cross-site badge (J6).
@@ -138,11 +138,11 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | `/manage` | See Oak Tree positions with state and counts: **needs reply** (coloured by the oldest wait) / in progress / hired of headcount | Counts derived, never stored | ☑ |
-| 2 | `/manage/applicants` | See every applicant across positions, **sorted by longest waiting for a first reply**, grouped: waiting for a first reply / in progress / closed | `sortQueue()`; wait badge neutral/amber/red | ☑ |
-| 3 | — | Scan each row: name, position, qualification badge (✓ L3 / L2 · needs L3), right-to-work flag, wait badge, status | `meetsRequirement()` | ☑ |
+| 1 | `/manage` | See Oak Tree's **active** positions (toggle to All) with state and counts: needs reply as a plain number plus a red "N overdue" only if someone waited >48h / in progress / hired of headcount | Counts derived, never stored | ☑ |
+| 2 | `/manage/pipeline` | See the **Hiring pipeline** board: static lanes New · Contacted · Interview · Offer · Hired. The New lane is sorted by longest wait | `laneOf()`, `sortLane()`; waiting time grey, red only when `isOverdue()` | ☑ |
+| 3 | — | Scan each card: name, waiting time (top right), position, then **only exception badges** in a fixed order: amber (needs L3, right to work?, quiet), grey (also at another site). A legend above the board explains the three colours | `meetsRequirement()`, `isStale()`, `otherApplications()` | ☑ |
 
-**Done when:** Amira (52h, red) is first, then Chloe (30h, amber) and Daniel (26h, amber), and Ben Foster (Birch Lane) is not visible.
+**Done when:** the New lane reads Amira (52h, red), Chloe (30h), Daniel (26h), Sophie (4h); Amira is the only red thing on screen; Ben Foster (Birch Lane) is not visible.
 
 ---
 
@@ -152,11 +152,11 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | queue or `/manage/positions/P1` | On the row: the expected next step (Contact · Invite to interview · Make offer · Hire) plus Reject. Every other allowed action is in the panel | `nextAction()` / `managerActions()`; transition; set `firstRepliedAt` on the first manager action | ☑ |
+| 1 | `/manage/pipeline` (optionally `?position=p1`) | On the card, click the next step (Contact · Invite to interview · Make offer · Hire), or **drag the card** forward to any later lane (drop on Closed = reject). Lanes that can't take the card dim while dragging. Reject and everything else are in the panel | `nextAction()`, `actionForLane()` (forward only), `managerActions()`; set `firstRepliedAt` on the first manager action | ☑ |
 | 2 | — | See a prefilled message preview, optionally edit it (or untick "Email"), then confirm | Template from `messages.ts`; timeline `status` + `message` events | ☑ |
-| 3 | `?app=:id` side panel | Click the row to open the detail: answers, contact, all actions, timeline, internal notes | Notes are `note` events, never public | ☑ |
+| 3 | `?app=:id` side panel | Click the card to open the detail: answers, contact, all actions, timeline, internal notes | Notes are `note` events, never public | ☑ |
 
-**Done when:** the row updates in place, drops out of "needs reply", and the candidate's status page reflects it.
+**Done when:** the card moves to its new lane, drops out of "needs reply", and the candidate's status page reflects it.
 
 ---
 
@@ -166,9 +166,9 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 | # | Route | They do | System does | ✓ |
 |---|---|---|---|---|
-| 1 | P1 pipeline | Click **Hire** on an Offer (earlier states are allowed, with a warning in the dialog) | Application → `hired`; welcome message | ☑ |
+| 1 | `/manage/pipeline?position=p1` | Click **Hire →** on an Offer card, or drag it to Hired (earlier stages are allowed, with a warning in the dialog) | Application → `hired`; welcome message | ☑ |
 | 2 | — | Confirm a **prefilled staff record**: name, contact, qualification, nursery, room, start date (from earliest start) | Create `StaffRecord` with `fromApplicationId` | ☑ |
-| 3 | — | Prompt opens straight after the hire: "You've hired 1 of 1… these 4 applicants are still waiting" with the message preview. "Not yet" leaves a banner on the pipeline | Suggest `filled` when hires = headcount | ☑ |
+| 3 | — | Prompt opens straight after the hire: "You've hired 1 of 1… these 4 applicants are still waiting" with the message preview. "Not yet" leaves a banner on the filtered board and "Ready to mark filled" on the overview row | Suggest `filled` when hires = headcount | ☑ |
 | 4 | — | Confirm | Position → `filled` (off the portal); remaining active applications → `rejected` with the "position filled" message (S1) | ☑ |
 | 5 | `/manage/staff` | See the new staff member next to Noah Patel, badged "Hired via Recruitment" (opens the application) | — | ☑ |
 
@@ -180,7 +180,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 **Actor:** Priya, looking at Amira.
 
-- [x] Amira's row shows "Also at **Willow House**"; the panel lists Willow House: Level 3 Practitioner · Interview.
+- [x] Amira's card shows a grey "Also at **Willow House**"; the panel lists Willow House: Level 3 Practitioner · Interview.
 - [x] Only within Acorn Family Nurseries. The badge never shows positions outside the group.
 - [x] Panel names the other site's manager (Tom Okafor) and says to coordinate before both make offers.
 
@@ -192,9 +192,9 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 **Actor:** Priya.
 
-- [x] `/manage/positions/new`: title, room, required qualification, hours, contract, pay range, headcount, description. Save as draft or publish now.
-- [x] Edit an existing position (`/manage/positions/:id/edit`).
-- [x] Pause P1 → it disappears from `/n/oak-tree`; existing applications are untouched. Resume → it's back. Close asks for confirmation; applicants stay in the queue.
+- [x] **New position** on the overview opens a **modal** (no page change): title, room, required qualification, hours, contract, pay range, headcount, description. Save as draft or publish now.
+- [x] Edit from the row's **⋯ menu** (or "Edit" on the filtered board), same modal.
+- [x] ⋯ → Pause P1 → it disappears from `/n/oak-tree`; existing applications are untouched. Resume → it's back. ⋯ → Archive asks for confirmation; the position moves behind "All", and its applicants stay in the pipeline.
 
 **Done when:** portal visibility follows state exactly (only `open` shows).
 
@@ -204,8 +204,8 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 **Actor:** Priya.
 
-- [x] Marcus (Interview, no activity for 6 days) shows a **Gone quiet · 6d** flag. The threshold is 5 days with no timeline activity, after the first reply.
-- [x] Once stale, **Mark as lapsed** replaces Reject on the row → confirm → `lapsed`, plus an optional closing message. The candidate sees "Closed".
+- [x] Marcus (Interview, no activity for 6 days) shows an amber **Quiet 6d** badge. The threshold is 5 days with no timeline activity, after the first reply.
+- [x] The card shows an amber **Quiet 6d**; open it and **Mark as lapsed** (offered only once stale) → confirm → `lapsed`, plus an optional closing message. The candidate sees "Closed".
 - [x] **+1 day** in the DemoBar pushes other applications towards stale (at +3 days, Ella and Jordan go quiet too).
 
 **Done when:** stale is derived (never stored), and only the manager's confirmation creates the `lapsed` state.

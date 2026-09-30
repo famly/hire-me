@@ -5,7 +5,7 @@ import { makeApp, makePosition, T0 } from './testing'
 describe('position lifecycle', () => {
   it('only open positions are public', () => {
     expect(isPublic(makePosition({ state: 'open' }))).toBe(true)
-    for (const state of ['draft', 'paused', 'filled', 'closed'] as const) {
+    for (const state of ['draft', 'paused', 'filled', 'archived'] as const) {
       expect(isPublic(makePosition({ state }))).toBe(false)
     }
   })
@@ -16,9 +16,9 @@ describe('position lifecycle', () => {
     expect(transitionPosition(paused, 'resume', T0).state).toBe('open')
   })
 
-  it('treats filled and closed as terminal', () => {
+  it('treats filled and archived as terminal', () => {
     expect(allowedPositionActions(makePosition({ state: 'filled' }))).toEqual([])
-    expect(allowedPositionActions(makePosition({ state: 'closed' }))).toEqual([])
+    expect(allowedPositionActions(makePosition({ state: 'archived' }))).toEqual([])
   })
 
   it('suggests filled when hires reach headcount', () => {

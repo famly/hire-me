@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isStale } from '../domain/application'
-import { sortQueue, waitLevel } from '../domain/queue'
+import { laneOf, sortLane } from '../domain/pipeline'
+import { isOverdue } from '../domain/queue'
 import { buildSeed, MANAGER_NURSERY_ID } from './seed'
 
 // Guards the demo script in docs/USER_JOURNEYS.md against seed drift.
@@ -11,10 +12,10 @@ const oakApps = seed.applications.filter((a) => oakPositionIds.has(a.positionId)
 const name = (candidateId: string) => seed.candidates.find((c) => c.id === candidateId)!.name
 
 describe('seed supports the journeys', () => {
-  it('J3: queue starts Amira (red), Chloe (amber), Daniel (amber); Ben is not visible', () => {
-    const queue = sortQueue(oakApps)
-    expect(queue.slice(0, 3).map((a) => name(a.candidateId))).toEqual(['Amira Khan', 'Chloe Evans', 'Daniel Hughes'])
-    expect(queue.slice(0, 3).map((a) => waitLevel(a, now))).toEqual(['red', 'amber', 'amber'])
+  it('J3: New lane starts Amira (overdue), Chloe, Daniel, Sophie; Ben is not visible', () => {
+    const lane = sortLane('new', oakApps.filter((a) => laneOf(a) === 'new'))
+    expect(lane.map((a) => name(a.candidateId))).toEqual(['Amira Khan', 'Chloe Evans', 'Daniel Hughes', 'Sophie Turner'])
+    expect(oakApps.filter((a) => isOverdue(a, now)).map((a) => name(a.candidateId))).toEqual(['Amira Khan'])
     expect(oakApps.some((a) => a.candidateId === 'c-ben')).toBe(false)
   })
 

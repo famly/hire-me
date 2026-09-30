@@ -10,9 +10,9 @@ import { useNow, useStore } from '../store/store'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Field'
 import { StatusPill } from '../ui/StatusPill'
-import { QualificationBadge, RightToWorkBadge, StaleBadge, WaitBadge } from './badges'
+import { ExceptionBadges, WaitIndicator } from './badges'
 import { CrossSiteSection } from './CrossSite'
-import { AllActions } from './RowActions'
+import { AllActions } from './AllActions'
 
 const AVAILABILITY_LABEL = { full_time: 'Full-time', part_time: 'Part-time', either: 'Full- or part-time' }
 
@@ -52,7 +52,7 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
                 <StatusPill state={app.state} />
               </div>
               <p className="text-sm text-stone-500">
-                <Link to={`/manage/positions/${position.id}`} className="hover:underline">
+                <Link to={`/manage/pipeline?position=${position.id}`} className="hover:underline">
                   {position.title}
                 </Link>{' '}
                 · applied {relativeTime(app.createdAt, now)}
@@ -62,11 +62,9 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
               <X size={20} />
             </button>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <QualificationBadge has={app.answers.qualification} required={position.requiredQualification} />
-            <RightToWorkBadge app={app} />
-            <WaitBadge app={app} now={now} />
-            <StaleBadge app={app} now={now} />
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <WaitIndicator app={app} now={now} />
+            <ExceptionBadges app={app} required={position.requiredQualification} now={now} />
           </div>
           <div className="mt-4">
             <AllActions app={app} />

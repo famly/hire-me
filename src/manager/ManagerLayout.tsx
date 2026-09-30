@@ -64,20 +64,21 @@ export function ManagerLayout() {
       <div className="min-w-0 flex-1">
         <header className="border-b border-stone-200 bg-white px-4 pt-4 sm:px-6">
           <div className="flex items-baseline justify-between gap-4">
-            <h1 className="text-xl font-semibold">Recruitment</h1>
+            <h1 className="text-xl font-semibold">{inStaff ? 'Staff' : 'Recruitment'}</h1>
             <span className="truncate text-sm text-stone-500 lg:hidden">{nursery.name} · Priya Shah</span>
           </div>
-          <nav className="mt-3 flex gap-5 overflow-x-auto">
-            <NavLink to="/manage" end className={tab}>
-              Overview
-            </NavLink>
-            <NavLink to="/manage/applicants" className={tab}>
-              Applicants
-            </NavLink>
-            <NavLink to="/manage/staff" className={tab}>
-              Staff records
-            </NavLink>
-          </nav>
+          {inStaff ? (
+            <div className="h-4" />
+          ) : (
+            <nav className="mt-3 flex gap-5 overflow-x-auto">
+              <NavLink to="/manage" end className={tab}>
+                Overview
+              </NavLink>
+              <NavLink to="/manage/pipeline" className={tab}>
+                Hiring pipeline
+              </NavLink>
+            </nav>
+          )}
         </header>
         <main className="px-4 py-5 sm:px-6">
           <ActionsProvider>

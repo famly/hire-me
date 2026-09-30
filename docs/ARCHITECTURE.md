@@ -31,7 +31,8 @@ src/
     application.ts           # application transitions, allowedActions(), isStale(), candidateStatus()
     candidate.ts             # findOrCreateCandidate(groupId, email) — group-scoped dedupe
     qualification.ts         # meetsRequirement(candidateQual, positionReq)
-    queue.ts                 # waitingSince(), sortQueue(), waitBadge()
+    queue.ts                 # needsReply(), waitingFor(), isOverdue() — reply speed
+    pipeline.ts              # LANES, laneOf(), actionForLane(), sortLane() — the board
     messages.ts              # templated candidate messages per transition
     metrics.ts               # timeToFirstReply, repliedWithin48h, timeToFill
     time.ts                  # relative time helpers; takes `now` as an argument
@@ -42,11 +43,13 @@ src/
     seed.ts                  # seed cast from USER_JOURNEYS; timestamps RELATIVE to now
   store/
     store.ts                 # zustand store: state + actions that call domain functions
-    selectors.ts             # derived views (queue, counts, cross-site matches)
+    selectors.ts             # derived lookups (by slug/token, per nursery, per position)
   portal/                    # public, mobile-first
     NurseryPage, PositionPage, ApplyPage, AppliedPage, StatusPage
   manager/                   # inside-Famly, desktop-first (still usable on tablet)
-    ManagerLayout, OverviewPage, PipelinePage, ApplicantsPage, ApplicationPanel, StaffPage
+    ManagerLayout, OverviewPage, PipelinePage (board), ApplicationPanel, StaffPage
+    ActionsProvider          # owns dialogs: action, hire, fill, archive, position form (all modals)
+    badges.tsx               # the whole badge system in one file (see "Badges" below)
   demo/
     DemoBar.tsx              # switch side (portal/manager), reset demo, fast-forward clock
     DemoHome.tsx             # landing page: the J0 demo script as links
@@ -64,11 +67,13 @@ src/
 | `/applied/:token` | Confirmation + status link | J1 |
 | `/status/:token` | Candidate status page (no login) | J2 |
 | `/manage` | Positions overview | J3 |
-| `/manage/applicants` | All-applicants queue (manager's home) | J3 |
-| `/manage/positions/:positionId` | Pipeline for one position | J4, J5 |
-| `…?app=:applicationId` (on any manager page) | Application side panel: answers, actions, timeline. In the URL so the queue keeps its place and Back closes it | J4 |
-| `/manage/positions/new`, `/manage/positions/:id/edit` | Create/edit position | J7 |
-| `/manage/staff` | Staff records (where hires land) | J5 |
+| `/manage/pipeline` | Hiring pipeline board, all positions | J3, J4 |
+| `/manage/pipeline?position=:id` | Board filtered to one position (`&closed=1` adds the Closed lane) | J4, J5 |
+| `…?app=:applicationId` (on any manager page) | Application side panel: answers, actions, timeline. In the URL so the board keeps its place and Back closes it | J4 |
+| `/manage/staff` | Staff (Famly sidebar item, where hires land) | J5 |
+| `/manage/positions/:id`, `/manage/applicants` | Redirects from v1 URLs | — |
+
+Create/edit position, hire, fill, archive and action confirmations are modals, not routes.
 
 ## Layering rules
 
@@ -84,7 +89,7 @@ src/
 
 ```ts
 type Qualification = 'none' | 'working_towards' | 'L2' | 'L3';
-type PositionState = 'draft' | 'open' | 'paused' | 'filled' | 'closed';
+type PositionState = 'draft' | 'open' | 'paused' | 'filled' | 'archived';
 type ApplicationState =
   | 'new' | 'contacted' | 'interview' | 'offer' | 'hired'
   | 'rejected' | 'withdrawn' | 'lapsed';
@@ -114,12 +119,24 @@ interface StaffRecord { id; nurseryId; roomId?; name; email; phone; qualificatio
 ## UI conventions
 
 - Portal is designed at **375px first**: one column, large tap targets (≥44px), native inputs (`type="email"`, `tel`, `date`), no CV upload, one screen for the form.
-- Manager screens are dense and scannable. The action for a row sits on the row (M6), and the side panel opens without losing queue position.
-- Wait badge: neutral <24h, amber 24–48h, red >48h since arrival without a first reply.
-- Qualification badge: "Meets L3" (green) / "Below requirement" (amber). Never block the application, only flag it.
+- Manager screens are scannable at a glance. The next step sits on the card (M6), and the side panel opens without losing the board's place.
+- Overview positions default to **Active** (draft, open, paused); filled and archived sit behind **All**.
+
+### Badges (one colour, one meaning)
+
+All in [src/manager/badges.tsx](../src/manager/badges.tsx). If a new badge doesn't fit one of these meanings, it shouldn't be a badge.
+
+| Colour | Meaning | Used for |
+|---|---|---|
+| **Red** | Act now | No first reply after 48h (`isOverdue`). The only red in the product: clock + hours on the card, "N overdue" on the overview |
+| **Amber** | Worth a check before moving them on | Below the required qualification · right to work not confirmed · gone quiet (stale) |
+| **Grey** | Information | Waiting time under 48h (plain text) · also applied at another site · stage label in the panel and Closed lane |
+| **Green** | Live / done | Position open on the portal · Hired |
+
+Rules: badges appear **only for exceptions** (no badge = nothing to worry about); on a card they always sit **under the name, in the order above**; the stage is the **lane**, never a pill on the card; a legend sits above the board. Never block on a flag.
 - Copy is plain and warm on the portal and terse on the manager side. Use UK English and £.
 - Accessibility basics: semantic elements, labels on every input, visible focus, and colour never the only signal (badges carry text).
 
 ## Testing scope
 
-Vitest covers: transition tables (allowed/illegal), `candidateStatus()` for every state, `isStale()` boundaries, `sortQueue()`, group-scoped candidate dedupe, "position filled → remaining applications rejected with message", and metrics maths. Nothing else is tested. We click through the rest using the journeys.
+Vitest covers: transition tables (allowed/illegal), `candidateStatus()` for every state, `isStale()` boundaries, `isOverdue()`, lanes (`laneOf`, forward-only `actionForLane`, `sortLane`), group-scoped candidate dedupe, "position filled → remaining applications rejected with message", and metrics maths. Nothing else is tested. We click through the rest using the journeys.
