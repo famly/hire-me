@@ -8,7 +8,8 @@ Reviewers judge **product sense > problem solving > tech**, and "how you got the
 
 | File | What it holds | Read when |
 |---|---|---|
-| [README.md](README.md) | The original brief from Famly (later replaced by our write-up; brief moves to `docs/BRIEF.md`) | Once per session, for context |
+| [docs/BRIEF.md](docs/BRIEF.md) | The original brief from Famly | Once per session, for context |
+| [README.md](README.md) | Our write-up for the reviewers: decisions, model, shortcuts, next steps | Update when a decision or shortcut changes |
 | [docs/SPEC.md](docs/SPEC.md) | **Source of truth for product**: users, domain model, lifecycles, feature IDs (M1–M8, S1–S5), decisions & rejected options, metrics | Before any feature work |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Stack, libraries, folder layout, routes, domain/store/UI rules | Before writing code |
 | [docs/USER_JOURNEYS.md](docs/USER_JOURNEYS.md) | Journeys J0–J9 step by step, seed cast, build status | Before building a screen; update after |

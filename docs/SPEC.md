@@ -1,7 +1,7 @@
 # Famly Recruitment Portal — Product Spec (v0)
 
 ## Context
-Take-home for Famly (Director of Eng: Michael Brændgaard). Repo = fork (`famly-hire-me`, cwd), README holds the brief.
+Take-home for Famly (Director of Eng: Michael Brændgaard). Repo = fork (`famly-hire-me`). Brief in `docs/BRIEF.md`; README is our write-up.
 Constraints from e-mail brief:
 - **≤3h** build; list shortcuts + what we'd do with more time.
 - **Clickable prototype, runs in any modern browser.**
