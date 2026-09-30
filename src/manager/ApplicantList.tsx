@@ -1,5 +1,4 @@
 import { isActive, lastActivityAt } from '../domain/application'
-import { QUALIFICATION_SHORT } from '../domain/qualification'
 import { needsReply, sortQueue } from '../domain/queue'
 import { relativeTime } from '../domain/time'
 import type { Application } from '../domain/types'
@@ -8,7 +7,7 @@ import { useNow, useStore } from '../store/store'
 import { Card } from '../ui/Card'
 import { EmptyState } from '../ui/EmptyState'
 import { StatusPill } from '../ui/StatusPill'
-import { WaitBadge } from './badges'
+import { QualificationBadge, RightToWorkBadge, WaitBadge } from './badges'
 
 const SECTIONS = [
   { key: 'reply', title: 'Waiting for a first reply', test: needsReply },
@@ -52,10 +51,13 @@ function ApplicantRow({ app, showPosition }: { app: Application; showPosition?: 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
       <div className="min-w-0 flex-1 basis-56">
-        <p className="truncate font-medium">{candidate.name}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="truncate font-medium">{candidate.name}</p>
+          <QualificationBadge has={app.answers.qualification} required={position.requiredQualification} />
+          <RightToWorkBadge app={app} />
+        </div>
         <p className="truncate text-sm text-stone-500">
-          {showPosition && <>{position.title} · </>}
-          {QUALIFICATION_SHORT[app.answers.qualification]} · applied {relativeTime(app.createdAt, now)}
+          {showPosition && <>{position.title} · </>}applied {relativeTime(app.createdAt, now)}
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">

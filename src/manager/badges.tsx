@@ -1,8 +1,9 @@
-import { Clock } from 'lucide-react'
+import { Check, Clock, TriangleAlert } from 'lucide-react'
 import { POSITION_STATE_LABEL } from '../domain/position'
+import { meetsRequirement, QUALIFICATION_SHORT } from '../domain/qualification'
 import { waitingFor, waitLevel, type WaitLevel } from '../domain/queue'
 import { formatDuration } from '../domain/time'
-import type { Application, PositionState, Timestamp } from '../domain/types'
+import type { Application, PositionState, Qualification, Timestamp } from '../domain/types'
 import { Badge, type Tone } from '../ui/Badge'
 
 const STATE_TONE: Record<PositionState, Tone> = {
@@ -31,6 +32,28 @@ export function WaitBadge({ app, now }: { app: Application; now: Timestamp }) {
   return (
     <Badge tone={WAIT_TONE[level]} title="Time since applying, with no reply yet">
       <Clock size={12} aria-hidden /> Waiting {formatDuration(waited)}
+    </Badge>
+  )
+}
+
+/** M7 — replaces "reads the CV and guesses". Flags, never blocks. */
+export function QualificationBadge({ has, required }: { has: Qualification; required: Qualification }) {
+  return meetsRequirement(has, required) ? (
+    <Badge tone="green" title={`Meets the ${QUALIFICATION_SHORT[required]} requirement`}>
+      <Check size={12} aria-hidden /> {QUALIFICATION_SHORT[has]}
+    </Badge>
+  ) : (
+    <Badge tone="amber" title="Below the qualification this position requires">
+      <TriangleAlert size={12} aria-hidden /> {QUALIFICATION_SHORT[has]} · needs {QUALIFICATION_SHORT[required]}
+    </Badge>
+  )
+}
+
+export function RightToWorkBadge({ app }: { app: Application }) {
+  if (app.answers.rightToWork) return null
+  return (
+    <Badge tone="amber" title="The applicant didn't confirm the right to work in the UK">
+      <TriangleAlert size={12} aria-hidden /> Right to work not confirmed
     </Badge>
   )
 }

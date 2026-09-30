@@ -11,7 +11,7 @@ Feature IDs (M1–M8, S1–S5) refer to [SPEC.md §5](SPEC.md). Routes refer to 
 | J0 | Reviewer walkthrough (the 10-min demo) | Reviewer | all Must | Must | ☐ |
 | J1 | Find a job and apply from a phone | Job seeker | M1 M2 M3 | Must | ☑ |
 | J2 | Check where my application stands | Job seeker | M3 | Must | ☑ |
-| J3 | Morning triage: who's waiting? | Manager | M4 M5 M7 | Must | ◐ |
+| J3 | Morning triage: who's waiting? | Manager | M4 M5 M7 | Must | ☑ |
 | J4 | Move an applicant forward | Manager | M6 | Must | ☐ |
 | J5 | Hire → staff record → close the position | Manager | M8 S1 | Must/Should | ☐ |
 | J6 | Same person, two sites | Manager | S2 | Should | ☐ |
@@ -140,7 +140,7 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 |---|---|---|---|---|
 | 1 | `/manage` | See Oak Tree positions with state and counts: **needs reply** (coloured by the oldest wait) / in progress / hired of headcount | Counts derived, never stored | ☑ |
 | 2 | `/manage/applicants` | See every applicant across positions, **sorted by longest waiting for a first reply**, grouped: waiting for a first reply / in progress / closed | `sortQueue()`; wait badge neutral/amber/red | ☑ |
-| 3 | — | Scan each row: name, position, qualification badge (Meets / Below), wait badge, status | `meetsRequirement()` | ☐ |
+| 3 | — | Scan each row: name, position, qualification badge (✓ L3 / L2 · needs L3), right-to-work flag, wait badge, status | `meetsRequirement()` | ☑ |
 
 **Done when:** Amira (52h, red) is first, then Chloe (30h, amber) and Daniel (26h, amber), and Ben Foster (Birch Lane) is not visible.
 
