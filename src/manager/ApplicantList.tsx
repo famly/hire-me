@@ -9,6 +9,7 @@ import { EmptyState } from '../ui/EmptyState'
 import { StatusPill } from '../ui/StatusPill'
 import { useActions } from './actionsContext'
 import { QualificationBadge, RightToWorkBadge, WaitBadge } from './badges'
+import { CrossSiteBadge } from './CrossSite'
 import { RowActions } from './RowActions'
 
 const SECTIONS = [
@@ -64,6 +65,7 @@ function ApplicantRow({ app, showPosition }: { app: Application; showPosition?: 
           <p className="truncate font-medium">{candidate.name}</p>
           <QualificationBadge has={app.answers.qualification} required={position.requiredQualification} />
           <RightToWorkBadge app={app} />
+          <CrossSiteBadge app={app} />
         </div>
         <p className="truncate text-sm text-stone-500">
           {showPosition && <>{position.title} · </>}applied {relativeTime(app.createdAt, now)}

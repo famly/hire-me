@@ -14,7 +14,7 @@ Feature IDs (M1–M8, S1–S5) refer to [SPEC.md §5](SPEC.md). Routes refer to 
 | J3 | Morning triage: who's waiting? | Manager | M4 M5 M7 | Must | ☑ |
 | J4 | Move an applicant forward | Manager | M6 | Must | ☑ |
 | J5 | Hire → staff record → close the position | Manager | M8 S1 | Must/Should | ☑ |
-| J6 | Same person, two sites | Manager | S2 | Should | ☐ |
+| J6 | Same person, two sites | Manager | S2 | Should | ☑ |
 | J7 | Open, edit or pause a position | Manager | S3 | Should | ☐ |
 | J8 | Gone quiet → stale → lapsed | Manager | S4 | Should | ☐ |
 | J9 | Are we replying fast enough? | Manager | S5 | Should | ☐ |
@@ -180,9 +180,9 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 **Actor:** Priya, looking at Amira.
 
-- [ ] Amira's row and detail show "Also applied to **Willow House** — Invited to interview".
-- [ ] Only within Acorn Family Nurseries. The badge never shows positions outside the group.
-- [ ] (Could) Link a note: "coordinate with Tom Okafor".
+- [x] Amira's row shows "Also at **Willow House**"; the panel lists Willow House: Level 3 Practitioner · Interview.
+- [x] Only within Acorn Family Nurseries. The badge never shows positions outside the group.
+- [x] Panel names the other site's manager (Tom Okafor) and says to coordinate before both make offers.
 
 **Done when:** the badge renders from the group-scoped candidate, not by matching names.
 
