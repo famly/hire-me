@@ -1,8 +1,8 @@
-import { CalendarDays, CircleDot, ExternalLink, Mail, Phone, StickyNote, X } from 'lucide-react'
+import { CalendarDays, CircleDot, Clock, ExternalLink, Mail, Phone, ShieldCheck, StickyNote, X, type LucideIcon } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { canAddInterviewNotes, interviewNotes, invitedAt, isActive } from '../domain/application'
-import { qualificationLabel } from '../domain/qualification'
+import { levelOf, QUALIFICATION_LABEL, qualificationLabel } from '../domain/qualification'
 import { formatDate, formatDateTime, relativeTime } from '../domain/time'
 import { timelineEntries, type TimelineEntry } from '../domain/timeline'
 import type { Actor, ID } from '../domain/types'
@@ -146,29 +146,36 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
               )}
             </section>
           )}
-          <section className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-            <Detail label="Earliest start" value={formatDate(app.answers.earliestStart)} />
-            <Detail label="Hours" value={AVAILABILITY_LABEL[app.answers.availability]} />
-            <Detail label="Right to work in the UK" value={app.answers.rightToWork ? 'Yes' : 'No'} />
-            <div className="col-span-2">
-              <p className="text-xs text-stone-500">Qualifications</p>
-              <ul className="mt-1 flex flex-wrap gap-1.5">
+          <section className="space-y-4">
+            <h3 className="text-sm font-semibold">Application</h3>
+            <dl className="grid grid-cols-3 divide-x divide-stone-200 rounded-lg ring-1 ring-stone-200">
+              <Fact icon={CalendarDays} label="Earliest start" value={formatDate(app.answers.earliestStart)} />
+              <Fact icon={Clock} label="Hours" value={AVAILABILITY_LABEL[app.answers.availability]} />
+              <Fact icon={ShieldCheck} label="Right to work (UK)" value={app.answers.rightToWork ? 'Yes' : 'No'} />
+            </dl>
+            <div>
+              <h4 className="text-xs font-medium text-stone-500">
+                Qualifications <span className="font-normal">· counts as {QUALIFICATION_LABEL[levelOf(app.answers.qualifications)]}</span>
+              </h4>
+              <ul className="mt-2 flex flex-wrap gap-1.5">
                 {app.answers.qualifications.map((id) => (
-                  <li key={id} className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs text-stone-700">
+                  <li key={id} className="rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-700">
                     {qualificationLabel(id)}
                   </li>
                 ))}
               </ul>
             </div>
+            {app.answers.note && (
+              <div>
+                <h4 className="text-xs font-medium text-stone-500">Message from {firstName}</h4>
+                <blockquote className="mt-2 rounded-r-lg border-l-2 border-brand-300 bg-stone-50 px-3 py-2.5 text-sm text-stone-700">
+                  {app.answers.note}
+                </blockquote>
+              </div>
+            )}
           </section>
-          {app.answers.note && (
-            <section>
-              <h3 className="text-xs text-stone-500">Message from {firstName}</h3>
-              <blockquote className="mt-1 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">{app.answers.note}</blockquote>
-            </section>
-          )}
 
-          <section>
+          <section className="-mx-5 border-t border-stone-200 px-5 pt-6">
             <h3 className="text-sm font-semibold">Timeline</h3>
             <form
               className="mt-3 space-y-2"
@@ -207,11 +214,14 @@ export function ApplicationPanel({ applicationId, onClose }: { applicationId: ID
   )
 }
 
-function Detail({ label, value }: { label: string; value: string }) {
+/** One answer in the row of facts: small label with an icon, value underneath. */
+function Fact({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
-    <div>
-      <p className="text-xs text-stone-500">{label}</p>
-      <p className="text-stone-800">{value}</p>
+    <div className="min-w-0 px-3 py-2.5">
+      <dt className="flex items-start gap-1 text-xs leading-tight text-stone-500">
+        <Icon size={12} aria-hidden className="mt-px shrink-0" /> <span>{label}</span>
+      </dt>
+      <dd className="mt-0.5 truncate text-sm font-medium text-stone-900">{value}</dd>
     </div>
   )
 }
