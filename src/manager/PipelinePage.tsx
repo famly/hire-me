@@ -1,9 +1,11 @@
-import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Pencil } from 'lucide-react'
 import { Link, useParams } from 'react-router'
-import { hiredCount, shouldSuggestFilled } from '../domain/position'
+import { allowedPositionActions, hiredCount, POSITION_ACTION_LABEL, shouldSuggestFilled } from '../domain/position'
 import { QUALIFICATION_SHORT } from '../domain/qualification'
 import { positionById, roomLabel } from '../store/selectors'
+import { useStore } from '../store/store'
 import { Button } from '../ui/Button'
+import { buttonClass } from '../ui/buttonClass'
 import { useActions } from './actionsContext'
 import { ApplicantList } from './ApplicantList'
 import { PositionStateBadge } from './badges'
@@ -15,6 +17,7 @@ export function PipelinePage() {
   const { data, nursery, applications } = useManagerData()
   const position = positionById(data, positionId)
   const { fill } = useActions()
+  const transition = useStore((s) => s.transitionPosition)
 
   if (!position || position.nurseryId !== nursery.id) {
     return <p className="text-stone-600">Position not found.</p>
@@ -29,11 +32,37 @@ export function PipelinePage() {
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <h2 className="text-lg font-semibold">{position.title}</h2>
           <PositionStateBadge state={position.state} />
+          <div className="ml-auto flex flex-wrap gap-2">
+            {allowedPositionActions(position).map((action) => (
+              <Button
+                key={action}
+                size="sm"
+                variant={action === 'publish' ? 'primary' : action === 'close' ? 'danger' : 'secondary'}
+                onClick={() => {
+                  if (action === 'fill') return fill(position.id)
+                  if (action === 'close' && !confirm('Close this position? It comes off your public page. Applicants stay in your queue so you can still reply.')) return
+                  transition(position.id, action)
+                }}
+              >
+                {POSITION_ACTION_LABEL[action]}
+                {action === 'fill' && '…'}
+              </Button>
+            ))}
+            {(position.state === 'draft' || position.state === 'open' || position.state === 'paused') && (
+              <Link to="edit" className={buttonClass('ghost', 'sm')}>
+                <Pencil size={14} /> Edit
+              </Link>
+            )}
+          </div>
         </div>
         <p className="text-sm text-stone-500">
           {roomLabel(data, position.roomId)} · requires {QUALIFICATION_SHORT[position.requiredQualification]} ·{' '}
           {position.hoursPerWeek}h · {position.payRange} · headcount {position.headcount}
         </p>
+        {position.state === 'paused' && (
+          <p className="mt-2 text-sm text-amber-800">Paused: hidden from your public page. Existing applicants are unaffected.</p>
+        )}
+        {position.state === 'draft' && <p className="mt-2 text-sm text-stone-600">Draft: not on your public page until you publish it.</p>}
         {position.state === 'open' && (
           <a
             href={`#/n/${nursery.slug}/p/${position.id}`}

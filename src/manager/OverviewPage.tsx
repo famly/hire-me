@@ -1,4 +1,4 @@
-import { ChevronRight, ExternalLink } from 'lucide-react'
+import { ChevronRight, ExternalLink, Plus } from 'lucide-react'
 import { Link } from 'react-router'
 import { isActive } from '../domain/application'
 import { hiredCount } from '../domain/position'
@@ -6,6 +6,7 @@ import { needsReply, waitLevel, type WaitLevel } from '../domain/queue'
 import type { Position, PositionState } from '../domain/types'
 import { roomLabel } from '../store/selectors'
 import { useNow } from '../store/store'
+import { buttonClass } from '../ui/buttonClass'
 import { Card } from '../ui/Card'
 import { PositionStateBadge, WaitCountBadge } from './badges'
 import { useManagerData } from './useManagerData'
@@ -48,9 +49,14 @@ export function OverviewPage() {
 
       <div className="flex items-center justify-between">
         <h2 className="font-semibold">Positions</h2>
-        <a href={`#/n/${nursery.slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-brand-700 hover:underline">
-          Public page <ExternalLink size={14} />
-        </a>
+        <div className="flex items-center gap-4">
+          <a href={`#/n/${nursery.slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-brand-700 hover:underline">
+            Public page <ExternalLink size={14} />
+          </a>
+          <Link to="/manage/positions/new" className={buttonClass('primary', 'sm')}>
+            <Plus size={14} /> New position
+          </Link>
+        </div>
       </div>
 
       <Card className="divide-y divide-stone-100 overflow-hidden">

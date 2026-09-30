@@ -15,7 +15,7 @@ Feature IDs (M1–M8, S1–S5) refer to [SPEC.md §5](SPEC.md). Routes refer to 
 | J4 | Move an applicant forward | Manager | M6 | Must | ☑ |
 | J5 | Hire → staff record → close the position | Manager | M8 S1 | Must/Should | ☑ |
 | J6 | Same person, two sites | Manager | S2 | Should | ☑ |
-| J7 | Open, edit or pause a position | Manager | S3 | Should | ☐ |
+| J7 | Open, edit or pause a position | Manager | S3 | Should | ☑ |
 | J8 | Gone quiet → stale → lapsed | Manager | S4 | Should | ☐ |
 | J9 | Are we replying fast enough? | Manager | S5 | Should | ☐ |
 
@@ -192,9 +192,9 @@ The stale flag is never shown to the candidate. They keep seeing their last real
 
 **Actor:** Priya.
 
-- [ ] `/manage/positions/new`: title, room, required qualification, hours, pay range, headcount, description. Save as Draft or Open.
-- [ ] Edit an existing position.
-- [ ] Pause P1 → it disappears from `/n/oak-tree`; existing applications are untouched. Resume → it's back.
+- [x] `/manage/positions/new`: title, room, required qualification, hours, contract, pay range, headcount, description. Save as draft or publish now.
+- [x] Edit an existing position (`/manage/positions/:id/edit`).
+- [x] Pause P1 → it disappears from `/n/oak-tree`; existing applications are untouched. Resume → it's back. Close asks for confirmation; applicants stay in the queue.
 
 **Done when:** portal visibility follows state exactly (only `open` shows).
 
