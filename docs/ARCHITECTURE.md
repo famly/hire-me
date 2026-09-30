@@ -53,7 +53,12 @@ src/
   demo/
     DemoBar.tsx              # switch side (portal/manager), reset demo, fast-forward clock
     DemoHome.tsx             # landing page: the J0 demo script as links
-  ui/                        # shared dumb components: Badge, Button, StatusPill, Card, EmptyState
+  ui/                        # shared components, reused on both sides (never duplicate one)
+    Badge, Button, Card, EmptyState, Field (Input/Select/Textarea), Modal, StatusPill
+    Popover                  # floating panel; Menu (⋯ actions) and the board legend are built on it
+    MultiCombobox            # multi-select typeahead, chips below with ✕, clear-all ✕ in the box
+                             #   used by: pipeline position filter, apply-form qualifications
+    Switch                   # on/off toggle (apply-form consent)
 ```
 
 ## Routes
